@@ -2,22 +2,35 @@
 
 All persistent content and configuration is held in `Resource` types. Resources are inert, serializable, reference-counted, and editable in the Godot inspector. They contain data only; behavior lives in components and executors.
 
+**Content location**: each `Resource` type's `.tres` files live next to the theme's `.gd` scripts. Example: `attribute/attribute_data.gd` is paired with `attribute/strength.tres`, `attribute/dexterity.tres`, etc. There is no top-level `data/` folder. The `Registry` autoload walks each theme folder to index resources at boot.
+
 ## Attribute and modifier primitives
 
-### `AttributeSet` (Resource)
+### `AttributeData` (Resource)
 
-The six ability scores of a character.
+The definition of one attribute. One `.tres` per attribute, located in `attribute/`. Adding a new attribute means adding a new file here plus a new constant in `AttributeIds`; the rest of the system picks it up automatically.
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `str` | `int` | Strength. |
-| `dex` | `int` | Dexterity. |
-| `con` | `int` | Constitution. |
-| `int_` | `int` | Intelligence (suffixed to avoid the reserved keyword). |
-| `wis` | `int` | Wisdom. |
-| `cha` | `int` | Charisma. |
+| `id` | `StringName` | Canonical id (`&"strength"`, `&"dexterity"`, ...). Must match a constant in `AttributeIds`. |
+| `display_name` | `String` | Human-readable name shown in UI. |
+| `description` | `String` | Human-readable description shown in tooltips and codex. |
+| `icon` | `Texture2D` | UI icon. Optional. |
+| `default_value` | `int` | Default score for a fresh `AttributeSet`. Default: 10. |
 
-Derived: `modifier(attr) = (value - 10)`.
+### `AttributeSet` (Resource)
+
+A character's per-attribute values. Backed by a `Dictionary[StringName, int]` so a new attribute only requires a new `AttributeData` resource — no new fields, no rebuilds.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `values` | `Dictionary[StringName, int]` | `id` → score. Empty by default; populate per-character from class or predator data. |
+
+| Method | Returns | Notes |
+| --- | --- | --- |
+| `get_value(attr)` | `int` | Returns 0 for any attribute id not in `values`. |
+| `set_value(attr, value)` | `void` | Writes one entry. |
+| `modifier(attr)` | `int` | `get_value(attr) - 10`. Matches the D&D-style modifier formula. |
 
 ### `DiceFormula` (Resource)
 
@@ -197,7 +210,7 @@ Defines a predator species: stats, basic attack, deck, characteristic, danger, a
 | `name` | `String` | Display name. |
 | `family` | `StringName` | `mammal`, `bird`, `herptile`, `invertebrate`. |
 | `attributes` | `AttributeSet` | Base attribute scores. |
-| `base_hp` | `int` | Base hit points (CON scaling applied at runtime). |
+| `max_hp_base` | `int` | Base hit points (CON scaling applied at runtime). |
 | `basic_attack` | `BasicAttackData` | The free attack. |
 | `deck` | `Array[CardData]` | Exactly three cards, by GDD. |
 | `characteristic` | `Characteristic` | The species-defining trait. |

@@ -31,7 +31,7 @@ The `BrainSlot` is an empty `Node` whose script is set when the entity is instan
 | `display_name` | `String` | Shown in UI. |
 | `faction` | `StringName` | Copied to `FactionComponent` on `_ready`. |
 | `attribute_set` | `AttributeSet` | Copied to `AttributeComponent.base` on `_ready`. |
-| `base_hp` | `int` | Used by `StatsComponent.recompute_max_hp` on `_ready`. |
+| `max_hp_base` | `int` | Used by `HealthComponent.recompute_max_hp` on `_ready`. |
 | `brain_scene` | `PackedScene` | Instantiated as a child of `BrainSlot` on `_ready`. |
 
 The base scene has no behavior beyond wiring these exports into the components. Anything specific to a mouse or a predator lives in the inherited scene or in the brain.
@@ -64,7 +64,7 @@ Adds the player-specific components and the player brain.
 3. Apply `class_data.initial_deck` to `DeckComponent.deck` and call `DeckComponent.shuffle`.
 4. Apply `class_data.basic_attack` to the basic-attack reference used by `BasicAttackExecutor`.
 5. Attach `class_data.unique_mechanic` to the mouse (the mechanic registers its hooks with the relevant component and `EventBus`).
-6. `StatsComponent.recompute_max_hp` and `recompute_max_energy`.
+6. `HealthComponent.init(class_data.max_hp_base, attribute_component)` then `recompute_max_hp()`; `StatsComponent.init(class_data.max_energy_base, attribute_component)` then `recompute_max_energy()`.
 7. `HealthComponent.current_hp = max_hp`.
 8. `StatsComponent.current_energy = max_energy`.
 
@@ -93,7 +93,7 @@ Adds the player-specific components and the player brain.
 4. Apply `data.deck` to `DeckComponent.deck`; hand size is fixed at 3.
 5. Hand starts full: 3 cards drawn from the 3-card deck.
 6. Apply `data.characteristic` — `StatModifierCharacteristic` adds modifiers to `AttributeComponent`; `ReactionCharacteristic` and `AuraCharacteristic` register hooks with `EventBus` or with `StatusComponent`.
-7. `StatsComponent.recompute_max_hp`; `HealthComponent.current_hp = max_hp`.
+7. `HealthComponent.recompute_max_hp`; `HealthComponent.current_hp = max_hp`.
 8. `StatsComponent.set_initiative_from_dex` is called by `BiomeGenerator` once it places the predator in the grid.
 
 ## `Corpse.tscn` (does not inherit `Character.tscn`)

@@ -23,6 +23,8 @@ No gameplay entity subclasses another gameplay entity.
 - **Nodes** (components, autoloads, scenes) hold behavior and runtime state. They reference `Resource`s for configuration.
 - **RefCounted** (executors, contexts, plans) are short-lived, throwaway helpers that operate on data.
 
+A resource's `.tres` files live next to the theme's `.gd` scripts — `attribute/attribute_data.gd` paired with `attribute/strength.tres`, and so on. There is no top-level `data/` folder. The `Registry` autoload walks each theme folder to index resources at boot.
+
 This split makes content authoring independent of code: a new predator is a new `PredatorData.tres`, not a new script.
 
 ## 3. Signals for decoupling, `EventBus` for cross-cutting

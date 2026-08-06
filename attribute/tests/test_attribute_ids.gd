@@ -25,21 +25,9 @@ func test_constants_are_distinct() -> void:
 			assert_ne(values[i], values[j], "constants must be distinct: %s == %s" % [values[i], values[j]])
 
 
-func test_constants_match_resource_field_names() -> void:
-	if not ResourceLoader.exists("res://attribute/attribute_set.gd"):
-		pending("AttributeSet (T2) not yet on disk; deferring field-name test.")
-		return
-	var AttributeSetScript: GDScript = load("res://attribute/attribute_set.gd")
-	var attribute_set: AttributeSet = AttributeSetScript.new()
-	var mapping := {
-		AttributeIds.ATTR_STR: "strength",
-		AttributeIds.ATTR_DEX: "dexterity",
-		AttributeIds.ATTR_CON: "constitution",
-		AttributeIds.ATTR_INT: "intelligence",
-		AttributeIds.ATTR_WIS: "wisdom",
-		AttributeIds.ATTR_CHA: "charisma",
-	}
-	for attr in mapping.keys():
-		var field_name: String = mapping[attr]
-		var value: Variant = attribute_set.get(field_name)
-		assert_eq(typeof(value), TYPE_INT, "AttributeSet.%s should be int (constant %s)" % [field_name, attr])
+func test_all_constants_have_matching_attribute_data_resource() -> void:
+	for attr_id in AttributeIds.ALL:
+		var path: String = "res://attribute/%s.tres" % attr_id
+		assert_true(ResourceLoader.exists(path), "missing AttributeData resource: %s" % path)
+		var data: AttributeData = load(path)
+		assert_eq(data.id, attr_id, "AttributeData at %s must declare id = %s" % [path, attr_id])

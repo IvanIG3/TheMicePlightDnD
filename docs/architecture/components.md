@@ -23,25 +23,25 @@ Holds the base `AttributeSet` and a list of active `AttributeModifier`s. The sin
 
 | Signal | Payload |
 | --- | --- |
-| `attribute_changed` | `attribute: StringName`, `new_value: int` |
+| `attribute_changed` | `attribute: StringName`, `old_value: int`, `new_value: int` |
 
 | Method | Returns | Notes |
 | --- | --- | --- |
-| `get(attr)` | `int` | Final value with all modifiers applied. |
-| `modifier(attr)` | `int` | Final `get(attr) - 10`. |
-| `add_modifier(m)` | `void` | Adds and emits `attribute_changed`. |
-| `remove_modifiers_from(source)` | `void` | Removes every modifier whose `source` matches. Used by statuses on expire. |
+| `get_value(attr)` | `int` | Final value with all modifiers applied. Returns 0 for unknown ids. |
+| `modifier(attr)` | `int` | Final `get_value(attr) - 10`. |
+| `add_modifier(m)` | `void` | Adds and emits `attribute_changed` if the value changed. |
+| `remove_modifiers_from(source)` | `int` | Removes every modifier whose `source` matches; returns count removed. |
 
 ### `StatsComponent` (Node)
 
-Holds derived combat stats: level, XP, max HP, current energy, and initiative. Reads attributes from `AttributeComponent` to recompute caps.
+Holds derived combat stats: level, XP, current/max energy, and initiative. Reads attributes from `AttributeComponent` to recompute the energy cap. HP lives on `HealthComponent` — this component does not know `max_hp`.
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `level` | `int` | Character level. |
 | `xp` | `int` | XP accumulated since last level-up. |
 | `xp_to_next` | `int` | XP threshold for the next level. |
-| `max_hp` | `int` | Recomputed from `CON` and class base. |
+| `max_energy` | `int` | Recomputed from `INT` and class base. |
 | `current_energy` | `int` | Capped at `max_energy`. |
 | `initiative` | `int` | Set from `DEX` once, on biome instantiation. |
 
@@ -50,41 +50,46 @@ Holds derived combat stats: level, XP, max HP, current energy, and initiative. R
 | `level_up` | `new_level: int` |
 | `xp_gained` | `amount: int` |
 | `energy_changed` | `current: int`, `max: int` |
-| `max_changed` | (whichever max changed) |
+| `max_changed` | `which: StringName`, `value: int` |
 
 | Method | Returns | Notes |
 | --- | --- | --- |
+| `init(max_energy_base, attribute_component)` | `void` | Wires the energy base and the attribute dependency. Required before `recompute_max_energy`. |
 | `gain_xp(n)` | `void` | Adds XP; calls `level_up_if_ready` if threshold crossed. |
-| `level_up_if_ready` | `bool` | True if a level was actually gained. |
+| `level_up_if_ready()` | `bool` | True if a level was actually gained. |
 | `spend_energy(n)` | `bool` | True if the spend succeeded. |
 | `gain_energy(n)` | `void` | Capped at `max_energy`. |
-| `recompute_max_hp` | `void` | Reads `AttributeComponent` and `max_hp_base`. |
-| `recompute_max_energy` | `void` | Reads `AttributeComponent` and `max_energy_base`. |
-| `set_initiative_from_dex` | `void` | Called once per biome instantiation. |
+| `recompute_max_energy()` | `void` | Reads `AttributeComponent` and `_max_energy_base`. Emits `max_changed(&"max_energy", ...)`. |
+| `set_initiative_from_dex()` | `void` | Called once per biome instantiation. |
 
 ### `HealthComponent` (Node)
 
-Owns current HP, temporary HP, and the wounded/dead states. Receives damage from `DamageExecutor` and heal from `HealExecutor`; never reads from damage sources directly.
+The single owner of all HP state: current HP, temporary HP, the max-HP cap, and the wounded/dead transitions. Receives damage from `DamageExecutor` and heals from `HealExecutor`; never reads from damage sources directly.
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `current_hp` | `int` | Cannot go below 0. |
 | `temp_hp` | `int` | Cannot go below 0. Lost first on damage. |
+| `max_hp` | `int` | Recomputed from `CON` modifier and the base provided to `init()`. |
 
 | Signal | Payload |
 | --- | --- |
 | `hp_changed` | `current: int`, `max: int` |
 | `temp_hp_changed` | `current: int` |
 | `wounded_state_changed` | `is_wounded: bool` |
-| `died` | `cause: StringName`, `killer: Character` (may be null) |
+| `died` | `cause: StringName`, `killer: Node` (may be null) |
 
 | Method | Returns | Notes |
 | --- | --- | --- |
+| `init(max_hp_base, attribute_component)` | `void` | Wires the HP base and the attribute dependency. Required before `recompute_max_hp`. |
+| `recompute_max_hp()` | `void` | `max_hp = max_hp_base + CON modifier`. Emits `hp_changed` if the cap changed. |
+| `set_max_hp(value)` | `void` | Direct setter. Used by tests; production code prefers `recompute_max_hp`. |
 | `apply_damage(amount, source)` | `int` | Returns actual damage taken after temp HP. |
 | `apply_heal(amount)` | `int` | Returns amount actually healed. |
 | `grant_temp_hp(amount)` | `void` | Replaces if greater, by GDD rule. |
-| `is_wounded` | `bool` | True at half HP or less. |
-| `is_dead` | `bool` | True at 0 HP. |
+| `is_wounded()` | `bool` | True at half HP or less. |
+| `is_dead()` | `bool` | True at 0 HP. |
+| `reset()` | `void` | Resets to a fresh-state empty component. |
 
 ### `FactionComponent` (Node)
 

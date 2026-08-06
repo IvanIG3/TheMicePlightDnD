@@ -71,7 +71,7 @@ Owns the four lookup tables described in `executors.md`:
 | `create_action_executor(data)` | `ActionExecutor` | Throws if `data.type_id` is not registered. |
 | `get_data(id)` | `Resource` | O(1) id → resource lookup. |
 
-On startup, `Registry` walks `res://data/` recursively, loads every `Resource` whose filename matches its `id` field (or falls back to filename), and indexes it. The walk is `O(N)` where `N` is the total number of content files.
+On startup, `Registry` walks each theme folder (`res://attribute/`, `res://health/`, `res://stats/`, `res://dice/`, ...) recursively — skipping `*/tests/*` and `*.gd` — and loads every `Resource` whose filename matches its `id` field (or falls back to filename), then indexes it. The walk is `O(N)` where `N` is the total number of content files. There is no shared `res://data/` folder; content lives next to its theme's scripts.
 
 ### `InputService` (Node, autoload)
 

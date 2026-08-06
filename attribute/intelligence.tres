@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AttributeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://attribute/attribute_data.gd" id="1_attribute_data"]
+
+[resource]
+script = ExtResource("1_attribute_data")
+id = &"intelligence"
+display_name = "Intelligence"
+description = "Reasoning and memory."
+default_value = 10

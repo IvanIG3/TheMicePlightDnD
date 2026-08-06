@@ -16,12 +16,12 @@ func before_each() -> void:
 
 func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val: int = 10, intelligence_val: int = 10, wisdom_val: int = 10, charisma_val: int = 10) -> AttributeSet:
 	var attribute_set: AttributeSet = AttributeSetScript.new()
-	attribute_set.strength = strength_val
-	attribute_set.dexterity = dexterity_val
-	attribute_set.constitution = constitution_val
-	attribute_set.intelligence = intelligence_val
-	attribute_set.wisdom = wisdom_val
-	attribute_set.charisma = charisma_val
+	attribute_set.set_value(AttributeIds.ATTR_STR, strength_val)
+	attribute_set.set_value(AttributeIds.ATTR_DEX, dexterity_val)
+	attribute_set.set_value(AttributeIds.ATTR_CON, constitution_val)
+	attribute_set.set_value(AttributeIds.ATTR_INT, intelligence_val)
+	attribute_set.set_value(AttributeIds.ATTR_WIS, wisdom_val)
+	attribute_set.set_value(AttributeIds.ATTR_CHA, charisma_val)
 	return attribute_set
 
 

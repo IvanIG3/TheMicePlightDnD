@@ -1,16 +1,16 @@
 class_name StatsComponent
 extends Node
 
+
 @export var level: int = 1
 @export var xp: int = 0
 @export var xp_to_next: int = 100
-@export var max_hp: int = 0
 @export var max_energy: int = 0
 @export var current_energy: int = 0
 @export var initiative: int = 0
 
 var _attribute_component: Node = null
-var _stats_base: Resource = null
+var _max_energy_base: int = 0
 
 signal level_up(new_level: int)
 signal xp_gained(amount: int)
@@ -18,12 +18,9 @@ signal energy_changed(current: int, max: int)
 signal max_changed(which: StringName, value: int)
 
 
-func init(stats_base: Resource) -> void:
-	_stats_base = stats_base
-
-
-func set_attribute_component(attr: Node) -> void:
-	_attribute_component = attr
+func init(max_energy_base: int, attribute_component: Node) -> void:
+	_max_energy_base = max_energy_base
+	_attribute_component = attribute_component
 
 
 func gain_xp(n: int) -> void:
@@ -56,29 +53,16 @@ func spend_energy(n: int) -> bool:
 	return true
 
 
-func recompute_max_hp() -> void:
-	assert(_attribute_component != null, "StatsComponent.recompute_max_hp: attribute_component not set")
-	assert(_stats_base != null, "StatsComponent.recompute_max_hp: stats_base not set")
-	var con_mod: int = _attribute_component.modifier(AttributeIds.ATTR_CON)
-	max_hp = _stats_base.max_hp_base + con_mod
-	max_changed.emit(&"max_hp", max_hp)
-
-
 func recompute_max_energy() -> void:
 	assert(_attribute_component != null, "StatsComponent.recompute_max_energy: attribute_component not set")
-	assert(_stats_base != null, "StatsComponent.recompute_max_energy: stats_base not set")
 	var int_mod: int = _attribute_component.modifier(AttributeIds.ATTR_INT)
-	max_energy = _stats_base.max_energy_base + int_mod
+	max_energy = _max_energy_base + int_mod
 	max_changed.emit(&"max_energy", max_energy)
 
 
 func set_initiative_from_dex() -> void:
 	assert(_attribute_component != null, "StatsComponent.set_initiative_from_dex: attribute_component not set")
 	initiative = _attribute_component.modifier(AttributeIds.ATTR_DEX)
-
-
-func get_max_hp() -> int:
-	return max_hp
 
 
 func get_max_energy() -> int:

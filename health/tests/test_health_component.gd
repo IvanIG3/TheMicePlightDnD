@@ -2,24 +2,59 @@ extends GutTest
 
 
 const HealthComponentScript := preload("res://health/health_component.gd")
+const AttributeComponentScript := preload("res://attribute/attribute_component.gd")
+const AttributeSetScript := preload("res://attribute/attribute_set.gd")
 
 
 var _health: HealthComponent
-var _max_hp_for_test: int = 10
+var _attr: AttributeComponent
+var _max_hp_base_for_test: int = 10
 
 
 func before_each() -> void:
 	_health = HealthComponentScript.new()
 	add_child_autofree(_health)
-	_health.set_max_hp_provider(func(): return _max_hp_for_test)
+	_attr = AttributeComponentScript.new()
+	add_child_autofree(_attr)
+	_attr.base = _make_set()
+	_health.init(_max_hp_base_for_test, _attr)
+	_health.recompute_max_hp()
 	_health.reset()
-	_health.current_hp = _max_hp_for_test
+	_health.current_hp = _health.max_hp
+
+
+func _make_set(constitution_val: int = 10) -> AttributeSet:
+	var attribute_set: AttributeSet = AttributeSetScript.new()
+	attribute_set.set_value(AttributeIds.ATTR_CON, constitution_val)
+	return attribute_set
+
+
+func test_recompute_max_hp_uses_con_modifier() -> void:
+	_health = HealthComponentScript.new()
+	add_child_autofree(_health)
+	var attr: AttributeComponent = AttributeComponentScript.new()
+	add_child_autofree(attr)
+	attr.base = _make_set(14)
+	_health.init(10, attr)
+	_health.recompute_max_hp()
+	assert_eq(_health.max_hp, 14, "max_hp = base + CON mod = 10 + 4 = 14")
+
+
+func test_recompute_max_hp_emits_hp_changed_when_value_changes() -> void:
+	_health = HealthComponentScript.new()
+	add_child_autofree(_health)
+	var attr: AttributeComponent = AttributeComponentScript.new()
+	add_child_autofree(attr)
+	attr.base = _make_set(14)
+	_health.init(10, attr)
+	_health.current_hp = 10
+	watch_signals(_health)
+	_health.recompute_max_hp()
+	assert_eq(_health.max_hp, 14, "max_hp = 14")
+	assert_signal_emitted(_health, "hp_changed", [10, 14])
 
 
 func test_apply_damage_reduces_current_hp() -> void:
-	_max_hp_for_test = 10
-	_health.current_hp = 10
-	_health.temp_hp = 0
 	watch_signals(_health)
 	var taken: int = _health.apply_damage(5)
 	assert_eq(taken, 5, "5 damage taken from current_hp")
@@ -29,8 +64,6 @@ func test_apply_damage_reduces_current_hp() -> void:
 
 
 func test_temp_hp_absorbs_first() -> void:
-	_max_hp_for_test = 10
-	_health.current_hp = 10
 	_health.temp_hp = 7
 	watch_signals(_health)
 	var taken: int = _health.apply_damage(10)
@@ -42,8 +75,6 @@ func test_temp_hp_absorbs_first() -> void:
 
 
 func test_temp_hp_absorbs_full_no_hp_signal() -> void:
-	_max_hp_for_test = 10
-	_health.current_hp = 10
 	_health.temp_hp = 10
 	watch_signals(_health)
 	var taken: int = _health.apply_damage(5)
@@ -55,7 +86,6 @@ func test_temp_hp_absorbs_full_no_hp_signal() -> void:
 
 
 func test_apply_heal_caps_at_max() -> void:
-	_max_hp_for_test = 10
 	_health.current_hp = 8
 	watch_signals(_health)
 	var healed: int = _health.apply_heal(5)
@@ -65,8 +95,6 @@ func test_apply_heal_caps_at_max() -> void:
 
 
 func test_grant_temp_hp_replaces_if_greater() -> void:
-	_max_hp_for_test = 10
-	_health.current_hp = 10
 	_health.temp_hp = 5
 	watch_signals(_health)
 	_health.grant_temp_hp(3)
@@ -78,19 +106,17 @@ func test_grant_temp_hp_replaces_if_greater() -> void:
 
 
 func test_is_wounded_boundary() -> void:
-	_max_hp_for_test = 10
 	_health.current_hp = 5
 	assert_true(_health.is_wounded(), "5/10 → wounded (boundary inclusive)")
 	_health.current_hp = 6
 	assert_false(_health.is_wounded(), "6/10 → not wounded")
-	_max_hp_for_test = 1
+	_health.set_max_hp(1)
 	_health.current_hp = 0
 	assert_true(_health.is_dead(), "0/1 → dead")
 	assert_false(_health.is_wounded(), "dead wins; not reported as wounded")
 
 
 func test_died_emits_once_sticky() -> void:
-	_max_hp_for_test = 10
 	_health.current_hp = 2
 	watch_signals(_health)
 	var source := Node.new()
@@ -105,7 +131,6 @@ func test_died_emits_once_sticky() -> void:
 
 
 func test_died_killer_typed_as_node() -> void:
-	_max_hp_for_test = 10
 	_health.current_hp = 5
 	watch_signals(_health)
 	var source := Node.new()
