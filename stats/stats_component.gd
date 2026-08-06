@@ -1,7 +1,6 @@
 class_name StatsComponent
 extends Node
 
-
 @export var level: int = 1
 @export var xp: int = 0
 @export var xp_to_next: int = 100
@@ -55,14 +54,14 @@ func spend_energy(n: int) -> bool:
 
 func recompute_max_energy() -> void:
 	assert(_attribute_component != null, "StatsComponent.recompute_max_energy: attribute_component not set")
-	var int_mod: int = _attribute_component.modifier(AttributeIds.ATTR_INT)
+	var int_mod: int = _attribute_component.get_modifier(AttributeIds.ATTR_INT)
 	max_energy = _max_energy_base + int_mod
 	max_changed.emit(&"max_energy", max_energy)
 
 
 func set_initiative_from_dex() -> void:
 	assert(_attribute_component != null, "StatsComponent.set_initiative_from_dex: attribute_component not set")
-	initiative = _attribute_component.modifier(AttributeIds.ATTR_DEX)
+	initiative = _attribute_component.get_modifier(AttributeIds.ATTR_DEX)
 
 
 func get_max_energy() -> int:

@@ -14,12 +14,12 @@ These components are present on every `Character` scene (`Mouse`, `Predator`, an
 
 ### `AttributeComponent` (Node)
 
-Holds the base `AttributeSet` and a list of active `AttributeModifier`s. The single source of truth for "what is this character's effective attribute right now".
+Holds the base `AttributeSet` and a list of active `AttributeBonus`es. The single source of truth for "what is this character's effective attribute right now".
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `base` | `AttributeSet` | Base scores, set from `MouseClassData` or `PredatorData`. |
-| `_modifiers` | `Array[AttributeModifier]` | Active modifiers (from statuses, trophies, mechanics). |
+| `_bonuses` | `Array[AttributeBonus]` | Active bonuses (from statuses, trophies, mechanics). |
 
 | Signal | Payload |
 | --- | --- |
@@ -27,10 +27,10 @@ Holds the base `AttributeSet` and a list of active `AttributeModifier`s. The sin
 
 | Method | Returns | Notes |
 | --- | --- | --- |
-| `get_value(attr)` | `int` | Final value with all modifiers applied. Returns 0 for unknown ids. |
-| `modifier(attr)` | `int` | Final `get_value(attr) - 10`. |
-| `add_modifier(m)` | `void` | Adds and emits `attribute_changed` if the value changed. |
-| `remove_modifiers_from(source)` | `int` | Removes every modifier whose `source` matches; returns count removed. |
+| `get_score(attr)` | `int` | Final score with all bonuses applied. Returns 0 for unknown ids. |
+| `get_modifier(attr)` | `int` | `get_score(attr) - AttributeBonus.SCORE_BASELINE`. Matches the GDD formula `modificador = atributo - 10`. |
+| `add_bonus(b)` | `void` | Adds and emits `attribute_changed` if the score changed. |
+| `remove_bonuses_from(source)` | `int` | Removes every bonus whose `source` matches; returns count removed. |
 
 ### `StatsComponent` (Node)
 

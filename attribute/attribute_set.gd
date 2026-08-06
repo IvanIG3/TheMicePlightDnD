@@ -1,17 +1,16 @@
 class_name AttributeSet
 extends Resource
 
-
-@export var values: Dictionary[StringName, int] = {}
-
-
-func get_value(attr: StringName) -> int:
-	return values.get(attr, 0)
+@export var scores: Dictionary[StringName, int] = {}
 
 
-func set_value(attr: StringName, value: int) -> void:
-	values[attr] = value
+func get_score(attr: StringName) -> int:
+	return scores.get(attr, 0)
 
 
-func modifier(attr: StringName) -> int:
-	return get_value(attr) - AttributeModifier.MODIFIER_BASE
+func set_score(attr: StringName, score: int) -> void:
+	scores[attr] = score
+
+
+func get_modifier(attr: StringName) -> int:
+	return get_score(attr) - AttributeData.SCORE_BASELINE

@@ -1,10 +1,9 @@
-[gd_resource type="Resource" script_class="AttributeData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttributeData" format=3 uid="uid://b1o07ajkkluob"]
 
-[ext_resource type="Script" path="res://attribute/attribute_data.gd" id="1_attribute_data"]
+[ext_resource type="Script" uid="uid://cywby1wvadb0c" path="res://attribute/attribute_data.gd" id="1_attribute_data"]
 
 [resource]
 script = ExtResource("1_attribute_data")
 id = &"constitution"
 display_name = "Constitution"
 description = "Health and endurance."
-default_value = 10

@@ -25,7 +25,7 @@ func before_each() -> void:
 
 func _make_set(constitution_val: int = 10) -> AttributeSet:
 	var attribute_set: AttributeSet = AttributeSetScript.new()
-	attribute_set.set_value(AttributeIds.ATTR_CON, constitution_val)
+	attribute_set.set_score(AttributeIds.ATTR_CON, constitution_val)
 	return attribute_set
 
 

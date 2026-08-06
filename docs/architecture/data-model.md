@@ -16,21 +16,21 @@ The definition of one attribute. One `.tres` per attribute, located in `attribut
 | `display_name` | `String` | Human-readable name shown in UI. |
 | `description` | `String` | Human-readable description shown in tooltips and codex. |
 | `icon` | `Texture2D` | UI icon. Optional. |
-| `default_value` | `int` | Default score for a fresh `AttributeSet`. Default: 10. |
+| `default_score` | `int` | Default score for a fresh `AttributeSet`. Default: 10. |
 
 ### `AttributeSet` (Resource)
 
-A character's per-attribute values. Backed by a `Dictionary[StringName, int]` so a new attribute only requires a new `AttributeData` resource — no new fields, no rebuilds.
+A character's per-attribute base scores. Backed by a `Dictionary[StringName, int]` so a new attribute only requires a new `AttributeData` resource — no new fields, no rebuilds.
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `values` | `Dictionary[StringName, int]` | `id` → score. Empty by default; populate per-character from class or predator data. |
+| `scores` | `Dictionary[StringName, int]` | `id` → base score. Empty by default; populate per-character from class or predator data. |
 
 | Method | Returns | Notes |
 | --- | --- | --- |
-| `get_value(attr)` | `int` | Returns 0 for any attribute id not in `values`. |
-| `set_value(attr, value)` | `void` | Writes one entry. |
-| `modifier(attr)` | `int` | `get_value(attr) - 10`. Matches the D&D-style modifier formula. |
+| `get_score(attr)` | `int` | Returns 0 for any attribute id not in `scores`. |
+| `set_score(attr, score)` | `void` | Writes one entry. |
+| `get_modifier(attr)` | `int` | `get_score(attr) - AttributeBonus.SCORE_BASELINE`. Linear, matches the GDD formula `modificador = atributo - 10`. |
 
 ### `DiceFormula` (Resource)
 
@@ -44,9 +44,9 @@ A `XdY + Z` dice expression, e.g. `3d8 + 5`.
 
 Supports `roll(rng)`, `max_roll()`, and `average_roll()`. Critical hits use `max_roll()`.
 
-### `AttributeModifier` (Resource)
+### `AttributeBonus` (Resource)
 
-A delta applied to one attribute of one `AttributeComponent`. Designed to be added on status apply and removed on status expire without ambiguity.
+A delta applied to one attribute of one `AttributeComponent`. Designed to be added on status apply and removed on status expire without ambiguity. The bonus always modifies the underlying score; the derived modifier propagates the change to every consumer (precision, resistance, damage, derived stats).
 
 | Field | Type | Notes |
 | --- | --- | --- |
@@ -99,7 +99,7 @@ A persistent condition applied to a character. The runtime instance is a `Status
 | `description` | `String` | Display description. |
 | `duration` | `int` | Initial duration in turns. |
 | `stack_policy` | `StringName` | `replace` (default), `stack`, or `ignore`. |
-| `modifiers` | `Array[AttributeModifier]` | Attribute changes applied while the status is active. |
+| `modifiers` | `Array[AttributeBonus]` | Attribute changes applied while the status is active. |
 | `on_apply_hooks` | `Array[EffectData]` | Effects resolved when the status is gained. |
 | `on_tick_hooks` | `Array[EffectData]` | Effects resolved at end-of-turn tick. |
 | `on_expire_hooks` | `Array[EffectData]` | Effects resolved when the status expires. |
@@ -157,7 +157,7 @@ A passive or reactive trait attached to a predator and, when the player binds th
 
 | Class | Additional fields | Behavior |
 | --- | --- | --- |
-| `StatModifierCharacteristic` | `modifiers: Array[AttributeModifier]` | Always-on attribute changes. |
+| `StatModifierCharacteristic` | `modifiers: Array[AttributeBonus]` | Always-on attribute changes. |
 | `ReactionCharacteristic` | `trigger: StringName`, `effect: EffectData` | Resolves the effect when the trigger event is observed on `EventBus`. |
 | `AuraCharacteristic` | `tick_interval: int`, `effect: EffectData` | Periodic effect around the bearer. |
 
@@ -319,7 +319,7 @@ Defines a mouse class: stats, basic attack, starting deck, class-unique mechanic
 erDiagram
     CardData ||--o{ EffectData : "has many"
     BasicAttackData ||--o{ EffectData : "has many"
-    StatusData ||--o{ AttributeModifier : "has many"
+    StatusData ||--o{ AttributeBonus : "has many"
     StatusData ||--o{ EffectData : "hooks"
 
     MouseClassData ||--o{ CardData : "initial deck"

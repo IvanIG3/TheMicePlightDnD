@@ -98,7 +98,7 @@ Each is a `RefCounted` subclass of `EffectExecutor`. The data column points to t
 | `PushExecutor` | `PushEffectData` | Computes a push vector and calls `GridPositionComponent.set_cell` once per step. |
 | `JumpExecutor` | `JumpEffectData` | Computes destination, validates landing tile, calls `set_cell`. |
 | `DrawCardsExecutor` | `DrawCardsEffectData` | Calls `DeckComponent.draw`. |
-| `ModifyAttributeExecutor` | `ModifyAttributeEffectData` | Adds an `AttributeModifier` with the given `source`; the status system will remove it on expire. |
+| `ModifyAttributeExecutor` | `ModifyAttributeEffectData` | Adds an `AttributeBonus` with the given `source`; the status system will remove it on expire. |
 | `CompositeExecutor` | `CompositeEffectData` | Iterates `effects` in `mode` order (`sequence` or `all`), threading the same context. |
 | `AreaExecutor` | `AreaEffectData` | Expands `inner` over `area_tiles(center, shape, size)`, executing once per tile. |
 

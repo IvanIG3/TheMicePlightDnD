@@ -8,7 +8,7 @@ An entity's identity is the **set of components it composes**, not its position 
 
 - A mouse and a predator share the same `Character` scene root. They differ by which components they include and which `Brain` script is attached.
 - A predator with a "venomous" characteristic is not `VenomousPredator extends Predator`. It is a `ReactionCharacteristic` `Resource` holding an `EffectData` triggered on hit.
-- A status that grants `+2 STR` is not `BuffedStatus extends Status`. It is a `StatusData` whose `modifiers` array contains one `AttributeModifier`.
+- A status that grants `+2 STR` is not `BuffedStatus extends Status`. It is a `StatusData` whose `modifiers` array contains one `AttributeBonus`.
 
 The only inheritance in the project is:
 - `Resource` for data types, where it gives us editor integration, save/load, and cheap reference passing.

@@ -1,10 +1,9 @@
-[gd_resource type="Resource" script_class="AttributeData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttributeData" format=3 uid="uid://378a0b1lbkj8"]
 
-[ext_resource type="Script" path="res://attribute/attribute_data.gd" id="1_attribute_data"]
+[ext_resource type="Script" uid="uid://cywby1wvadb0c" path="res://attribute/attribute_data.gd" id="1_attribute_data"]
 
 [resource]
 script = ExtResource("1_attribute_data")
 id = &"wisdom"
 display_name = "Wisdom"
 description = "Perceptiveness and mental fortitude."
-default_value = 10

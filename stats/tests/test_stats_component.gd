@@ -19,9 +19,9 @@ func before_each() -> void:
 
 func _make_attr(constitution_val: int = 10, intelligence_val: int = 10, dexterity_val: int = 10) -> AttributeSet:
 	var attribute_set: AttributeSet = AttributeSetScript.new()
-	attribute_set.set_value(AttributeIds.ATTR_CON, constitution_val)
-	attribute_set.set_value(AttributeIds.ATTR_INT, intelligence_val)
-	attribute_set.set_value(AttributeIds.ATTR_DEX, dexterity_val)
+	attribute_set.set_score(AttributeIds.ATTR_CON, constitution_val)
+	attribute_set.set_score(AttributeIds.ATTR_INT, intelligence_val)
+	attribute_set.set_score(AttributeIds.ATTR_DEX, dexterity_val)
 	return attribute_set
 
 

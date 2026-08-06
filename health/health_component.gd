@@ -23,7 +23,7 @@ func init(max_hp_base: int, attribute_component: Node) -> void:
 
 func recompute_max_hp() -> void:
 	assert(_attribute_component != null, "HealthComponent.recompute_max_hp: attribute_component not set")
-	var con_mod: int = _attribute_component.modifier(AttributeIds.ATTR_CON)
+	var con_mod: int = _attribute_component.get_modifier(AttributeIds.ATTR_CON)
 	var new_max: int = _max_hp_base + con_mod
 	if new_max != max_hp:
 		max_hp = new_max

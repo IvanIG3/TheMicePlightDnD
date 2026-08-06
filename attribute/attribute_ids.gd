@@ -1,7 +1,6 @@
 class_name AttributeIds
 extends RefCounted
 
-
 const ATTR_STR: StringName = &"strength"
 const ATTR_DEX: StringName = &"dexterity"
 const ATTR_CON: StringName = &"constitution"

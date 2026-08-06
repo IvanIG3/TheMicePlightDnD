@@ -5,10 +5,10 @@ signal attribute_changed(attribute: StringName, old_value: int, new_value: int)
 
 @export var base: AttributeSet
 
-var _modifiers: Array[AttributeModifier] = []
+var _bonuses: Array[AttributeBonus] = []
 
 
-func get_value(attr: StringName) -> int:
+func get_score(attr: StringName) -> int:
 	if not _is_known_attribute(attr):
 		if OS.is_debug_build():
 			assert(false, "Unknown attribute: " + attr)
@@ -16,45 +16,45 @@ func get_value(attr: StringName) -> int:
 	
 	var total: int = 0
 	if base != null:
-		total = base.get_value(attr)
-	for m in _modifiers:
-		if m.attribute == attr and m.mode == AttributeModifier.MODE_ADD:
-			total += int(m.value)
+		total = base.get_score(attr)
+	for b in _bonuses:
+		if b.attribute == attr and b.mode == AttributeBonus.MODE_ADD:
+			total += int(b.value)
 	
 	return total
 
 
-func modifier(attr: StringName) -> int:
-	return get_value(attr) - AttributeModifier.MODIFIER_BASE
+func get_modifier(attr: StringName) -> int:
+	return get_score(attr) - AttributeData.SCORE_BASELINE
 
 
-func add_modifier(m: AttributeModifier) -> void:
-	var attr: StringName = m.attribute
-	var old_value: int = get_value(attr)
-	_modifiers.append(m)
-	var new_value: int = get_value(attr)
+func add_bonus(b: AttributeBonus) -> void:
+	var attr: StringName = b.attribute
+	var old_value: int = get_score(attr)
+	_bonuses.append(b)
+	var new_value: int = get_score(attr)
 	attribute_changed.emit(attr, old_value, new_value)
 
 
-func remove_modifiers_from(source: StringName) -> int:
+func remove_bonuses_from(source: StringName) -> int:
 	var affected_attrs: Array = []
-	for m in _modifiers:
-		if m.source == source and not affected_attrs.has(m.attribute):
-			affected_attrs.append(m.attribute)
+	for b in _bonuses:
+		if b.source == source and not affected_attrs.has(b.attribute):
+			affected_attrs.append(b.attribute)
 	
 	var pre_values: Dictionary = {}
 	for attr in affected_attrs:
-		pre_values[attr] = get_value(attr)
+		pre_values[attr] = get_score(attr)
 	
 	var removed: int = 0
-	for m in _modifiers:
-		if m.source == source:
+	for b in _bonuses:
+		if b.source == source:
 			removed += 1
 	
-	_modifiers = _modifiers.filter(func(m): return m.source != source)
+	_bonuses = _bonuses.filter(func(b): return b.source != source)
 	
 	for attr in affected_attrs:
-		var post_value: int = get_value(attr)
+		var post_value: int = get_score(attr)
 		attribute_changed.emit(attr, pre_values[attr], post_value)
 	
 	return removed
