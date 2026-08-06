@@ -1,6 +1,6 @@
 # Architecture
 
-This folder documents the software architecture of **The Mice Plight**, complementing the high-level design in [`../GDD.md`](../GDD.md).
+This folder documents the software architecture of **The Mice Plight**, complementing the high-level design in [`index.md`](../gdd/index.md).
 
 The architecture prioritizes **composition over inheritance**, with content driven by data (`Resource`s) and behavior expressed as small, focused, signal-decoupled components.
 
