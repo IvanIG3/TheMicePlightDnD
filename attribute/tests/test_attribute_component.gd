@@ -25,7 +25,7 @@ func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val
 	return attribute_set
 
 
-func _make_bonus(attr: StringName, value: float, source: StringName) -> AttributeBonus:
+func _make_bonus(attr: StringName, value: int, source: StringName) -> AttributeBonus:
 	var b: AttributeBonus = AttributeBonusScript.new()
 	b.attribute = attr
 	b.mode = AttributeBonus.MODE_ADD
@@ -43,22 +43,22 @@ func test_base_score_no_bonuses() -> void:
 func test_single_add_bonus() -> void:
 	_component.base = _make_set()
 	watch_signals(_component)
-	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4.0, &"weakened"))
+	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4, &"weakened"))
 	assert_eq(_component.get_score(AttributeIds.ATTR_STR), 14, "STR with +4 bonus → 14")
 	assert_signal_emitted(_component, "attribute_changed", [AttributeIds.ATTR_STR, 10, 14])
 
 
 func test_flat_additive_stacking() -> void:
 	_component.base = _make_set()
-	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4.0, &"a"))
-	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 2.0, &"b"))
+	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4, &"a"))
+	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 2, &"b"))
 	assert_eq(_component.get_score(AttributeIds.ATTR_STR), 16, "STR = 10 base + 4 + 2 = 16")
 
 
 func test_remove_bonuses_from() -> void:
 	_component.base = _make_set()
-	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4.0, &"a"))
-	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 2.0, &"b"))
+	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4, &"a"))
+	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 2, &"b"))
 	watch_signals(_component)
 	var removed: int = _component.remove_bonuses_from(&"a")
 	assert_eq(removed, 1, "one bonus removed from source 'a'")
@@ -78,7 +78,7 @@ func test_unknown_attribute_returns_zero_in_release_with_assert_in_debug() -> vo
 func test_modifier_for_unaffected_attribute_unchanged() -> void:
 	_component.base = _make_set()
 	watch_signals(_component)
-	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4.0, &"a"))
+	_component.add_bonus(_make_bonus(AttributeIds.ATTR_STR, 4, &"a"))
 	assert_eq(_component.get_score(AttributeIds.ATTR_WIS), 10, "WIS unchanged by STR bonus")
 	assert_signal_emitted(_component, "attribute_changed", [AttributeIds.ATTR_STR, 10, 14])
 	assert_signal_emit_count(_component, "attribute_changed", 1, "only STR emits a change")

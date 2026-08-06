@@ -51,8 +51,8 @@ A delta applied to one attribute of one `AttributeComponent`. Designed to be add
 | Field | Type | Notes |
 | --- | --- | --- |
 | `attribute` | `StringName` | Which attribute is modified. |
-| `mode` | `StringName` | `add`, `multiply`, or `set`. |
-| `value` | `float` | Magnitude. |
+| `mode` | `StringName` | `add` or `set`. |
+| `value` | `int` | Magnitude. |
 | `source` | `StringName` | ID of the originator (a status id, a trophy id, ...). Used for removal. |
 
 ## Effect system data

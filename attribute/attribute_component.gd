@@ -19,7 +19,7 @@ func get_score(attr: StringName) -> int:
 		total = base.get_score(attr)
 	for b in _bonuses:
 		if b.attribute == attr and b.mode == AttributeBonus.MODE_ADD:
-			total += int(b.value)
+			total += b.value
 	
 	return total
 
