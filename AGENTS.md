@@ -1,5 +1,17 @@
 # AGENTS.md
 
-- **Unit testing**: GUT 9.6.1 (Godot 4). Read `addons/gut/docs/AGENTS.md` for the file map and quick links to `Quick-Start.md`, `Creating-Tests.md`, `Doubles.md`, `Stubbing.md`, `Spies.md`, `Awaiting.md`, and `class_ref/class_guttest.rst`.
+- **Unit testing**: GUT 9.7.1 (Godot 4). Read `addons/gut/docs/AGENTS.md` for the file map and quick links to `Quick-Start.md`, `Creating-Tests.md`, `Doubles.md`, `Stubbing.md`, `Spies.md`, `Awaiting.md`, and `class_ref/class_guttest.rst`.
 - **GDD**: design docs live in `docs/gdd/` (see `docs/gdd/index.md`).
 - **Architecture**: software design lives in `docs/architecture/` — start with `docs/architecture/README.md`, then `principles.md`, `data-model.md`, `components.md`, `executors.md`, `systems.md`.
+- **Directory layout**: theme-organized at the project root, no top-level `scripts/` or `tests/`. Each theme dir (e.g. `attribute/`, `stats/`, `health/`, `dice/`, `global/`, `utils/`) holds the theme's `.gd` files directly and a `tests/` subdir for the theme's tests. Autoloads go in `global/`. Support code with no specific theme goes in `utils/`. When adding a new theme, update `.gutconfig.json` `dirs` to include `res://<theme>/tests/`.
+- **Code style (Godot 4 / GDScript)** — apply these on every new or modified `.gd` file:
+  - **Minimal comments.** Strip narrative documentation, "why we did this" prose, and `TODO[phase-N]` markers. The code is the documentation. Keep only what the code itself cannot say (e.g., a one-line spec reference for a non-obvious decision).
+  - **Full names over abbreviations.** `strength` not `str`, `dexterity` not `dex`, `constitution` not `con`, `intelligence` not `int`, `wisdom` not `wis`, `charisma` not `cha`. Readability over brevity, even for `Resource` fields.
+  - **Named constants, no magic numbers.** Pull numeric and enum-like literals into module-level `const` (e.g., `AttributeModifier.MODIFIER_BASE = 10`) and reference them by name.
+  - **Use the StringName constants everywhere.** `AttributeIds.ATTR_STR` not `&"str"`. `AttributeModifier.MODE_ADD` not `&"add"`. `AttributeIds.ALL` for the full list. Never hardcode attribute or mode names.
+  - **Type everything explicitly.** `@export var strength: int = 10` not `@export var strength = 10`. Parameters and locals carry their types. `const FOO: int = 10` not `const FOO := 10`. Use the concrete class type (`AttributeSet`, `DiceFormula`, `AttributeComponent`) instead of `Resource` / `Node` when known.
+  - **No defensive code.** Trust the architecture: autoloads are registered, `_ready()` ran, callers passed valid arguments. No "is the autoload there?" checks, no `_ensure_*` helpers, no fallback empty returns. Fail fast with `assert` or `push_error` at the contract boundary, not in every method.
+  - **Explicit `floori(...)` for division where rounding matters.** `floori(max_hp / 2.0)` not `max_hp / 2`, even when they're equivalent for positive ints — the intent ("round down") must be visible.
+  - **Visual separation: double blank line between top-level declarations and between functions.** No trailing blank line inside a function.
+  - **Signals are part of the public surface.** Declare them after `@export` / `var` so the field block is contiguous, or at the top so the signal contract is the first thing the reader sees — pick one per file and stay consistent within the file.
+  - **Tests**: helpers prefixed with `_` (`_make_set`, `_make_attr`, `_make_modifier`, `_make_stats_base`). Use `add_child_autofree(_node)` for every Node-spawning test. Type-annotate every local. When the impl renames a field, update every test that referenced the old name in the same change.

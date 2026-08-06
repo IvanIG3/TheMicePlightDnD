@@ -1,15 +1,5 @@
 extends Node
 
-# EventBus — the project's global signal hub. A pure pass-through: no state,
-# no logic, no methods beyond the signal emissions. Cross-cutting events
-# listed in docs/architecture/systems.md are declared here so the surface is
-# stable from Phase 1 forward. Phase 1 components do NOT connect to EventBus
-# (per locked decision); the bus exists for Phase 2+ consumers.
-
-# Note on typing: payloads use the most specific type known at Phase 1.
-# Concrete subclasses (CardData, BiomeData, ...) land in later phases; signals
-# accept the base type (Resource, Node) so they remain usable now.
-
 signal card_played(card: Resource, player: Node)
 signal damage_applied(amount: int, source: Node, target: Node, is_crit: bool)
 signal heal_applied(amount: int, target: Node)

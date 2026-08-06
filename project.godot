@@ -18,11 +18,15 @@ config/name="The Mice Plight"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+RngService="*res://global/rng_service.gd"
+EventBus="*res://global/event_bus.gd"
+
+[debug]
+
+gdscript/warnings/unused_signal=0
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/gut/plugin.cfg")
-
-[autoload]
-
-RngService="*res://scripts/rng_service.gd"
-EventBus="*res://scripts/event_bus.gd"
