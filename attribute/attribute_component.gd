@@ -28,7 +28,7 @@ func modifier(attr: StringName) -> int:
 	return get_value(attr) - AttributeModifier.MODIFIER_BASE
 
 
-func add_modifier(m: Resource) -> void:
+func add_modifier(m: AttributeModifier) -> void:
 	var attr: StringName = m.attribute
 	var old_value: int = get_value(attr)
 	_modifiers.append(m)
