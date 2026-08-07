@@ -12,7 +12,7 @@ class TestView extends View:
 
 	func _subscribe() -> void:
 		subscribed = true
-		_connect_to(_model, &"cell_changed", _on_cell_changed)
+		_connect_to(_model, GridPositionComponent.SIGNAL_CELL_CHANGED, _on_cell_changed)
 
 	func _replay_state_from(_m: Node) -> void:
 		replayed = true
