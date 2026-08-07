@@ -1,7 +1,6 @@
 class_name ActionExecutor
 extends RefCounted
 
-
 var data: Resource = null
 
 

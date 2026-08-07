@@ -1,24 +1,18 @@
 class_name GridPositionComponent
 extends Node
 
-
 signal cell_changed(old_cell: Vector2i, new_cell: Vector2i)
-
 
 @export var is_blocking: bool = true
 
-
 var cell: Vector2i = Vector2i.ZERO
-
 var _grid: GridSystem = null
-
-
 var grid: GridSystem:
 	get: return _grid
 
 
-func init(grid: GridSystem) -> void:
-	_grid = grid
+func init(new_grid: GridSystem) -> void:
+	_grid = new_grid
 
 
 func set_cell(new_cell: Vector2i) -> bool:

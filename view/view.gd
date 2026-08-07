@@ -1,13 +1,8 @@
 class_name View
 extends Node
 
-
 var _model: Node = null
-
-
 var _disposed: bool = false
-
-
 var _connections: Array[Dictionary] = []
 
 
@@ -36,7 +31,7 @@ func _subscribe() -> void:
 	pass
 
 
-func _replay_state_from(_model: Node) -> void:
+func _replay_state_from(_target_model: Node) -> void:
 	pass
 
 

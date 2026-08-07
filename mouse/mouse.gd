@@ -1,11 +1,9 @@
 class_name Mouse
 extends Character
 
-
 @export var class_data: MouseClassData = null
 
-
-@onready var brain: PlayerInputBrain = $BrainSlot/PlayerInputBrain
+@onready var brain: PlayerInputBrain = %PlayerInputBrain
 
 
 func _ready() -> void:

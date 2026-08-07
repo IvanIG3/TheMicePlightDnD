@@ -14,7 +14,7 @@ func _subscribe() -> void:
 		_connect_to(pos, &"cell_changed", _on_cell_changed)
 
 
-func _replay_state_from(_model: Node) -> void:
+func _replay_state_from(_target_model: Node) -> void:
 	var pos: GridPositionComponent = _get_position()
 	if pos != null:
 		_on_cell_changed(pos.cell, pos.cell)

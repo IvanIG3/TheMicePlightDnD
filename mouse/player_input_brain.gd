@@ -1,25 +1,13 @@
 class_name PlayerInputBrain
 extends Node
 
-
 const InputServiceAutoload: StringName = &"InputService"
-
-
 const MoveExecutorScript := preload("res://executor/move_executor.gd")
-
-
 const MoveDataScript := preload("res://executor/move_data.gd")
-
-
 const ActionContextScript := preload("res://executor/action_context.gd")
-
-
 const ActionPlanScript := preload("res://executor/action_plan.gd")
 
-
 var pending_plan: ActionPlan = null
-
-
 var _actor: Node = null
 
 

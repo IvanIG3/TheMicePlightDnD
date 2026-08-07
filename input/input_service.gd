@@ -1,35 +1,15 @@
 extends Node
 
-
 signal move_intent(direction: Vector2i)
-
-
 signal confirm_intent
-
-
 signal cancel_intent
-
-
 signal inspect_intent(cell: Vector2i)
-
-
 signal card_play_intent(hand_index: int)
-
-
 signal basic_attack_intent
-
-
 signal draw_cards_intent
-
-
 signal wait_intent
-
-
 signal end_turn_intent
-
-
 signal rest_action_intent(action: StringName)
-
 
 const MOVE_UP: StringName = &"ui_move_up"
 const MOVE_DOWN: StringName = &"ui_move_down"
@@ -69,5 +49,5 @@ func _ensure_move_actions() -> void:
 
 func _key_event(keycode: int) -> InputEventKey:
 	var event: InputEventKey = InputEventKey.new()
-	event.keycode = keycode
+	event.keycode = keycode as Key
 	return event
