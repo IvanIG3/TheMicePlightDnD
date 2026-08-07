@@ -78,26 +78,15 @@ func _scan_themes() -> void:
 
 
 func _scan_directory(dir_path: String) -> void:
-	var dir: DirAccess = DirAccess.open(dir_path)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var entry: String = dir.get_next()
-	while entry != "":
-		if entry == "." or entry == "..":
-			entry = dir.get_next()
-			continue
+	var entries: PackedStringArray = ResourceLoader.list_directory(dir_path)
+	for entry in entries:
 		var full_path: String = dir_path.path_join(entry)
-		if dir.current_is_dir():
-			if entry == "tests":
-				entry = dir.get_next()
+		if full_path.ends_with("/"):
+			if full_path.trim_suffix("/").get_file() == "tests":
 				continue
 			_scan_directory(full_path)
-		else:
-			if entry.ends_with(".tres") or entry.ends_with(".res"):
-				_index_file(full_path)
-		entry = dir.get_next()
-	dir.list_dir_end()
+		elif full_path.ends_with(".tres") or full_path.ends_with(".res"):
+			_index_file(full_path)
 
 
 func _index_file(path: String) -> void:
