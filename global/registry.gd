@@ -11,6 +11,9 @@ const _THEME_DIRS: Array[String] = [
 
 
 const MoveExecutorScript := preload("res://executor/move_executor.gd")
+const DamageExecutorScript := preload("res://effect/damage_executor.gd")
+const HealExecutorScript := preload("res://effect/heal_executor.gd")
+const CompositeExecutorScript := preload("res://effect/composite_executor.gd")
 
 
 var effect_executors: Dictionary[StringName, Script] = {}
@@ -21,6 +24,9 @@ var data_index: Dictionary[StringName, Resource] = {}
 
 func _ready() -> void:
 	_scan_themes()
+	register_effect_executor(&"damage", DamageExecutorScript)
+	register_effect_executor(&"heal", HealExecutorScript)
+	register_effect_executor(&"composite", CompositeExecutorScript)
 	_assert_effect_data_complete()
 	register_action_executor(&"move", MoveExecutorScript)
 
