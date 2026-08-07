@@ -1,402 +1,402 @@
 # The Mice Plight — Game Design Document
 
-## Género
+## Genre
 
-El juego junta dos géneros: roguelike tradicional y deckbuilding
+The game joins two genres: traditional roguelike and deckbuilding.
 
-### Roguelike: Interpretación de Berlín
+### Roguelike: Berlin Interpretation
 
-- **Muerte permanente.** Cuando tu personaje muere, se acabó. Empieza la partida de nuevo, desde el principio.
-- **Generación procedural.** Los mapas, la colocación de objetos y los encuentros con enemigos se generan aleatoriamente en cada partida.
-- **Juego por turnos.** El tiempo avanza sólo cuando realizas una acción.
-- **Movimiento basado en cuadrículas.** Los personajes se mueven de una casilla a otra en una cuadrícula.
-- **No modal.** Todo el juego se juega con un conjunto coherente de comandos, sin pantalla de combate separada.
-- **Complejidad.** Los sistemas tienen profundidad, lo que permite un juego emergente.
-- **Gestión de recursos.** No se puede conseguir todo en una sóla partida, se debe escoger.
-- **Hack’n’slash.** El combate es el foco principal.
-- **Exploración y descubrimiento.** Encontrar nuevas áreas y objetos es gratificante.
+- **Permadeath.** When your character dies, it's over. Start the run again, from the beginning.
+- **Procedural generation.** Maps, item placement, and enemy encounters are generated randomly on every run.
+- **Turn-based.** Time advances only when you take an action.
+- **Grid-based movement.** Characters move from tile to tile on a grid.
+- **Non-modal.** The whole game is played with a coherent set of commands, with no separate combat screen.
+- **Complexity.** The systems have depth, enabling emergent play.
+- **Resource management.** You can't get everything in a single run; you must choose.
+- **Hack and slash.** Combat is the main focus.
+- **Exploration and discovery.** Finding new areas and items is rewarding.
 
 ### Deckbuilding
 
-- **Cartas.** Representan técnicas especiales de un personaje.
-- **Baraja.** Es el conjunto total de cartas que tiene un personaje. Estas cartas no se pueden jugar. Se divide en:
-	- **Pila de robo.** Las cartas que se roban para ir a la mano se obtienen de esta pila.
-	- **Pila de descarte.** Las cartas que se descartan desde la mano van a esta pila. Cuando la pila de robo se queda sin cartas, la pila de descarte se baraja, y se coloca en la pila de robo.
-- **Mano.** Es el subconjunto de cartas de la baraja que el personaje tiene acceso en un momento concreto. Las cartas en mano se pueden jugar.
-
-## Temática
+- **Cards.** Represent a character's special techniques.
+- **Deck.** The full set of cards a character owns. These cards cannot be played directly. It splits into:
+	- **Draw pile.** Cards drawn into the hand come from this pile.
+	- **Discard pile.** Cards discarded from the hand go here. When the draw pile is empty, the discard pile is shuffled and placed as the new draw pile.
+- **Hand.** The subset of cards from the deck the character can access at any given moment. Cards in the hand can be played.
+
+## Theme
 
-- **Ratón.** El único personaje controlado por el jugador.
-- **Madriguera.** Es la comunidad de ratones bajo tierra, el hogar del personaje. Toda partida comienza en ella.
-- **Depredadores.** Los enemigos son depredadores naturales de ratones. No son monstruos de fantasía. Extraídos de la zoología real. Su dieta debe incluir "pequeños mamíferos".
-- **Naturaleza salvaje.** Los mapas son entornos naturales y salvajes, sin influencia humana.
-- **Toque místico.** Referencias místicas, tales como: esencia natural, energía, magia leve. Eleva un poco las capacidades naturales de los animales.
-
-## Loop del juego
+- **Mouse.** The only character controlled by the player.
+- **Burrow.** The mouse community under the ground, the character's home. Every run starts here.
+- **Predators.** Enemies are natural predators of mice. They are not fantasy monsters. Drawn from real zoology. Their diet must include "small mammals".
+- **Wilderness.** Maps are natural, wild environments with no human influence.
+- **Mystic touch.** Mystic references such as: natural essence, energy, mild magic. It slightly elevates the animals' natural capabilities.
+
+## Game loop
 
-1. **Inicio de la partida.** La partida inicia en la madriguera de los ratones.
-2. **Madriguera.** El jugador escoge una clase de ratón de la madriguera.
-3. **Zona de descanso inicial.** El ratón inicia a nivel de personaje 1. En este punto, el jugador puede realizar las mismas acciones disponibles en cualquier zona de descanso (ver paso 5), aunque en principio no tendrá recursos que gastar. Esto incluye elegir la recompensa del nivel 1.
-4. **Primer bioma.** Es un mapa pequeño, con pocos enemigos.
-5. **Zona de descanso.** El jugador puede realizar una o más de las siguientes acciones. Luego pasa al siguiente Bioma.
-	- Recuperar la vida perdida.
-	- Elegir la recompensa de este nivel.
-	- Aprender nuevas cartas.
-	- Añadir cartas a la baraja desde la lista de cartas aprendidas.
-	- Quitar cartas de la baraja y ponerlas en la lista de cartas aprendidas.
-	- Vincular o desvincular un trofeo imbuido.
-	- Subir de nivel.
-6. **Bioma.** Es un mapa mediano, con varios enemigos. Permite la exploración y recolección. Puede haber trampas. Hay un depredador élite que guarda la salida. La salida lleva a una zona de descanso, que luego llevará a otro bioma distinto, por un total de 5 veces. La zona de descanso tras el quinto bioma precede al jefe final.
-7. **Jefe final.** Tras la zona de descanso posterior al quinto bioma, hay una zona pequeña donde reside el jefe final de la partida.
-8. **Fin de la partida.** Si el ratón muere en cualquier paso anterior (3-7), la partida termina y se vuelve al paso 1 (muerte permanente). Si el ratón derrota al jefe final, la run es exitosa y se vuelve al paso 1 para iniciar una nueva partida.
+1. **Run start.** The run starts in the mouse burrow.
+2. **Burrow.** The player picks a mouse class from the burrow.
+3. **Initial rest area.** The mouse starts at character level 1. At this point, the player can perform the same actions available in any rest area (see step 5), though in principle they will have no resources to spend. This includes choosing the level 1 reward.
+4. **First biome.** A small map with few enemies.
+5. **Rest area.** The player may perform one or more of the following actions. Then they advance to the next biome.
+	- Recover lost health.
+	- Choose this level's reward.
+	- Learn new cards.
+	- Add cards to the deck from the list of learned cards.
+	- Remove cards from the deck and place them into the list of learned cards.
+	- Bind or unbind an imbued trophy.
+	- Level up.
+6. **Biome.** A medium map with several enemies. It allows exploration and gathering. Traps may be present. An elite predator guards the exit. The exit leads to a rest area, which then leads to a different biome, for a total of 5 times. The rest area after the fifth biome precedes the final boss.
+7. **Final boss.** After the rest area following the fifth biome, there is a small area where the run's final boss resides.
+8. **Run end.** If the mouse dies in any previous step (3–7), the run ends and we return to step 1 (permadeath). If the mouse defeats the final boss, the run is successful and we return to step 1 to start a new run.
 
-## Tiradas d20
+## d20 rolls
 
-- Los dados añaden aleatoriedad al juego. Ayudan a determinar si los personajes tienen éxito en lo que intentan.
-- Dados disponibles: **d4**, **d6**, **d8**, **d10**, **d12**, **d20**.
-- Algunos efectos pueden otorgar **Ventaja** o **Desventaja** a las tiradas. En estos casos, se tiran 2 dados en vez de 1, y se utiliza el mayor o menor número, respectivamente.
-- **Crítico y Pifia.**
-	- **Tirada natural de 20 (Nat 20):** El ataque impacta automáticamente. El daño se calcula con el valor **máximo** de todos los dados de daño (e.g. 2d8+3 → 8+8+3 = 19).
-	- **Tirada natural de 1 (Nat 1):** El ataque falla automáticamente, sin importar modificadores ni Dureza/Resistencia del objetivo.
+- Dice add randomness to the game. They help determine whether characters succeed at what they attempt.
+- Dice available: **d4**, **d6**, **d8**, **d10**, **d12**, **d20**.
+- Some effects may grant **Favored** or **Hindered** to rolls. In these cases, two dice are rolled instead of one, and the higher or lower value is used, respectively.
+- **Critical and Fumble.**
+	- **Critical. Rolling a 20 on the attack die** auto-hits. Damage is calculated with the **maximum** value of all damage dice (e.g. 2d8+3 → 8+8+3 = 19).
+	- **Fumble. Rolling a 1 on the attack die** auto-misses, regardless of modifiers or the target's Toughness/Resistance.
 
-## Efectos
-
-[Listado de efectos](./effects/index.md)
-
-- Son las capacidades de una carta, un ataque básico, una trampa o un peligro ambiental.
-- Ejemplos: hacer daño, aplicar estado, empujar, saltar, entre muchos otros.
-- Un efecto puede aplicar un estado a un personaje como parte de su resolución.
-- Los efectos son instantáneos: ocurren y se resuelven en el mismo turno. Los estados, en cambio, persisten más allá del turno en que se aplican (ver Estados).
-
-## Estados
-
-[Lista de estados](./statuses/index.md)
-
-- Se aplica a un personaje.
-- Es temporal. Tiene una duración determinada.
-- Cada estado reduce su duración en 1 al final del siguiente turno del personaje que contiene ese estado. De este modo, si es un beneficio, el personaje puede usarlo durante el turno en que lo tiene antes de que se reduzca. Si es un perjuicio, le afecta al menos un turno completo antes de poder caducar.
-- Cuando su duración llega a 0, el estado es eliminado del personaje.
-- Por defecto, los estados no se acumulan. Recibir un estado repetido reemplaza el anterior, incluyendo su duración. Estados individuales pueden definir reglas de acumulación distintas en su descripción.
+## Effects
+
+[List of effects](./effects/index.md)
+
+- These are the capabilities of a card, a basic attack, a trap, or an environmental hazard.
+- Examples: deal damage, apply a status, push, jump, among many others.
+- An effect may apply a status to a character as part of its resolution.
+- Effects are instantaneous: they happen and resolve in the same turn. Statuses, on the other hand, persist beyond the turn in which they are applied (see Statuses).
+
+## Statuses
+
+[List of statuses](./statuses/index.md)
+
+- Applied to a character.
+- Temporary. Has a defined duration.
+- Each status reduces its duration by 1 at the end of the next turn of the character holding that status. This way, if it is a benefit, the character can use it during the turn they have it before it ticks down. If it is a detriment, it affects them for at least one full turn before it can expire.
+- When its duration reaches 0, the status is removed from the character.
+- By default, statuses do not stack. Receiving the same status again replaces the previous one, including its duration. Individual statuses may define different stacking rules in their description.
 
-## Personajes
-
-### Familias
-
-Cada personaje pertenece a uno de estos tipos de animales:
-
-- **Aves.** Ejemplos: búho, halcón, águila.
-- **Mamíferos.** Ejemplos: zorro, nutria, comadreja.
-- **Herptiles.** Incluye anfibios y reptiles. Ejemplos: serpiente, sapo, salamandra.
-- **Invertebrados.** Ejemplos: araña, escorpión, ciempiés.
-
-### Atributo
+## Characters
+
+### Families
+
+Each character belongs to one of these animal types:
+
+- **Birds.** Examples: owl, hawk, eagle.
+- **Mammals.** Examples: fox, otter, weasel.
+- **Herptiles.** Includes amphibians and reptiles. Examples: snake, toad, salamander.
+- **Invertebrates.** Examples: spider, scorpion, centipede.
+
+### Attribute
 
-Cada personaje dispone de estos atributos, con mayor o menor valor, en función de su naturaleza.
+Each character has these attributes, with higher or lower values depending on their nature.
 
-- **Fuerza (STR).** Poder físico.
-- **Destreza (DEX).** Agilidad, reflejos y balance.
-- **Constitución (CON).** Salud y resistencia.
-- **Inteligencia (INT).** Razonamiento y memoria.
-- **Sabiduría (WIS).** Perspicacia y fortaleza mental.
-- **Carisma (CHA).** Confianza, aplomo y encanto.
-
-### Pruebas de atributo
+- **Strength (STR).** Physical power.
+- **Dexterity (DEX).** Agility, reflexes, and balance.
+- **Constitution (CON).** Health and endurance.
+- **Intelligence (INT).** Reasoning and memory.
+- **Wisdom (WIS).** Perception and mental fortitude.
+- **Charisma (CHA).** Confidence, poise, and charm.
+
+### Attribute checks
 
-Representa a un personaje que usa su atributo para intentar superar un desafío.
-
-- **Fuerza.** Levantar, empujar, tirar o romper algo.
-- **Destreza.** Moverse con agilidad, rapidez o sigilo.
-- **Constitución.** Llevar el cuerpo más allá de los límites normales.
-- **Inteligencia.** Razonar o recordar.
-- **Sabiduría.** Observar el entorno o el comportamiento de las criaturas.
-- **Carisma.** Influir, entretener o engañar.
-
-### Ataque
-
-- Se puede realizar un ataque con un **Ataque básico** o jugando una **Carta**.
-- Los ataques tienen una determinada precisión para impactar o afectar a un personaje.
-- Cada ataque determina qué atributo utiliza para calcular efectividad.
-- Hay dos tipos de ataque: **Físico** y **Especial**
+A character uses an attribute to try to overcome a challenge.
+
+- **Strength.** Lift, push, pull, or break something.
+- **Dexterity.** Move with agility, speed, or stealth.
+- **Constitution.** Push the body beyond normal limits.
+- **Intelligence.** Reason or remember.
+- **Wisdom.** Observe the surroundings or the behavior of creatures.
+- **Charisma.** Influence, entertain, or deceive.
+
+### Attack
+
+- An attack can be performed with a **Basic Attack** or by playing a **Card**.
+- Attacks have a defined accuracy to hit or affect a character.
+- Each attack determines which attribute it uses to calculate effectiveness.
+- There are two attack types: **Physical** and **Special**
 
-#### Ataque físico
-
-- El personaje atacado utiliza su **Dureza** para intentar anular el ataque.
-- El personaje atacante utiliza un **Atributo** descrito en el ataque para incrementar sus posibilidades de éxito.
-- `Impacta? = (tirada d20) + (modificador) >= (dureza personaje objetivo)`
-
-#### Ataque especial
+#### Physical attack
+
+- The attacked character uses their **Toughness** to try to negate the attack.
+- The attacking character uses an **Attribute** described by the attack to increase their chance of success.
+- `Hits? = (d20 roll) + (modifier) >= (target's Toughness)`
+
+#### Special attack
 
-- El personaje atacado tira su propia tirada de resistencia para intentar resistir el ataque.
-- Para resistir el ataque, debe utilizar el atributo de resistencia concreto indicado en el ataque (ver Resistencias).
-- Cada ataque especial define su propio valor de **Resistencia**, un número que el defensor debe superar con su tirada.
-- `¿Resiste? = (d20) + (modificador del atributo de resistencia) >= Resistencia del ataque`
-- Si resiste: el daño se reduce a la mitad. Si el ataque aplicaba un estado, el estado no se aplica.
-
-#### Cálculo del modificador
-
-- `modificador = (atributo - 10)`. El atributo es el que el ataque (físico o especial) especifica.
-- Ejemplos: atributo 10 → 0, atributo 14 → 4, atributo 20 → 10.
+- The attacked character rolls their own resistance roll to try to resist the attack.
+- To resist the attack, they must use the specific resistance attribute indicated by the attack (see Resistances).
+- Each special attack defines its own **Resistance** value, a number the defender must beat with their roll.
+- `Resists? = (d20) + (resistance attribute modifier) >= attack's Resistance`
+- If they resist: damage is halved. If the attack applied a status, the status is not applied.
+
+#### Modifier calculation
+
+- `modifier = (attribute - 10)`. The attribute is the one specified by the attack (physical or special).
+- Examples: attribute 10 → 0, attribute 14 → 4, attribute 20 → 10.
 
-### Ataque básico
+### Basic attack
 
-- Propio de un personaje, y representa su técnica de ataque común.
-- No gasta ningún recurso, y está siempre disponible.
-- Tiene un efecto más débil que el de una carta.
-- El tipo de ataque es **Físico**, siempre.
-- Tiene estos atributos:
-	- **Alcance.** Determina la distancia a la que puede atacar.
-	- **Area de efecto.** Determina qué casillas afecta, y cuantas.
-	- **Efectos.** Determina qué hace el ataque. Puede realizar uno o más efectos.
-	- **Escalado.** Puede escalar con uno o más atributos del personaje, modificando tanto el d20 de impacto como el daño posterior.
+- Inherent to a character; represents their common attack technique.
+- Costs no resources and is always available.
+- Has a weaker effect than a card.
+- The attack type is always **Physical**.
+- It has these attributes:
+	- **Range.** Determines the distance at which it can attack.
+	- **Area of effect.** Determines which tiles it affects, and how many.
+	- **Effects.** Determines what the attack does. It can perform one or more effects.
+	- **Scaling.** Can scale with one or more of the character's attributes, modifying both the d20 hit roll and the subsequent damage.
 
-### Carta
+### Card
 
-[Listado de cartas](./cards/index.md)
+[List of cards](./cards/index.md)
 
-- Propia de un personaje, y representan sus técnicas únicas.
-- Tiene estos atributos:
-	- **Coste de energía.** Debe pagarse para ser jugada.
-	- **Alcance.** Determina la distancia a la que puede jugarse.
-	- **Area de efecto.** Determina qué casillas afecta, y cuantas.
-	- **Efectos.** Determina qué hace la carta. Puede realizar uno o más efectos.
-	- **Escalado.** Puede escalar con uno o más atributos del personaje que la juega, dependiendo de la carta.
-	- **Familia.** Indica a qué familia de animal pertenece. Algunas características y trofeos pueden afectar a cartas de una familia concreta; el efecto específico se define en cada trofeo o característica.
-	- **Tipo.**
-		- **Ataque.** Puede ser **Físico** o **Especial**. Si es Especial, debe indicar la resistencia requerida por el personaje atacado.
-		- **Defensa.** Puede curar, dar puntos de vida temporales, etcétera.
-		- **Especial.** Puede dar beneficios varios, invocar criaturas, etcétera.
+- Inherent to a character; represents their unique techniques.
+- It has these attributes:
+	- **Energy cost.** Must be paid to be played.
+	- **Range.** Determines the distance at which it can be played.
+	- **Area of effect.** Determines which tiles it affects, and how many.
+	- **Effects.** Determines what the card does. It can perform one or more effects.
+	- **Scaling.** Can scale with one or more of the playing character's attributes, depending on the card.
+	- **Family.** Indicates which animal family it belongs to. Some features and trophies can affect cards of a specific family; the specific effect is defined in each trophy or feature.
+	- **Type.**
+		- **Attack.** Can be **Physical** or **Special**. If Special, it must indicate the resistance required by the attacked character.
+		- **Defense.** Can heal, grant temporary HP, and so on.
+		- **Special.** Can grant various benefits, summon creatures, and so on.
 
-### Dureza
+### Toughness
 
-- Afecta a la probabilidad de esquivar o anular un ataque de otro personaje o trampa.
-- El valor normal es de 10, aunque puede variar entre 0 y 30.
-- Cuanto más alta, más probabilidades de resistir el ataque.
+- Affects the probability of dodging or negating an attack from another character or trap.
+- The normal value is 10, though it may range from 0 to 30.
+- The higher it is, the higher the chance of resisting the attack.
 
-### Resistencias
+### Resistances
 
-Los efectos causados por cartas o entorno pueden ser resistidos por algún atributo del personaje:
+Effects caused by cards or the environment can be resisted by some character attribute:
 
-- **Fuerza.** Resistir físicamente la fuerza directa.
-- **Destreza.** Esquivar el peligro.
-- **Constitución.** Soportar un riesgo tóxico.
-- **Inteligencia.** Reconocer una ilusión como falsa.
-- **Sabiduría.** Resistir un ataque mental.
-- **Carisma.** Afirmar la propia identidad.
+- **Strength.** Physically resist direct force.
+- **Dexterity.** Dodge the danger.
+- **Constitution.** Endure a toxic hazard.
+- **Intelligence.** Recognize an illusion as false.
+- **Wisdom.** Resist a mental attack.
+- **Charisma.** Assert one's own identity.
 
-### Daño
+### Damage
 
-- Se usan dados para calcular el daño realizado por un ataque.
-- El valor se describe en cada ataque.
-- A los dados se les puede sumar o restar un número base. Por ejemplo: 3d8 + 5
-- Notación por rango (configurable desde menú): en vez de 1d6 + 4, se puede decir [5 ~ 10]
+- Dice are used to calculate the damage dealt by an attack.
+- The value is described in each attack.
+- A flat number can be added to or subtracted from the dice. For example: 3d8 + 5
+- Range notation (configurable from the menu): instead of 1d6 + 4, it can be expressed as [5 ~ 10]
 
-### Puntos de vida
+### Hit Points
 
-- Representan la resistencia y la voluntad de vivir. Si llegan a 0, el personaje **muere**.
-- El valor no puede ser negativo.
-- Escala con **Constitución**.
-- Cuando un personaje tiene la mitad de Puntos de Vida o menos, está **Herido**. De por sí no hace nada, pero puede influir en otros efectos que lo indiquen.
-- **TBD.** El valor concreto de los Puntos de Vida del ratón y de los depredadores está por determinar. Se balanceará en función del daño máximo posible de los ataques básicos y cartas, no al revés.
+- Represent endurance and will to live. If they reach 0, the character **dies**.
+- The value cannot be negative.
+- Scales with **Constitution**.
+- When a character has half or fewer of their Hit Points, they are **Wounded**. By itself it does nothing, but it may influence other effects that mention it.
+- **TBD.** The concrete Hit Point value of the mouse and of the predators is still to be determined. It will be balanced against the maximum possible damage of basic attacks and cards, not the other way around.
 
-### Puntos de vida temporales
+### Temporary Hit Points
 
-- Son adicionales a los puntos de vida del personaje.
-- No pasa nada si se agotan.
-- Por defecto, el valor es 0.
-- El valor no puede ser negativo.
-- Pueden ser otorgados por ciertas cartas u otros efectos.
-- Sirven como protección contra la pérdida de los puntos de vida reales. Al recibir daño, estos puntos se pierden primero.
-- Se pierden al llegar a una zona de descanso.
-- No se acumulan. Siempre que se obtienen puntos de vida temporales, éstos sobreescriben a los que ya se tienen, si el número es mayor.
+- They are additional to the character's Hit Points.
+- Nothing happens if they run out.
+- By default, the value is 0.
+- The value cannot be negative.
+- They can be granted by certain cards or other effects.
+- They serve as protection against the loss of real Hit Points. When taking damage, these points are lost first.
+- They are lost upon reaching a rest area.
+- They do not stack. Whenever Temporary Hit Points are gained, they overwrite the ones already held, if the number is greater.
 
-### Energía
+### Energy
 
-- Recurso que lleva al personaje más allá de sus límites. Se consume para jugar cartas.
-- Se recupera 1 de energía por turno.
-- Fórmula del máximo: `base_clase + floor((INT - 10) / 2)`. El `base_clase` se define en cada clase, en `mice/index.md`.
+- Resource that pushes the character beyond their limits. Consumed to play cards.
+- Recovers 1 energy per turn.
+- Maximum formula: `class_base + floor((INT - 10) / 2)`. The `class_base` is defined per class, in `mice/index.md`.
 
-### Iniciativa
+### Initiative
 
-- Determina el orden del turno para cada personaje que no sea el jugador.
-- En cualquier caso, el jugador siempre va primero, y luego el resto de personajes, ordenados según su iniciativa.
-- Se determina según la **Destreza** al instanciarse el bioma.
-- Este valor no será visible al jugador, es un valor interno para ordenar los personajes no jugables.
+- Determines turn order for every non-player character.
+- In any case, the player always goes first, and then the rest of the characters, ordered by their initiative.
+- Determined by **Dexterity** when the biome is instantiated.
+- This value will not be visible to the player; it is an internal value used to order non-playable characters.
 
-### Acciones por Turno
+### Actions per Turn
 
-Cada **acción** equivale a un **turno**. Cuando el jugador realiza una acción, el resto de elementos del juego toman su propio turno. Luego es el turno del jugador, y así constantemente. Las acciones disponibles para cualquier personaje son:
-- **Mover.** 1 casilla, de forma ortogonal, no diagonal.
-- **Ataque básico.** No es una carta. Siempre disponible. Inherente al personaje.
-- **Jugar una carta.** Consume energía, según la carta.
-- **Robar cartas.** Se descartan todas las cartas de la mano (incluidas las Cartas Ambientales), luego se roban cartas hasta llenar la mano. Consume 1 carga de recarga. Cada personaje empieza en el bioma con 3 cargas, y recupera una carga cada 5 turnos. Se pueden acumular hasta un máximo de 3 cargas.
-- **Recolectar.** Recoger algo del suelo (semilla, carta ambiental, etc.). Disponible sólo para el jugador.
-- **Saquear.** Recoger esencia y materiales del cadáver de un depredador. Solo disponible si el ratón está sobre un cadáver.
-- **Esperar.** Consume el turno.
+Each **action** is equivalent to one **turn**. When the player takes an action, the rest of the game elements take their own turn. Then it is the player's turn again, and so on. The actions available to any character are:
+- **Move.** 1 tile, orthogonally, not diagonally.
+- **Basic attack.** Not a card. Always available. Inherent to the character.
+- **Play a card.** Consumes energy, depending on the card.
+- **Draw cards.** All cards in the hand (including Environmental Cards) are discarded, then cards are drawn until the hand is full. Consumes 1 reload charge. Each character starts the biome with 3 charges, and recovers one charge every 5 turns. Up to a maximum of 3 charges can be accumulated.
+- **Gather.** Pick something up from the ground (seed, environmental card, etc.). Available only to the player.
+- **Loot.** Pick up essence and materials from a predator's corpse. Only available if the mouse is on a corpse.
+- **Wait.** Consumes the turn.
 
 
-## Depredador
+## Predator
 
-[Listado de depredadores](./predators/index.md)
+[List of predators](./predators/index.md)
 
-Habitan en uno o más biomas, dependiendo de su naturaleza.
+Inhabit one or more biomes, depending on their nature.
 
-### Nivel de peligro
+### Threat level
 
-- Cada depredador tiene un nivel de peligro, determinado por su eficacia al cazar ratones, y de las probabilidades que tiene un ratón de sobrevivir a él.
-- Este nivel es inmutable e inherente al depredador.
-- Los niveles de peligro son:
-	- **Alto.** Por ejemplo: Redhead Centipede, Giant Bullfrog.
-	- **Muy Alto.** Por ejemplo: Green Horn, Goliath Frog.
-	- **Letal.** Por ejemplo: Manul, Águila de cabeza blanca.
-- En los primeros biomas de la partida se encuentran los depredadores de menos nivel de peligro, y se incrementa según se avanza en los siguientes biomas.
-- Los atributos del depredador escalan en función de su nivel de peligro.
+- Each predator has a threat level, determined by its effectiveness at hunting mice, and the probability of a mouse surviving it.
+- This level is immutable and inherent to the predator.
+- The threat levels are:
+	- **High.** For example: Redhead Centipede, Giant Bullfrog.
+	- **Very High.** For example: Green Horn, Goliath Frog.
+	- **Lethal.** For example: Pallas's Cat, Bald Eagle.
+- Early biomes of the run contain the predators with the lowest threat level, increasing as the run advances through the following biomes.
+- The predator's attributes scale according to its threat level.
 
-### Intención de depredador
+### Predator intent
 
-- Todos los depredadores, al final de su turno, muestran su siguiente acción (intención), si es un **ataque básico** o **jugar una carta**. También muestran su intención de movimiento si se trata de un ataque con desplazamiento (carga, embestida). En estos casos, no pueden cambiar de acción ni de objetivo; atacarán, jugarán la carta o se desplazarán allá donde lo hayan anunciado.
-- La intención se le revela al jugador mostrando las casillas que serán afectadas por la acción del depredador.
-- Una animación especial mostrará que el depredador está preparado para lanzar un ataque o una carta.
-- El jugador puede seleccionar el depredador para ver el detalle de qué ataque o carta ha preparado.
+- All predators, at the end of their turn, reveal their next action (intent), if it is a **basic attack** or **play a card**. They also reveal their movement intent if the attack involves displacement (charge, lunge). In these cases, they cannot change action or target; they will attack, play the card, or move to where they have announced.
+- The intent is revealed to the player by showing the tiles that will be affected by the predator's action.
+- A special animation will show that the predator is ready to launch an attack or a card.
+- The player can select the predator to see the detail of which attack or card it has prepared.
 
-### Baraja del depredador
+### Predator deck
 
-- Contiene 3 cartas únicas.
-- Cada carta representa las capacidades del depredador.
+- Contains 3 unique cards.
+- Each card represents the predator's capabilities.
 
-### Mano del depredador
+### Predator hand
 
-- Tamaño fijo de 3 cartas.
-- Inicia la partida con 3 cartas en mano.
+- Fixed size of 3 cards.
+- Starts the encounter with 3 cards in hand.
 
-### Característica del depredador
+### Predator feature
 
-- Cada depredador tiene una única característica.
-- Una característica puede tener efectos diversos, tanto pasivos como reactivos. Puede alterar o amplificar los efectos de las cartas o ataques básicos, entre otras cosas.
-- Es innata, fija para la especie. El ratón solo puede acceder a ella vinculando un trofeo crafteado con materiales de ese depredador.
+- Each predator has a single feature.
+- A feature may have various effects, both passive and reactive. It may alter or amplify the effects of cards or basic attacks, among other things.
+- It is innate, fixed for the species. The mouse can only access it by binding a trophy crafted with materials from that predator.
 
-### Cadáver de depredador
+### Predator corpse
 
-- Cuando un depredador muere, se convierte en un cadáver.
-- Un cadáver ocupa una casilla, igual que un personaje vivo.
-- Tiene una cantidad limitada de puntos de vida.
-- Si los puntos de vida del cadáver llega a 0, éste es destruido, y desaparece.
+- When a predator dies, it becomes a corpse.
+- A corpse occupies a tile, just like a living character.
+- It has a finite amount of Hit Points.
+- If the corpse's Hit Points reach 0, it is destroyed and disappears.
 
-## Ratón
+## Mouse
 
-### Clases de ratones
+### Mouse classes
 
-[Listado de clases de ratones](./mice/index.md)
+[List of mouse classes](./mice/index.md)
 
-Cada clase de ratón determina diferentes características:
-- Cartas iniciales
-- Atributos
-- Ataque básico
-- Mecánica única
-- Recompensas por nivel.
+Each mouse class determines different characteristics:
+- Starting cards
+- Attributes
+- Basic attack
+- Unique mechanic
+- Level-up rewards.
 
-### Baraja del ratón
+### Mouse deck
 
-- Empieza la partida con 12 cartas (las cartas iniciales de la clase).
-- Puede llegar a un máximo de 16 cartas añadiendo cartas aprendidas durante la run.
+- Starts the run with 12 cards (the class's starting cards).
+- Can reach a maximum of 16 cards by adding cards learned during the run.
 
-### Mano del ratón
+### Mouse hand
 
-- Fórmula: `4 + floor((INT - 10) / 4)`.
-- Ejemplos: INT 10 → 4, INT 14 → 5, INT 18 → 6, INT 20 → 6.
+- Formula: `4 + floor((INT - 10) / 4)`.
+- Examples: INT 10 → 4, INT 14 → 5, INT 18 → 6, INT 20 → 6.
 
-### Cartas memorizadas del ratón
+### Mouse memorized cards
 
-- Durante la exploración de un bioma, el ratón **memoriza** las cartas utilizadas por los depredadores. 
-- Estas cartas se añaden a un listado de **cartas memorizadas** que está disponible en la zona de descanso.
-- Las cartas memorizadas se **olvidan** al entrar en un nuevo bioma, después de la zona de descanso.
+- During a biome's exploration, the mouse **memorizes** the cards used by predators.
+- These cards are added to a list of **memorized cards** that is available at the rest area.
+- Memorized cards are **forgotten** when entering a new biome, after the rest area.
 
-### Cartas aprendidas del ratón
+### Mouse learned cards
 
-- En una zona de descanso, el ratón puede gastar **esencia** para **aprender** cartas memorizadas.
-- Las cartas aprendidas se añaden al listado de **cartas aprendidas**. La cantidad de esencia a consumir dependen de cada carta.
+- At a rest area, the mouse can spend **essence** to **learn** memorized cards.
+- Learned cards are added to the list of **learned cards**. The amount of essence to consume depends on each card.
 
-### Esencia recolectada por el ratón
+### Essence gathered by the mouse
 
-- La esencia se recolecta al saquear el cadáver de un depredador.
-- La cantidad recolectada depende del depredador derrotado, de la **Sabiduría**, y del azar.
+- Essence is gathered by looting a predator's corpse.
+- The amount gathered depends on the defeated predator, on **Wisdom**, and on chance.
 
-### Trofeos del ratón
+### Mouse trophies
 
-- Al saquear el cadáver de un depredador, el ratón obtiene un **trofeo** del depredador (colmillo, pluma, garra, etc.). El trofeo lleva un resto de la esencia del depredador, pero está **inerte** tras su muerte.
-- En las zonas de descanso, el ratón puede **imbuir** el trofeo con **esencia** (recogida de otros depredadores). Al imbuirlo, el trofeo pasa de **inerte** a **imbuido** y se vincula a un hueco.
-- Un trofeo imbuido otorga al ratón la característica del depredador como pasiva.
-- Imbuir un trofeo cuesta esencia. Vincular y desvincular trofeos imbuidos entre huecos es libre.
-- Huecos: 3 iniciales. +1 en los niveles 3, 5 y 7. Máximo 7 huecos en nivel 8.
-- Los trofeos inertes y los trofeos desvinculados se guardan en un alijo de la madriguera.
+- When looting a predator's corpse, the mouse obtains a **trophy** from the predator (fang, feather, claw, etc.). The trophy carries a remnant of the predator's essence, but it is **inert** after its death.
+- At rest areas, the mouse can **imbue** the trophy with **essence** (gathered from other predators). When imbued, the trophy goes from **inert** to **imbued** and binds to a bind.
+- An imbued trophy grants the mouse the predator's feature as a passive.
+- Imbuing a trophy costs essence. Binding and unbinding imbued trophies between binds is free.
+- Binds: 3 initial. +1 at levels 3, 5, and 7. Maximum 7 binds at level 8.
+- Inert trophies and unbound trophies are kept in a stash in the burrow.
 
-### Experiencia
+### Experience
 
-- Un ratón puede obtener experiencia:
-	- Al derrotar un depredador (no tiene que saquearlo).
-	- En eventos
+- A mouse can earn experience:
+	- By defeating a predator (does not need to loot it).
+	- From events.
 
-### Subir de nivel
+### Level up
 
-- Un ratón puede obtener experiencia durante un bioma.
-- En una zona de descanso puede subir de nivel si ha conseguido suficiente experiencia.
-- La experiencia no se pierde entre biomas.
-- Recompensas por nivel. El jugador elige 1 de las opciones disponibles para su clase. La matriz de elegibilidad se define en cada clase, en `mice/index.md`.
-	- Características de ratón: pueden efectos diversos, tanto pasivos como reactivos.
-	- Cartas Innatas: únicas para ratones
-	- Puntos de atributo
+- A mouse can earn experience during a biome.
+- At a rest area, the mouse can level up if it has earned enough experience.
+- Experience is not lost between biomes.
+- Level-up rewards. The player picks 1 of the options available for their class. The eligibility matrix is defined per class, in `mice/index.md`.
+	- Mouse features: may have various effects, both passive and reactive.
+	- Innate Cards: unique to mice
+	- Attribute points
 
-## Biomas
+## Biomes
 
-### Tipos
+### Types
 
-- **Pantano.**
+- **Swamp.**
 - **Tundra.**
-- **Yermo.**
-- **Bosque.**
-- **Cañón.**
+- **Wasteland.**
+- **Forest.**
+- **Canyon.**
 
-### Cartas Ambientales
+### Environmental Cards
 
-- Cartas de **un solo uso** que solo funcionan dentro del bioma actual.
-- Utilizables sólo por el ratón.
-- Se recolectan durante la exploración del bioma.
-- Cuando se recolectan, se añaden a la mano.
-- No cuentan para el límite de mano.
-- Desaparecen si se descartan, o al cambiar de bioma.
-- Ejemplos:
-	- Lanzar Piedra
-	- Arrojar Fango
-	- Consumir Planta
+- **Single-use** cards that only work within the current biome.
+- Usable only by the mouse.
+- Gathered during the biome's exploration.
+- When gathered, they are added to the hand.
+- They do not count toward the hand limit.
+- They disappear when discarded, or when changing biome.
+- Examples:
+	- Throw Stone
+	- Throw Mud
+	- Consume Plant
 
-### Trampas
+### Traps
 
-[Lista de trampas](./traps/index.md)
+[List of traps](./traps/index.md)
 
-- Las trampas son elementos estáticos o móviles, dispersos por el bioma, que suponen un obstáculo o un peligro para el ratón.
-- El contacto con una trampa hace que ésta se dispare y haga daño al ratón y/o le aplique algún estado negativo.
-- Una trampa que se ha disparado queda desactivada y no se vuelve a reactivar.
+- Traps are static or mobile elements scattered across the biome that pose an obstacle or a danger to the mouse.
+- Contact with a trap triggers it, dealing damage to the mouse and/or applying a negative status.
+- A trap that has triggered is deactivated and does not reactivate.
 
-### Peligros ambientales
+### Environmental Hazards
 
-[Lista de peligros ambientales](./hazards/index.md)
+[List of environmental hazards](./hazards/index.md)
 
-- Un peligro ambiental es un área que cubre una pequeña zona del mapa e impone un efecto negativo mientras se está en esa zona.
-- Estas áreas pueden desplazarse lentamente.
-- Afectan a todos los personajes en el área.
-- Pueden imponer efectos tales como: reducir visibilidad, reducir un atributo (fuerza, destreza, etc.), etcétera.
-- No hace daño.
+- An environmental hazard is an area covering a small zone of the map and imposing a negative effect while standing in that zone.
+- These areas may move slowly.
+- They affect all characters in the area.
+- They may impose effects such as: reduced visibility, reduced attribute (strength, dexterity, etc.), and so on.
+- They do not deal damage.
 
-### Recolección
+### Gathering
 
-- Recolectables consumibles esparcidos por el bioma (e.g. bayas en un arbusto, pequeños insectos, nidos con material, caparazones vacíos).
-- Efectos menores: una baya cura 1-2 HP. No son moneda; ignorarlos no rompe la run.
+- Consumable collectables scattered across the biome (e.g. berries on a bush, small insects, nests with material, empty shells).
+- Minor effects: a berry heals 1-2 HP. They are not currency; ignoring them does not break the run.
 
-### Eventos
+### Events
 
-[Lista de eventos](./events/index.md)
+[List of events](./events/index.md)
 
-- Un evento es una situación no hostil.
-- Los eventos están esparcidos por el bioma.
-- El ratón puede interactuar con estos eventos para intentar obtener algún tipo de recompensa.
-- El evento puede ofrecer una o varias pruebas de atributo para superarlo.
-- Interactuar con el evento es opcional.
+- An event is a non-hostile situation.
+- Events are scattered across the biome.
+- The mouse may interact with these events to try to obtain some kind of reward.
+- The event may offer one or several attribute checks to pass.
+- Interacting with the event is optional.
