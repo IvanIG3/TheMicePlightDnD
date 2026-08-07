@@ -3,13 +3,12 @@ extends EffectExecutor
 
 
 func execute(ctx: EffectContext) -> void:
-	var data: HealEffectData = data as HealEffectData
-	assert(data != null, "HealExecutor.data must be HealEffectData")
-
-	var amount: int = data.dice.roll().total
-	var actual_healed: int = _apply_heal(ctx.target, amount)
-
-	ctx.bus.heal_applied.emit(actual_healed, ctx.target)
+	if data is HealEffectData:
+		var amount: int = data.dice.roll().total
+		var actual_healed: int = _apply_heal(ctx.target, amount)
+		ctx.bus.heal_applied.emit(actual_healed, ctx.target)
+	else:
+		push_error("HealExecutor.data must be HealEffectData")
 
 
 func _apply_heal(target: Node, amount: int) -> int:
