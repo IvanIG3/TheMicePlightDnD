@@ -3,8 +3,6 @@ extends EffectExecutor
 
 
 const DEFAULT_TOUGHNESS: int = 10
-const DAMAGE_TYPE_PHYSICAL: StringName = &"physical"
-const DAMAGE_TYPE_SPECIAL: StringName = &"special"
 
 
 func execute(ctx: EffectContext) -> void:
@@ -27,11 +25,11 @@ func execute(ctx: EffectContext) -> void:
 
 		var amount: int = data.dice.roll().total + source_modifier
 
-		if data.damage_type == DAMAGE_TYPE_PHYSICAL:
+		if data.damage_type == DamageTypes.PHYSICAL:
 			if raw + source_modifier < target_toughness:
 				ctx.bus.damage_applied.emit(0, ctx.source, ctx.target, false)
 				return
-		elif data.damage_type == DAMAGE_TYPE_SPECIAL:
+		elif data.damage_type == DamageTypes.SPECIAL:
 			var defend_raw: int = ctx.rng.dice_roll(_make_d20()).raw
 			var resist_modifier: int = _get_modifier(ctx.target, data.resistance_attribute)
 			if defend_raw + resist_modifier >= data.resistance_value:
@@ -39,7 +37,7 @@ func execute(ctx: EffectContext) -> void:
 
 		_apply_damage(ctx.target, amount, ctx.source)
 		ctx.bus.damage_applied.emit(amount, ctx.source, ctx.target, false)
-	
+
 	else:
 		push_error("DamageExecutor.data must be DamageEffectData")
 
