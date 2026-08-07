@@ -39,7 +39,7 @@ func before_each() -> void:
 	_rng_node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
 
 
-func _build_actor_with_components(card: Resource = null, hp: int = 100, energy: int = 5) -> Node:
+func _build_actor_with_components(card: Resource = null, energy: int = 5) -> Node:
 	var actor: Node = Node.new()
 	var attr: AttributeComponent = AttributeComponentScript.new()
 	var attrs: AttributeSet = AttributeSetScript.new()
