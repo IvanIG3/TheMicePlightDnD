@@ -118,12 +118,29 @@ Each is a `RefCounted` subclass of `ActionExecutor`.
 | Executor | Behavior summary |
 | --- | --- |
 | `MoveExecutor` | Validates one orthogonal step is unblocked; calls `GridPositionComponent.try_move`. |
-| `BasicAttackExecutor` | Reads the actor's `BasicAttackData`; resolves its `effects` via the registry; ignores action budget exhaustion if the attack itself was somehow blocked. |
+| `BasicAttackExecutor` | Reads the actor's `BasicAttackData`; resolves its `effects` via the registry. Consumes the `basic_attack` budget on a successful `execute()` return. If `execute()` returns `false` because the action could not be attempted (world state diverged from the plan in a way outside the actor's control), the budget is refunded — see [Action budget refund rules](#action-budget-refund-rules) below. |
 | `PlayCardExecutor` | Validates energy, range, line of sight, area, action budget; spends energy; resolves each `EffectData` in the card; routes the card to discard (or exhausts it). |
 | `DrawCardsExecutor` | Confirms `reload_charges >= 1`; spends one charge; calls `DeckComponent.draw` to refill the hand. |
 | `WaitExecutor` | No-op. Resolves immediately. |
 | `CollectExecutor` | Requires a `Recolectable` on the actor's tile; applies `effects_on_pickup`; removes the collectable. |
 | `LootExecutor` | Requires a `Corpse` on the actor's tile; calls `CorpseComponent.loot`; grants XP, essence, and trophy. |
+
+### Action budget refund rules
+
+`execute()` returns `bool`. The return value is the **commit signal**:
+
+- `true` — the action was committed. The budget is consumed, even if every effect resolved to a no-op: fumble (Nat 1), miss, resistance, immunity, zero damage. These are in-resolution outcomes the player already accounted for at plan time.
+- `false` — the action was not committed. The budget is refunded, because the world state diverged from the plan in a way the actor could not have anticipated and the executor could not even attempt the action.
+
+`false` is reserved for **pre-resolution invalidation**: a condition discovered inside `execute()` that *should have* failed `validate()` if it had been true at plan time. Examples:
+
+- The targeted tile is no longer a legal target. Targets can be any tile (`Vector2i`), not just a character, so the failure mode is "the tile is no longer a valid destination" — blocked, occupied by a non-targetable entity, out of the action's range after a grid mutation.
+- Line of sight was broken by a change that happened after planning.
+- A prerequisite component on the actor or target is missing or invalid.
+
+`false` is **not** used for game outcomes the player could have predicted from the plan-time view: fumble (Nat 1), toughness roll failed, resistance roll succeeded, immunity, or any defender-side mitigation. Those return `true` and the budget is consumed.
+
+Adding a new refund condition requires enumerating it here; absence from this list means the budget is consumed on a `false` return only if the cause matches one of the cases above.
 
 ## The `Registry`
 

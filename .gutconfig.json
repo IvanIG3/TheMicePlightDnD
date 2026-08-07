@@ -1,10 +1,16 @@
 {
   "dirs": [
-    "res://attribute/tests/",
-    "res://stats/tests/",
-    "res://health/tests/",
-    "res://dice/tests/",
-    "res://global/tests/"
+	"res://attribute/tests/",
+	"res://stats/tests/",
+	"res://health/tests/",
+	"res://dice/tests/",
+	"res://global/tests/",
+	"res://world/tests/",
+	"res://character/tests/",
+	"res://mouse/tests/",
+	"res://executor/tests/",
+	"res://input/tests/",
+    "res://view/tests/"
   ],
   "prefix": "test_",
   "suffix": ".gd",

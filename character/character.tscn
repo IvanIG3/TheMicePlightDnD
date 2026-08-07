@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://bsn8sji3lan7v"]
+
+[ext_resource type="Script" path="res://character/character.gd" id="1_char"]
+[ext_resource type="Script" path="res://attribute/attribute_component.gd" id="2_attr"]
+[ext_resource type="Script" path="res://stats/stats_component.gd" id="3_stats"]
+[ext_resource type="Script" path="res://health/health_component.gd" id="4_health"]
+[ext_resource type="Script" path="res://character/faction_component.gd" id="5_faction"]
+[ext_resource type="Script" path="res://world/grid_position_component.gd" id="6_grid"]
+[ext_resource type="Script" path="res://character/action_budget_component.gd" id="7_budget"]
+[ext_resource type="Script" path="res://character/targeting_component.gd" id="8_target"]
+
+[node name="Character" type="Node"]
+script = ExtResource("1_char")
+
+[node name="AttributeComponent" type="Node" parent="."]
+script = ExtResource("2_attr")
+
+[node name="StatsComponent" type="Node" parent="."]
+script = ExtResource("3_stats")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("4_health")
+
+[node name="FactionComponent" type="Node" parent="."]
+script = ExtResource("5_faction")
+
+[node name="GridPositionComponent" type="Node" parent="."]
+script = ExtResource("6_grid")
+
+[node name="ActionBudgetComponent" type="Node" parent="."]
+script = ExtResource("7_budget")
+
+[node name="TargetingComponent" type="Node" parent="."]
+script = ExtResource("8_target")
+
+[node name="BrainSlot" type="Node" parent="."]

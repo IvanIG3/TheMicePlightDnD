@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://r8n5upkrnamy"]
+
+[ext_resource type="PackedScene" uid="uid://bsn8sji3lan7v" path="res://character/character.tscn" id="1_char"]
+[ext_resource type="Script" uid="uid://dt1ydm5kly6n6" path="res://mouse/mouse.gd" id="2_mouse"]
+[ext_resource type="Script" uid="uid://bjgld1sai4cfm" path="res://mouse/player_input_brain.gd" id="3_brain"]
+
+[node name="Mouse" unique_id=867600512 instance=ExtResource("1_char")]
+script = ExtResource("2_mouse")
+class_data = null
+faction = &"mouse"
+
+[node name="PlayerInputBrain" type="Node" parent="BrainSlot" index="0" unique_id=1638205850]
+unique_name_in_owner = true
+script = ExtResource("3_brain")

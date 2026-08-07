@@ -5,17 +5,68 @@
 - **Architecture**: software design lives in `docs/architecture/` — start with `docs/architecture/README.md`, then `principles.md`, `data-model.md`, `components.md`, `executors.md`, `systems.md`.
 - **Directory layout**: theme-organized at the project root, no top-level `scripts/` or `tests/`. Each theme dir (e.g. `attribute/`, `stats/`, `health/`, `dice/`, `global/`, `utils/`) holds the theme's `.gd` files directly and a `tests/` subdir for the theme's tests. Autoloads go in `global/`. Support code with no specific theme goes in `utils/`. When adding a new theme, update `.gutconfig.json` `dirs` to include `res://<theme>/tests/`.
 - **Content lives with its theme**: `.tres` / `.res` files for a `Resource` type live in the same directory as the `.gd` script that defines the type. Example: `attribute/attribute_data.gd` is paired with `attribute/strength.tres`, `attribute/dexterity.tres`, etc. There is no top-level `data/` folder. The `Registry` autoload walks each theme folder (skipping `*/tests/*` and `*.gd`) to index resources at boot.
-- **Code style (Godot 4 / GDScript)** — apply these on every new or modified `.gd` file:
+- **Code style (Godot 4 / GDScript)** — based on the [official GDScript style guide](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html). Apply these on every new or modified `.gd` file.
+
+  **Naming conventions** — follow the official Godot table:
+  - File names, functions, variables, signals: `snake_case` (e.g. `current_hp`, `hp_changed`).
+  - Class names, node names, enum names: `PascalCase` (e.g. `AttributeData`, `Element`).
+  - Constants and enum members: `CONSTANT_CASE` (e.g. `MAX_HP`, `Element.EARTH`).
+  - Private members: `snake_case` with a single `_` prefix (e.g. `_rng`, `_scan_themes`).
+  - **Full names over abbreviations**, no exceptions: `strength` not `str`, `dexterity` not `dex`, `constitution` not `con`, `intelligence` not `int`, `wisdom` not `wis`, `charisma` not `cha`, `modifier` not `mod`.
+
+  **File-level declaration order** — top to bottom:
+  1. `class_name` (after `@tool` / `@icon` if used)
+  2. `extends`
+  3. `##` doc comment
+  4. `signal` declarations
+  5. `enum`
+  6. `const` (and `static var`)
+  7. `@export var`
+  8. regular `var`
+  9. `@onready var`
+  10. `_init()`
+  11. `_ready()`
+  12. other virtual callbacks (`_process`, `_physics_process`, `_unhandled_input`, ...)
+  13. public methods
+  14. private methods
+  15. inner classes
+
+  **Formatting**
+  - **Encoding**: LF line endings, UTF-8 without BOM, tab indentation.
+  - **Line length**: 100 char hard cap, prefer ≤ 80.
+  - **Blank lines**: 0 between same-kind fields; 1 between sections; 2 between top-level functions and around inner classes; 1 inside a function to separate logical sections.
+  - **Trailing commas**: required in multiline arrays / dicts / enums, forbidden in single-line.
+  - **One statement per line**. Only the ternary operator is allowed inline.
+  - **Comments**: `#` + space (`# comment`); commented-out code has no space (`#print(x)`).
+  - **No vertical alignment** of `=` across lines.
+  - **Quotes**: double by default; single only when they reduce escapes.
+  - **Numbers**: never omit leading or trailing zero (`0.5` not `.5`, `13.0` not `13`); hex literals in lowercase; underscores in literals ≥ 1_000_000.
+  - **Boolean operators**: `and` / `or` / `not` only (never `&&` / `||` / `!`).
+  - **No unnecessary parentheses** in `if` / expressions — only when they change evaluation order or wrap a multiline continuation.
+  - **Multiline continuations**: 2 indent levels, `and` / `or` at the start of the continuation line; prefer parentheses over backslashes.
+
+  **Typing**
+  - Declare types explicitly when ambiguous. Use `:=` only when the type is obvious from the RHS.
+  - `get_node(...)` always annotated: either explicit type or `as` cast — never leave it as the implicit `Node`.
+  - `const FOO: int = 10`, not `const FOO := 10`.
+  - Use the concrete class type (`AttributeSet`, `DiceFormula`) instead of `Resource` / `Node` when known.
+  - Don't promote a local to a member variable just because two methods use it. Declare locals close to their first use.
+
+  **Methods**
+  - `_init` and `_ready` first (they define the lifecycle).
+  - Virtual callbacks (`_process`, `_physics_process`, `_unhandled_input`, ...) before public methods.
+  - Public methods before private methods within each group.
+
+  **Signals are part of the public surface.** Declare them after `@export` / `var` so the field block is contiguous, or at the top so the signal contract is the first thing the reader sees — pick one per file and stay consistent within the file.
+
+  **Language and design**
   - **Minimal comments.** Strip narrative documentation, "why we did this" prose, and `TODO[phase-N]` markers. The code is the documentation. Keep only what the code itself cannot say (e.g., a one-line spec reference for a non-obvious decision).
-  - **Full names over abbreviations, for every identifier.** `strength` not `str`, `dexterity` not `dex`, `constitution` not `con`, `intelligence` not `int`, `wisdom` not `wis`, `charisma` not `cha`, `modifier` not `mod`. Readability over brevity, with no exceptions for class names, method names, parameter names, local variables, or `Resource` fields.
-  - **Named constants, no magic numbers.** Pull numeric and enum-like literals into module-level `const` (e.g., `AttributeBonus.SCORE_BASELINE = 10`) and reference them by name.
+  - **Named constants, no magic numbers.** Pull numeric and enum-like literals into module-level `const` (e.g., `AttributeData.SCORE_BASELINE = 10`) and reference them by name.
   - **Use the StringName constants everywhere.** `AttributeIds.ATTR_STR` not `&"str"`. `AttributeBonus.MODE_ADD` not `&"add"`. `AttributeIds.ALL` for the full list. Never hardcode attribute or mode names.
-  - **Type everything explicitly.** `@export var strength: int = 10` not `@export var strength = 10`. Parameters and locals carry their types. `const FOO: int = 10` not `const FOO := 10`. Use the concrete class type (`AttributeSet`, `DiceFormula`, `AttributeComponent`) instead of `Resource` / `Node` when known.
   - **No defensive code.** Trust the architecture: autoloads are registered, `_ready()` ran, callers passed valid arguments. No "is the autoload there?" checks, no `_ensure_*` helpers, no fallback empty returns. Fail fast with `assert` or `push_error` at the contract boundary, not in every method.
   - **Explicit `floori(...)` for division where rounding matters.** `floori(max_hp / 2.0)` not `max_hp / 2`, even when they're equivalent for positive ints — the intent ("round down") must be visible.
-  - **Visual separation: double blank line between top-level declarations and between functions.** No trailing blank line inside a function.
-  - **Signals are part of the public surface.** Declare them after `@export` / `var` so the field block is contiguous, or at the top so the signal contract is the first thing the reader sees — pick one per file and stay consistent within the file.
-  - **Tests**: helpers prefixed with `_` (`_make_set`, `_make_attr`, `_make_bonus`). Use `add_child_autofree(_node)` for every Node-spawning test. Type-annotate every local. When the impl renames a field, update every test that referenced the old name in the same change.
+
+  **Tests** — helpers prefixed with `_` (`_make_set`, `_make_attr`, `_make_bonus`). Use `add_child_autofree(_node)` for every Node-spawning test. Type-annotate every local. When the impl renames a field, update every test that referenced the old name in the same change.
 
 ## Running the tests
 

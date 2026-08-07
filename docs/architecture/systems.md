@@ -135,10 +135,10 @@ The system is plain data with queries. It does not run game logic.
 
 #### Wiring (injected, not autoloaded)
 
-- `BiomeGenerator.generate` instantiates `GridSystem` as a child of the new `Biome` scene, and passes the reference into every spawned entity's `GridPositionComponent.init(grid)` and `TargetingComponent.grid_ref`.
+- `BiomeGenerator.generate` instantiates `GridSystem` as a child of the new `Biome` scene, and passes the reference into every spawned entity's `GridPositionComponent.grid` and `TargetingComponent.grid_ref`.
 - `BiomeState` holds a reference (`self.grid`) for its own queries.
 - `ActionContext.grid` is set to the current biome's `GridSystem` at action resolution time (by `TurnManager`).
-- The component does not autoload-lookup `GridSystem`. It throws if `init(grid)` was not called before the first `set_cell`.
+- The component does not autoload-lookup `GridSystem`. It asserts that `grid` is assigned before the first `set_cell`.
 
 ## Other named systems (not autoloads)
 
@@ -152,7 +152,7 @@ Generates a `Biome` scene from a `BiomeData` and a seed. Deterministic: same see
 
 The generator is constructed per-biome by the run state machine, given a fresh `RngService`-seeded RNG. It reads no global state.
 
-The generator owns one `EntityFactory` (below) and uses it to spawn every entity in the biome. The generator also instantiates the biome's `GridSystem` as a child of the new `Biome` scene and passes the reference into every spawned entity's `GridPositionComponent.init(grid)` and `TargetingComponent.grid_ref`.
+The generator owns one `EntityFactory` (below) and uses it to spawn every entity in the biome. The generator also instantiates the biome's `GridSystem` as a child of the new `Biome` scene and passes the reference into every spawned entity's `GridPositionComponent.grid` and `TargetingComponent.grid_ref`.
 
 ### `EntityFactory` (Node, constructed per-biome)
 

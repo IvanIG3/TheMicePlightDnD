@@ -9,6 +9,9 @@ const _THEME_DIRS: Array[String] = [
 ]
 
 
+const MoveExecutorScript := preload("res://executor/move_executor.gd")
+
+
 var effect_executors: Dictionary[StringName, Script] = {}
 var action_executors: Dictionary[StringName, Script] = {}
 var status_classes: Dictionary[StringName, Script] = {}
@@ -18,6 +21,7 @@ var data_index: Dictionary[StringName, Resource] = {}
 func _ready() -> void:
 	_scan_themes()
 	_assert_effect_data_complete()
+	register_action_executor(&"move", MoveExecutorScript)
 
 
 func register_effect_executor(type_id: StringName, script: Script) -> void:

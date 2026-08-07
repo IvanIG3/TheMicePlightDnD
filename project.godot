@@ -23,6 +23,7 @@ config/icon="res://icon.svg"
 RngService="*res://global/rng_service.gd"
 EventBus="*res://global/event_bus.gd"
 Registry="*res://global/registry.gd"
+InputService="*res://input/input_service.gd"
 
 [debug]
 
