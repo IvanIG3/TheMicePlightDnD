@@ -37,9 +37,9 @@ func _on_move_intent(direction: Vector2i) -> void:
 	executor.data = _make_move_data(direction)
 	var ctx: ActionContext = _make_ctx()
 	pending_plan = _build_plan(direction, executor.get_affected_tiles(ctx))
-	if executor.validate(ctx):
-		if executor.execute(ctx):
-			_spend_action_budget()
+	var turn_manager: Node = _get_turn_manager()
+	if turn_manager != null:
+		turn_manager.submit_player_plan(executor, ctx)
 
 
 func _on_card_play_intent(hand_index: int) -> void:
@@ -66,9 +66,9 @@ func _on_card_play_intent(hand_index: int) -> void:
 	var executor: PlayCardExecutor = PlayCardExecutorScript.new()
 	executor.data = play_card_data
 	var ctx: ActionContext = _make_ctx()
-	if executor.validate(ctx):
-		if executor.execute(ctx):
-			_spend_play_card_budget()
+	var turn_manager: Node = _get_turn_manager()
+	if turn_manager != null:
+		turn_manager.submit_player_plan(executor, ctx)
 
 
 func submit_player_action(_plan: ActionPlan) -> void:
@@ -109,24 +109,6 @@ func _get_position() -> GridPositionComponent:
 		if child is GridPositionComponent:
 			return child
 	return null
-
-
-func _spend_action_budget() -> void:
-	if _actor == null:
-		return
-	for child in _actor.get_children():
-		if child is ActionBudgetComponent:
-			child.spend(MoveData.type_id)
-			return
-
-
-func _spend_play_card_budget() -> void:
-	if _actor == null:
-		return
-	for child in _actor.get_children():
-		if child is ActionBudgetComponent:
-			child.spend(PlayCardData.type_id)
-			return
 
 
 func _get_deck() -> DeckComponent:
@@ -180,3 +162,7 @@ func _get_faction_of(node: Node) -> FactionComponent:
 
 func _get_input_service() -> Node:
 	return Engine.get_main_loop().root.get_node_or_null("/root/InputService")
+
+
+func _get_turn_manager() -> Node:
+	return Engine.get_main_loop().root.get_node_or_null("/root/TurnManager")

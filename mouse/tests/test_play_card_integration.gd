@@ -50,6 +50,10 @@ func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	stats.recompute_max_energy()
 	stats.current_energy = stats.max_energy
 	add_child_autofree(actor)
+	var turn_manager: Node = Engine.get_main_loop().root.get_node_or_null("/root/TurnManager")
+	if turn_manager != null:
+		turn_manager.stop()
+		turn_manager.start(actor, grid, ([actor] as Array[Node]))
 	return {"grid": grid, "pos": pos, "budget": budget, "actor": actor, "deck": deck, "stats": stats}
 
 

@@ -15,6 +15,14 @@ const AttributeSetPath := "res://attribute/attribute_set.gd"
 const FactionComponentScript := preload("res://character/faction_component.gd")
 
 
+func _start_turn_manager(actor: Node, grid: GridSystem) -> Node:
+	var turn_manager: Node = Engine.get_main_loop().root.get_node_or_null("/root/TurnManager")
+	if turn_manager != null:
+		turn_manager.stop()
+		turn_manager.start(actor, grid, ([actor] as Array[Node]))
+	return turn_manager
+
+
 func _make_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	var grid: GridSystem = GridSystemScript.new()
 	var pos: GridPositionComponent = GridPositionComponentScript.new()
@@ -103,6 +111,7 @@ func test_on_move_intent_moves_actor() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_move_intent(Vector2i(1, 0))
 	assert_eq(s.pos.cell, Vector2i(3, 2), "actor moved right to (3, 2)")
 
@@ -112,6 +121,7 @@ func test_on_move_intent_spends_move_budget() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_move_intent(Vector2i(1, 0))
 	assert_false(s.budget.can_perform(&"move"), "move action budget is spent")
 
@@ -121,6 +131,7 @@ func test_on_move_intent_creates_pending_plan() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_move_intent(Vector2i(0, 1))
 	assert_not_null(brain.pending_plan, "pending_plan is set")
 	assert_eq(brain.pending_plan.action, &"move", "plan action is &\"move\"")
@@ -133,6 +144,7 @@ func test_on_move_intent_blocked_does_not_move_or_spend_budget() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_move_intent(Vector2i(1, 0))
 	assert_eq(s.pos.cell, Vector2i(2, 2), "actor did not move")
 	assert_true(s.budget.can_perform(&"move"), "budget not spent on failed move")
@@ -143,6 +155,7 @@ func test_on_move_intent_diagonal_is_rejected() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_move_intent(Vector2i(1, 1))
 	assert_eq(s.pos.cell, Vector2i(2, 2), "diagonal rejected, actor did not move")
 	assert_true(s.budget.can_perform(&"move"), "budget not spent on rejected move")
@@ -163,6 +176,7 @@ func test_move_intent_through_input_service_drives_brain() -> void:
 	add_child_autofree(brain)
 	brain.bind(s.actor)
 	var input: Node = Engine.get_main_loop().root.get_node_or_null("/root/InputService")
+	_start_turn_manager(s.actor, s.grid)
 	input.move_intent.emit(Vector2i(-1, 0))
 	assert_eq(s.pos.cell, Vector2i(1, 2), "actor moved left via InputService signal")
 
@@ -175,6 +189,7 @@ func test_card_play_intent_with_range_zero_targets_self() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_card_play_intent(0)
 	assert_eq(stats.current_energy, 3, "free card (cost 0) does not spend energy")
 	assert_eq(s.deck.hand.size(), 0, "card removed from hand")
@@ -188,6 +203,7 @@ func test_card_play_intent_spends_action_budget() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_card_play_intent(0)
 	assert_false(s.budget.can_perform(PlayCardData.type_id), "play_card budget is spent")
 
@@ -201,6 +217,7 @@ func test_card_play_intent_routes_to_discard() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_card_play_intent(0)
 	assert_eq(s.deck.discard.size(), 1, "card added to discard")
 
@@ -213,6 +230,7 @@ func test_card_play_intent_refunds_when_no_adjacent_enemy() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_card_play_intent(0)
 	assert_eq(s.deck.hand.size(), 1, "card still in hand (no target)")
 	assert_true(s.budget.can_perform(PlayCardData.type_id), "budget not spent on no-target")
@@ -242,6 +260,7 @@ func test_card_play_intent_auto_picks_adjacent_enemy() -> void:
 	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
+	_start_turn_manager(s.actor, s.grid)
 	brain._on_card_play_intent(0)
 	assert_lt(enemy_health.current_hp, 100, "enemy took damage from card play")
 	assert_eq(s.deck.discard.size(), 1, "attack card routed to discard")
