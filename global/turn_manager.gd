@@ -1,4 +1,3 @@
-class_name TurnManager
 extends Node
 
 const MoveDataScript := preload("res://executor/move_data.gd")
