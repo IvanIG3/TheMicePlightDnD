@@ -10,8 +10,9 @@
 	"res://mouse/tests/",
 	"res://executor/tests/",
 	"res://input/tests/",
-	"res://effect/tests/",
-    "res://view/tests/"
+    "res://effect/tests/",
+    "res://view/tests/",
+    "res://card/tests/"
   ],
   "prefix": "test_",
   "suffix": ".gd",
