@@ -68,6 +68,19 @@ Adds the player-specific components and the player brain.
 7. `HealthComponent.current_hp = max_hp`.
 8. `StatsComponent.current_energy = max_energy`.
 
+See [`views.md`](./views.md) §`MouseView` for the visual side of the `Mouse` scene.
+
+## Mouse persistence rule
+
+The `Mouse` scene is instantiated once per run, in `RunStateMachine.start_run`, and is **reparented** across biomes. It is destroyed only on `RunEndState`.
+
+The per-run `_ready` order above runs **exactly once**; later biome entries do **not** reapply `class_data.initial_deck`, re-read class-level attributes, or rebuild the brain. On biome transition the `Mouse` is moved into the new `Biome` scene tree, `GridPositionComponent` is told its new entry cell, and the wired `GridSystem` reference is rebound (see [`systems.md`](./systems.md) §`GridSystem`).
+
+| State | Lives in |
+| --- | --- |
+| Per-run state (level, XP, deck modifications, trophy slots, statuses) | The Mouse's own components. |
+| Cross-biome meta-state (essence, persistent unlocks, run-wide statistics) | `RunState`. |
+
 ## `Predator.tscn` (inherits `Character.tscn`)
 
 ### Additional children
@@ -96,6 +109,8 @@ Adds the player-specific components and the player brain.
 7. `HealthComponent.recompute_max_hp`; `HealthComponent.current_hp = max_hp`.
 8. `StatsComponent.set_initiative_from_dex` is called by `BiomeGenerator` once it places the predator in the grid.
 
+See [`views.md`](./views.md) §`PredatorView` for the visual side of the `Predator` scene, including the intent and status overlays.
+
 ## `Corpse.tscn` (does not inherit `Character.tscn`)
 
 A dead predator becomes a corpse. A corpse is a `Node` with a `FactionComponent` of `corpse`, a `GridPositionComponent`, and a `CorpseComponent`. It is not a `Character` because it cannot act, has no brain, and is lootable until destroyed.
@@ -105,6 +120,8 @@ A dead predator becomes a corpse. A corpse is a `Node` with a `FactionComponent`
 | `FactionComponent` | `Node` | `faction = "corpse"`. |
 | `GridPositionComponent` | `Node` | `is_blocking = true` (occupies a tile). |
 | `CorpseComponent` | `Node` | Holds HP, essence, and the `PredatorData` reference. |
+
+See [`views.md`](./views.md) §`CorpseView` for the visual side of the `Corpse` scene.
 
 ## The brain slot
 

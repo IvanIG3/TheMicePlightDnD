@@ -35,6 +35,7 @@ Each layer depends only on the layer below it. Higher layers never reach down to
 | [`systems.md`](./systems.md) | The autoloads (`RngService`, `EventBus`, `Registry`, `InputService`, `RunService`, `GridSystem`) and the "no God-object" rule. |
 | [`run-flow.md`](./run-flow.md) | The run state machine, the turn manager, and the cycle from `Burrow` to `RunEnd`. |
 | [`entities.md`](./entities.md) | The `Character`, `Mouse`, `Predator`, and `Corpse` scenes and how they compose components without inheritance. |
+| [`views.md`](./views.md) | World and HUD views, the `View` contract, the disposal policy, and the single-source-of-truth rule in practice. |
 | [`vertical-slice.md`](./vertical-slice.md) | Scope of the first deliverable, what is explicitly out, and success criteria. |
 
 ## How to read this folder
@@ -43,7 +44,8 @@ Each layer depends only on the layer below it. Higher layers never reach down to
 2. Skim `data-model.md` to get a feel for the vocabulary.
 3. Read `components.md`, `executors.md`, and `systems.md` in any order.
 4. Use `run-flow.md` and `entities.md` to see how the parts integrate.
-5. Use `vertical-slice.md` to decide what to build first.
+5. Read `views.md` to see how the model is presented to the player.
+6. Use `vertical-slice.md` to decide what to build first.
 
 ## Conventions
 

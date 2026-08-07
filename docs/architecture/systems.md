@@ -112,9 +112,9 @@ Holds the state of the in-progress run and the persistent meta-progression.
 
 Persistence uses Godot's `ResourceSaver` and `ResourceLoader`. The in-slice vertical scope runs `current_run` purely in memory; persistence is part of `vertical-slice.md`'s out-of-scope list for the first deliverable.
 
-### `GridSystem` (Node, autoload or scene-level)
+### `GridSystem` (Node, scene-level, NOT autoloaded)
 
-The authoritative store of "what is on each tile". Lives in the active `Biome` scene and is registered globally while that biome is current.
+The authoritative store of "what is on each tile" for the current biome. A child of the active `Biome` scene. Exists only while the biome is current; freed with the biome on `BiomeState.exit`. There is no autoload registration; `GridSystem` is **not** a global singleton.
 
 | Field | Type | Notes |
 | --- | --- | --- |
@@ -133,6 +133,13 @@ The authoritative store of "what is on each tile". Lives in the active `Biome` s
 
 The system is plain data with queries. It does not run game logic.
 
+#### Wiring (injected, not autoloaded)
+
+- `BiomeGenerator.generate` instantiates `GridSystem` as a child of the new `Biome` scene, and passes the reference into every spawned entity's `GridPositionComponent.init(grid)` and `TargetingComponent.grid_ref`.
+- `BiomeState` holds a reference (`self.grid`) for its own queries.
+- `ActionContext.grid` is set to the current biome's `GridSystem` at action resolution time (by `TurnManager`).
+- The component does not autoload-lookup `GridSystem`. It throws if `init(grid)` was not called before the first `set_cell`.
+
 ## Other named systems (not autoloads)
 
 ### `BiomeGenerator` (Node, regular system)
@@ -144,6 +151,22 @@ Generates a `Biome` scene from a `BiomeData` and a seed. Deterministic: same see
 | `generate(data, seed)` | `Biome` | The resulting scene root. |
 
 The generator is constructed per-biome by the run state machine, given a fresh `RngService`-seeded RNG. It reads no global state.
+
+The generator owns one `EntityFactory` (below) and uses it to spawn every entity in the biome. The generator also instantiates the biome's `GridSystem` as a child of the new `Biome` scene and passes the reference into every spawned entity's `GridPositionComponent.init(grid)` and `TargetingComponent.grid_ref`.
+
+### `EntityFactory` (Node, constructed per-biome)
+
+Constructs entity scenes from data `Resource`s. The single place a `Predator` or `Corpse` is instantiated. Lives as a child of `BiomeGenerator` and is constructed per-biome.
+
+| Method | Returns | Notes |
+| --- | --- | --- |
+| `spawn_predator(data, level)` | `Predator` | Instantiates `Predator.tscn`, applies `data` and `level`, returns the scene. |
+| `spawn_corpse(predator_data)` | `Corpse` | Instantiates `Corpse.tscn` from a dead `Predator`'s `PredatorData`. |
+| `spawn_collectable(data)` | `Recolectable` | When `Recolectable.tscn` exists. |
+
+Caller: `BiomeGenerator.generate` (for initial spawns) and `BiomeState` (for mid-biome spawns such as summons).
+
+The `Mouse` is **not** built by `EntityFactory`: the Mouse is the one persistent entity per run, instantiated once by `RunStateMachine.start_run` and reparented across biomes (see [`entities.md`](./entities.md) §`Mouse persistence rule`).
 
 ### `TurnManager` (Node, autoload)
 

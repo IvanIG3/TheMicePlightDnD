@@ -37,7 +37,7 @@ Both bases are `RefCounted`. They are throwaway helpers constructed for a single
 | --- | --- | --- |
 | `validate(ctx)` | `bool` | Energy, range, line of sight, area validity, action budget. |
 | `execute(ctx)` | `bool` | True if the action resolved. |
-| `get_affected_tiles(ctx)` | `Array[Vector2i]` | For the targeting UI. |
+| `get_affected_tiles(ctx)` | `Array[Vector2i]` | For the targeting UI. Consumed by the `TargetingReticle` view — see [`views.md`](./views.md) §`TargetingReticle`. |
 
 ## Contexts
 
@@ -138,7 +138,7 @@ Each is a `RefCounted` subclass of `ActionExecutor`.
 
 ### Loading order
 
-On startup, the `Registry` walks `res://data/` and indexes every `Resource` it finds into `data_index`. This means content authors only need to drop a `.tres` into the right folder; the system picks it up.
+On startup, the `Registry` walks each theme folder (`res://attribute/`, `res://health/`, ...) recursively — skipping `*/tests/*` and `*.gd` — and indexes every `Resource` whose filename matches its `id` field (or falls back to the filename). This means content authors only need to drop a `.tres` into the right folder; the system picks it up. There is no shared `res://data/` folder; content lives next to its theme's `.gd` scripts. (For the full list of indexed folders, see [`systems.md`](./systems.md) §`Registry`.)
 
 ### Registration API
 

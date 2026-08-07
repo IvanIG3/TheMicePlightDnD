@@ -91,6 +91,8 @@ The single owner of all HP state: current HP, temporary HP, the max-HP cap, and 
 | `is_dead()` | `bool` | True at 0 HP. |
 | `reset()` | `void` | Resets to a fresh-state empty component. |
 
+See [`views.md`](./views.md) §6.4 (`WorldHealthBar`) and §7.2 (`HpBarWidget`) for the views that observe this component.
+
 ### `FactionComponent` (Node)
 
 | Field | Type | Notes |

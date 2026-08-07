@@ -15,11 +15,11 @@ The first deliverable is a runnable vertical slice that exercises the full archi
 
 ### Systems
 
-- All core services: `RngService`, `EventBus`, `Registry`, `InputService`, `RunService`, `GridSystem`.
+- All core services (autoloads): `RngService`, `EventBus`, `Registry`, `InputService`, `RunService`. `GridSystem` is scene-level and injected per biome (see [`systems.md`](./systems.md) §`GridSystem`).
 - All components: `Attribute`, `Stats`, `Health`, `Faction`, `GridPosition`, `ActionBudget`, `Targeting`, `Status`, `Deck`, `Memorization`, `Trophy`, `Intent`, `Corpse`.
 - `TurnManager` and the full turn cycle.
 - `RunStateMachine` with all five `RunState`s.
-- `BiomeGenerator` with deterministic seeded output.
+- `BiomeGenerator` with deterministic seeded output, plus the per-biome `EntityFactory` for spawning predators and corpses.
 - `EffectExecutor` family: `Damage`, `Heal`, `ApplyStatus`, `Composite`, `Area`.
 - `ActionExecutor` family: `Move`, `BasicAttack`, `PlayCard`, `DrawCards`, `Wait`, `Collect`, `Loot`.
 - Critical/fumble rules for damage.
@@ -88,7 +88,7 @@ The slice is "done" when **all** of the following hold:
 5. **Turn manager** — full `PLAYER` → `ENEMY_PLANNING` → `ENEMY_RESOLVING` → `POST_TURN` cycle with one static predator.
 6. **Predator AI and intent** — `PredatorAIBrain`, `IntentComponent`, `Predator.tscn`, intent overlay.
 7. **Statuses** — `StatusComponent`, `Status` node, the two slice statuses.
-8. **First playable biome** — `BiomeGenerator`, `BiomeData`, Forest, traps, exit portal.
+8. **First playable biome** — `BiomeGenerator`, `EntityFactory`, `BiomeData`, Forest, traps, exit portal.
 9. **Run flow** — `RunStateMachine`, all five `RunState`s, rest zone actions, XP, level-up, trophies, memorization/learning.
 10. **Final boss and run end** — boss room, victory/death, return to Burrow.
 11. **Polish within scope** — functional UI, basic tweens, balancing against the success criteria.
