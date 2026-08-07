@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DamageEffectData" format=3 uid="uid://b1nibblebite00"]
+
+[ext_resource type="Script" path="res://effect/damage_effect_data.gd" id="1_damage"]
+[ext_resource type="Script" path="res://dice/dice_formula.gd" id="2_dice"]
+
+[sub_resource type="Resource" id="Resource_dice"]
+script = ExtResource("2_dice")
+count = 1
+die = 4
+bonus = 0
+
+[resource]
+script = ExtResource("1_damage")
+dice = SubResource("Resource_dice")
+scaling_attribute = &"strength"
+type_id = &"damage"
+description = "A tiny bite."
+tags = Array[StringName]([&"damage", &"physical"])
