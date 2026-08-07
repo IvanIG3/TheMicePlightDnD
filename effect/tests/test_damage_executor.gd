@@ -116,7 +116,7 @@ func test_special_resistance_no_halve_when_save_below_dc() -> void:
 
 # Seed 191: first d20=10, dice 2d6+3=7, defend d20=12
 # amount = 7+2 = 9, resist_roll = 12+6 = 18 >= 12 → halve
-# amount = (9+1)/2 = 5
+# GDD §Special attack: "damage is halved" → floor(amount/2.0) = 4
 func test_special_resistance_halve_when_save_meets_dc() -> void:
 	_data = _build_data(2, 6, 3, AttributeIds.ATTR_INT, &"special", AttributeIds.ATTR_DEX, 12)
 	_source = _build_source(10, 12)
@@ -124,8 +124,22 @@ func test_special_resistance_halve_when_save_meets_dc() -> void:
 	_build_context(191)
 	watch_signals(_bus)
 	_executor.execute(_ctx)
-	assert_signal_emitted(_bus, "damage_applied", [5, _source, _target, false])
-	assert_eq(_health.current_hp, 95, "health = 100 - 5 = 95")
+	assert_signal_emitted(_bus, "damage_applied", [4, _source, _target, false])
+	assert_eq(_health.current_hp, 96, "health = 100 - 4 = 96")
+
+
+# Seed 57: first d20=20 → crit, no dice rolled, no resistance check
+# amount = 19+2 = 21 (max_roll + INT mod), no halve despite the resistance being set
+# Pins the GDD "auto-hits" reading: a Nat 20 on a special attack bypasses the defender's resistance roll.
+func test_nat_twenty_crit_on_special_skips_resistance() -> void:
+	_data = _build_data(2, 8, 3, AttributeIds.ATTR_INT, &"special", AttributeIds.ATTR_DEX, 12)
+	_source = _build_source(10, 12)
+	_target = _build_target(16, 10)
+	_build_context(57)
+	watch_signals(_bus)
+	_executor.execute(_ctx)
+	assert_signal_emitted(_bus, "damage_applied", [21, _source, _target, true])
+	assert_eq(_health.current_hp, 79, "health = 100 - 21 = 79")
 
 
 # Seed 57: first d20=20 → crit, no dice rolled, no defend

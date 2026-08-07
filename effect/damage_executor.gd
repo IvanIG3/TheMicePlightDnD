@@ -35,7 +35,7 @@ func execute(ctx: EffectContext) -> void:
 			var defend_raw: int = ctx.rng.dice_roll(_make_d20()).raw
 			var resist_modifier: int = _get_modifier(ctx.target, data.resistance_attribute)
 			if defend_raw + resist_modifier >= data.resistance_value:
-				amount = floori((amount + 1) / 2.0)
+				amount = floori(amount / 2.0)
 
 		_apply_damage(ctx.target, amount, ctx.source)
 		ctx.bus.damage_applied.emit(amount, ctx.source, ctx.target, false)
