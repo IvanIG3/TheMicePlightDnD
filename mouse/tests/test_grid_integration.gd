@@ -10,7 +10,7 @@ func _setup_mouse_on_grid() -> Dictionary:
 	var mouse: Node = MouseScene.instantiate()
 	add_child_autofree(grid)
 	add_child_autofree(mouse)
-	mouse.grid_position_component.init(grid)
+		mouse.grid_position_component.grid = grid
 	mouse.grid_position_component.set_cell(Vector2i(2, 2))
 	return {"grid": grid, "mouse": mouse}
 

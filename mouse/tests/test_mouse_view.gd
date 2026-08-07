@@ -11,7 +11,7 @@ func _make_actor(start_cell: Vector2i = Vector2i.ZERO) -> Dictionary:
 	var pos: GridPositionComponent = GridPositionComponentScript.new()
 	var actor: Node = Node.new()
 	actor.add_child(pos)
-	pos.init(grid)
+	pos.grid = grid
 	pos.set_cell(start_cell)
 	add_child_autofree(actor)
 	return {"grid": grid, "pos": pos, "actor": actor}

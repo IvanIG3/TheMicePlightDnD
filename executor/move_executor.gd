@@ -26,7 +26,7 @@ func execute(ctx: ActionContext) -> bool:
 	var pos: GridPositionComponent = _get_position(ctx.actor)
 	if pos == null:
 		return false
-	return pos.try_move(move_data.direction, ctx.grid)
+	return pos.try_move(move_data.direction)
 
 
 func get_affected_tiles(ctx: ActionContext) -> Array[Vector2i]:

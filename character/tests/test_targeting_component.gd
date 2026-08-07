@@ -14,7 +14,7 @@ func _make_setup() -> Dictionary:
 	character.add_child(grid)
 	character.add_child(pos)
 	character.add_child(targeting)
-	pos.init(grid)
+	pos.grid = grid
 	pos.set_cell(Vector2i(2, 2))
 	add_child_autofree(character)
 	targeting.grid_ref = targeting.get_path_to(grid)

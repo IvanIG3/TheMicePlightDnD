@@ -14,7 +14,7 @@ func before_each() -> void:
 	add_child_autofree(_grid)
 	_comp = GridPositionComponentScript.new()
 	add_child_autofree(_comp)
-	_comp.init(_grid)
+	_comp.grid = _grid
 
 
 func test_set_cell_updates_cell_and_returns_true() -> void:
@@ -74,7 +74,7 @@ func test_set_cell_does_not_emit_on_failure() -> void:
 
 func test_try_move_success() -> void:
 	_comp.set_cell(Vector2i(2, 2))
-	var result: bool = _comp.try_move(Vector2i(1, 0), _grid)
+	var result: bool = _comp.try_move(Vector2i(1, 0))
 	assert_true(result, "valid try_move returns true")
 	assert_eq(_comp.cell, Vector2i(3, 2), "cell moved by (1, 0) to (3, 2)")
 
@@ -82,7 +82,7 @@ func test_try_move_success() -> void:
 func test_try_move_blocked() -> void:
 	_comp.set_cell(Vector2i(2, 2))
 	_grid.set_blocked(Vector2i(3, 2), true)
-	var result: bool = _comp.try_move(Vector2i(1, 0), _grid)
+	var result: bool = _comp.try_move(Vector2i(1, 0))
 	assert_false(result, "try_move into blocked cell returns false")
 	assert_eq(_comp.cell, Vector2i(2, 2), "cell unchanged after failed try_move")
 
@@ -91,7 +91,7 @@ func test_try_move_occupied() -> void:
 	_comp.set_cell(Vector2i(2, 2))
 	var other: Node = Node.new()
 	_grid.register_entity(other, Vector2i(3, 2))
-	var result: bool = _comp.try_move(Vector2i(1, 0), _grid)
+	var result: bool = _comp.try_move(Vector2i(1, 0))
 	assert_false(result, "try_move into occupied cell returns false")
 	assert_eq(_comp.cell, Vector2i(2, 2), "cell unchanged after failed try_move")
 	other.free()
@@ -100,5 +100,5 @@ func test_try_move_occupied() -> void:
 func test_try_move_emits_cell_changed() -> void:
 	_comp.set_cell(Vector2i(2, 2))
 	watch_signals(_comp)
-	_comp.try_move(Vector2i(1, 0), _grid)
+	_comp.try_move(Vector2i(1, 0))
 	assert_signal_emitted(_comp, "cell_changed", [Vector2i(2, 2), Vector2i(3, 2)])

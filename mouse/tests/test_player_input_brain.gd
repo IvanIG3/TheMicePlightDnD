@@ -14,7 +14,7 @@ func _make_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	var actor: Node = Node.new()
 	actor.add_child(pos)
 	actor.add_child(budget)
-	pos.init(grid)
+	pos.grid = grid
 	pos.set_cell(start_cell)
 	add_child_autofree(actor)
 	return {"grid": grid, "pos": pos, "budget": budget, "actor": actor}

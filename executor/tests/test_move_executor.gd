@@ -20,7 +20,7 @@ func before_each() -> void:
 	_actor = Node.new()
 	_pos = GridPositionComponentScript.new()
 	_actor.add_child(_pos)
-	_pos.init(_grid)
+	_pos.grid = _grid
 	_pos.set_cell(Vector2i(2, 2))
 	add_child_autofree(_actor)
 	_ctx = ActionContextScript.new()

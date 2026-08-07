@@ -117,7 +117,7 @@ See [`views.md`](./views.md) §6.4 (`WorldHealthBar`) and §7.2 (`HpBarWidget`) 
 | Method | Returns | Notes |
 | --- | --- | --- |
 | `set_cell(c)` | `bool` | False if the tile is occupied or blocked. Updates `GridSystem`. |
-| `try_move(direction, grid)` | `bool` | Convenience for the move action. |
+| `try_move(direction)` | `bool` | Convenience for the move action. |
 
 ### `ActionBudgetComponent` (Node)
 
