@@ -4,6 +4,7 @@ extends GutTest
 const MouseScene := preload("res://mouse/mouse.tscn")
 const AttributeSetScript := preload("res://attribute/attribute_set.gd")
 const MouseClassDataScript := preload("res://mouse/mouse_class_data.gd")
+const CardDataScript := preload("res://card/card_data.gd")
 
 
 func _instantiate(class_data: Resource = null) -> Node:
@@ -96,10 +97,9 @@ func test_deck_is_bound_to_memorization() -> void:
 
 
 func test_class_data_initial_deck_is_applied_to_deck() -> void:
-	var card_data_script: GDScript = load("res://card/card_data.gd")
-	var initial: Array = []
+	var initial: Array[CardData] = []
 	for i in 12:
-		var card: Resource = card_data_script.new()
+		var card: CardData = CardDataScript.new()
 		card.id = StringName("card_%d" % i)
 		initial.append(card)
 	var attribute_set: AttributeSet = AttributeSetScript.new()

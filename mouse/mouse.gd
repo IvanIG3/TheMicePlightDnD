@@ -29,9 +29,6 @@ func _ready() -> void:
 		stats_component.recompute_max_energy()
 		stats_component.current_energy = stats_component.max_energy
 	if class_data.initial_deck.size() > 0 and deck != null:
-		var typed_deck: Array[CardData] = []
-		for entry in class_data.initial_deck:
-			typed_deck.append(entry)
-		deck.deck = typed_deck
+		deck.deck = class_data.initial_deck.duplicate()
 		deck.shuffle_initial_deck()
 		deck.draw(deck.max_hand_size)
