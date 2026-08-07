@@ -1,0 +1,108 @@
+extends GutTest
+
+
+const EffectContextScript := preload("res://effect/effect_context.gd")
+const DiceFormulaScript := preload("res://dice/dice_formula.gd")
+const HealthComponentScript := preload("res://health/health_component.gd")
+const HealExecutorPath := "res://effect/heal_executor.gd"
+const HealEffectDataPath := "res://effect/heal_effect_data.gd"
+
+
+var _target: Node
+var _ctx: EffectContext
+var _executor: RefCounted
+var _data: Resource
+var _health: HealthComponent
+var _bus: Node
+var _rng_node: Node
+
+
+func before_each() -> void:
+	_bus = Engine.get_main_loop().root.get_node_or_null("/root/EventBus")
+	_rng_node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
+
+
+func _build_target(current_hp: int) -> Node:
+	var target_node: Node = Node.new()
+	_health = HealthComponentScript.new()
+	_health.max_hp = 100
+	_health.current_hp = current_hp
+	target_node.add_child(_health)
+	add_child_autofree(target_node)
+	return target_node
+
+
+func _build_data(count: int, die: int, bonus: int) -> Resource:
+	var data_script: GDScript = load(HealEffectDataPath)
+	assert_not_null(data_script, "HealEffectData script must exist at " + HealEffectDataPath)
+	var d: Resource = data_script.new()
+	var dice: DiceFormula = DiceFormulaScript.new()
+	dice.count = count
+	dice.die = die
+	dice.bonus = bonus
+	d.dice = dice
+	return d
+
+
+func _build_executor() -> RefCounted:
+	var executor_script: GDScript = load(HealExecutorPath)
+	assert_not_null(executor_script, "HealExecutor script must exist at " + HealExecutorPath)
+	var ex: RefCounted = executor_script.new()
+	ex.data = _data
+	return ex
+
+
+func _build_context(seed_value: int) -> void:
+	_rng_node.set_seed(seed_value)
+	_ctx = EffectContextScript.new()
+	_ctx.target = _target
+	_ctx.rng = _rng_node
+	_ctx.bus = _bus
+	_executor = _build_executor()
+
+
+# Seed 27: 2d4+2 = 4 (r1=1, r2=1)
+# Target 50/100: heal 4 → current_hp = 54
+func test_basic_heal_restores_hp_by_rolled_amount() -> void:
+	_data = _build_data(2, 4, 2)
+	_target = _build_target(50)
+	_build_context(27)
+	watch_signals(_bus)
+	_executor.execute(_ctx)
+	assert_signal_emitted(_bus, "heal_applied", [4, _target])
+	assert_eq(_health.current_hp, 54, "current_hp = 50 + 4 = 54")
+
+
+# Seed 119: 3d6+2 = 20 (r1=6, r2=6, r3=6)
+# Target 90/100: rolled 20, only 10 actually healed (capped at max)
+func test_overheal_caps_at_max_hp() -> void:
+	_data = _build_data(3, 6, 2)
+	_target = _build_target(90)
+	_build_context(119)
+	watch_signals(_bus)
+	_executor.execute(_ctx)
+	assert_signal_emitted(_bus, "heal_applied", [10, _target])
+	assert_eq(_health.current_hp, 100, "current_hp capped at 100")
+
+
+# Seed 3: 2d4+2 = 6 (r1=1, r2=3)
+# Target 0/100: apply_heal does not check is_dead (arch: "Returns amount actually healed")
+# so a dead target is healed back to 6 HP, emit heal_applied with the returned value
+func test_heal_on_dead_target_revives_with_actual_heal() -> void:
+	_data = _build_data(2, 4, 2)
+	_target = _build_target(0)
+	_build_context(3)
+	watch_signals(_bus)
+	_executor.execute(_ctx)
+	assert_signal_emitted(_bus, "heal_applied", [6, _target])
+	assert_eq(_health.current_hp, 6, "current_hp = 0 + 6 = 6 (revived)")
+
+
+# No target: actual_healed=0, emit heal_applied(0, null)
+func test_heal_with_null_target_emits_zero() -> void:
+	_data = _build_data(2, 4, 2)
+	_target = null
+	_build_context(0)
+	watch_signals(_bus)
+	_executor.execute(_ctx)
+	assert_signal_emitted(_bus, "heal_applied", [0, null])
