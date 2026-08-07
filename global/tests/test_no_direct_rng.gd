@@ -7,6 +7,16 @@ const _THEME_DIRS: Array[String] = [
 	"res://health/",
 	"res://dice/",
 	"res://global/",
+	"res://predator/",
+	"res://turn/",
+	"res://executor/",
+	"res://effect/",
+	"res://card/",
+	"res://character/",
+	"res://mouse/",
+	"res://view/",
+	"res://world/",
+	"res://input/",
 ]
 
 
