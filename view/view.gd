@@ -22,12 +22,12 @@ func initialize(model: Node) -> void:
 func dispose() -> void:
 	if _disposed:
 		return
-	if _model != null:
-		for conn in _connections:
-			var signal_name: StringName = conn["signal"]
-			var callable: Callable = conn["callable"]
-			if _model.has_signal(signal_name) and _model.is_connected(signal_name, callable):
-				_model.disconnect(signal_name, callable)
+	for conn in _connections:
+		var target: Object = conn["target"]
+		var signal_name: StringName = conn["signal"]
+		var callable: Callable = conn["callable"]
+		if is_instance_valid(target) and target.has_signal(signal_name) and target.is_connected(signal_name, callable):
+			target.disconnect(signal_name, callable)
 	_connections.clear()
 	_disposed = true
 
@@ -41,6 +41,10 @@ func _replay_state_from(_model: Node) -> void:
 
 
 func _connect(signal_name: StringName, callable: Callable) -> void:
-	assert(_model != null, "View._connect: not initialized")
-	_model.connect(signal_name, callable)
-	_connections.append({"signal": signal_name, "callable": callable})
+	_connect_to(_model, signal_name, callable)
+
+
+func _connect_to(target: Object, signal_name: StringName, callable: Callable) -> void:
+	assert(target != null, "View._connect_to: target is null")
+	target.connect(signal_name, callable)
+	_connections.append({"target": target, "signal": signal_name, "callable": callable})
