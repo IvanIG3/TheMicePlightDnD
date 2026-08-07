@@ -5,6 +5,7 @@ extends Node
 @export var temp_hp: int = 0
 
 var max_hp: int = 0
+var toughness: int = 10
 var _attribute_component: Node = null
 var _max_hp_base: int = 0
 var _wounded: bool = false
