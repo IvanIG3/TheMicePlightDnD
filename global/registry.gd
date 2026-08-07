@@ -6,6 +6,7 @@ const _THEME_DIRS: Array[String] = [
 	"res://health/",
 	"res://stats/",
 	"res://dice/",
+	"res://effect/",
 ]
 
 
