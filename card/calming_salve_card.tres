@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://b1cardsalve00"]
+
+[ext_resource type="Script" path="res://card/card_data.gd" id="1_card"]
+[ext_resource type="Resource" uid="uid://diryuamfb835" path="res://effect/calming_salve.tres" id="2_salve"]
+
+[resource]
+script = ExtResource("1_card")
+id = &"calming_salve_card"
+name = "Calming Salve"
+description = "Apply a soothing salve to self."
+energy_cost = 1
+family = &"none"
+type = &"defense"
+range = 0
+range_shape = &"line"
+area_shape = &"single"
+area_size = 1
+effects = Array[Resource]([ExtResource("2_salve")])
+scaling_attributes = Array[StringName]([])
+exhaust = false
+tags = Array[StringName]([&"heal"])

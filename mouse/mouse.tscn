@@ -3,6 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://bsn8sji3lan7v" path="res://character/character.tscn" id="1_char"]
 [ext_resource type="Script" uid="uid://dt1ydm5kly6n6" path="res://mouse/mouse.gd" id="2_mouse"]
 [ext_resource type="Script" uid="uid://bjgld1sai4cfm" path="res://mouse/player_input_brain.gd" id="3_brain"]
+[ext_resource type="Script" path="res://card/deck_component.gd" id="4_deck"]
+[ext_resource type="Script" path="res://card/memorization_component.gd" id="5_mem"]
 
 [node name="Mouse" unique_id=867600512 instance=ExtResource("1_char")]
 script = ExtResource("2_mouse")
@@ -12,3 +14,9 @@ faction = &"mouse"
 [node name="PlayerInputBrain" type="Node" parent="BrainSlot" index="0" unique_id=1638205850]
 unique_name_in_owner = true
 script = ExtResource("3_brain")
+
+[node name="DeckComponent" type="Node" parent="." index="7"]
+script = ExtResource("4_deck")
+
+[node name="MemorizationComponent" type="Node" parent="." index="8"]
+script = ExtResource("5_mem")

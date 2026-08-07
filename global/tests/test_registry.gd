@@ -113,8 +113,8 @@ func test_walker_indexes_all_theme_resources() -> void:
 	var registry := _registry()
 	registry.data_index.clear()
 	registry._scan_themes()
-	var expected_count: int = AttributeIds.ALL.size() + 3
-	assert_eq(registry.data_index.size(), expected_count, "walker indexed all theme resources (6 attribute + 3 effect)")
+	var expected_count: int = AttributeIds.ALL.size() + 3 + 3 + 4
+	assert_eq(registry.data_index.size(), expected_count, "walker indexed all theme resources (6 attribute + 3 original effect + 3 new effect + 4 cards)")
 
 
 func test_walker_skips_tests_subdir() -> void:

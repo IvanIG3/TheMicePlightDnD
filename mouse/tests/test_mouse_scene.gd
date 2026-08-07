@@ -4,6 +4,7 @@ extends GutTest
 const MouseScene := preload("res://mouse/mouse.tscn")
 const AttributeSetScript := preload("res://attribute/attribute_set.gd")
 const MouseClassDataScript := preload("res://mouse/mouse_class_data.gd")
+const CardDataScript := preload("res://card/card_data.gd")
 
 
 func _instantiate(class_data: Resource = null) -> Node:
@@ -70,3 +71,56 @@ func test_class_data_max_hp_initializes_health_to_max() -> void:
 	var health_comp: HealthComponent = mouse.get_node("HealthComponent")
 	assert_eq(health_comp.current_hp, 20, "current_hp equals max_hp after init")
 	assert_eq(health_comp.max_hp, 20, "max_hp from class_data")
+
+
+func test_mouse_has_deck_component() -> void:
+	var mouse: Node = _instantiate()
+	assert_not_null(mouse.get_node_or_null("DeckComponent"), "DeckComponent present")
+
+
+func test_mouse_has_memorization_component() -> void:
+	var mouse: Node = _instantiate()
+	assert_not_null(mouse.get_node_or_null("MemorizationComponent"), "MemorizationComponent present")
+
+
+func test_deck_is_bound_to_memorization() -> void:
+	var mouse: Node = _instantiate()
+	var deck_comp: DeckComponent = mouse.get_node("DeckComponent")
+	# The bind happens inside _ready; we exercise it via the public API.
+	# Adding a card through deck.memorize routes to memorization_component.
+	var card_data_script: GDScript = load("res://card/card_data.gd")
+	var card: Resource = card_data_script.new()
+	card.id = &"test_card"
+	deck_comp.memorize(card)
+	var mem_comp: MemorizationComponent = mouse.get_node("MemorizationComponent")
+	assert_eq(mem_comp.memorized_cards.size(), 1, "memorization received the card")
+
+
+func test_class_data_initial_deck_is_applied_to_deck() -> void:
+	var initial: Array[CardData] = []
+	for i in 12:
+		var card: CardData = CardDataScript.new()
+		card.id = StringName("card_%d" % i)
+		initial.append(card)
+	var attribute_set: AttributeSet = AttributeSetScript.new()
+	attribute_set.set_score(AttributeIds.ATTR_INT, 10)
+	var class_data: MouseClassData = MouseClassDataScript.new()
+	class_data.attributes = attribute_set
+	class_data.initial_deck = initial
+	var mouse: Node = _instantiate(class_data)
+	var deck_comp: DeckComponent = mouse.get_node("DeckComponent")
+	var max_hand_size: int = deck_comp.max_hand_size
+	assert_eq(deck_comp.hand.size(), max_hand_size, "hand drawn to max_hand_size")
+	assert_eq(deck_comp.deck.size(), 12 - max_hand_size, "remaining deck after initial draw")
+
+
+func test_class_data_max_energy_initializes_stats() -> void:
+	var attribute_set: AttributeSet = AttributeSetScript.new()
+	attribute_set.set_score(AttributeIds.ATTR_INT, 10)
+	var class_data: MouseClassData = MouseClassDataScript.new()
+	class_data.attributes = attribute_set
+	class_data.max_energy_base = 3
+	var mouse: Node = _instantiate(class_data)
+	var stats: StatsComponent = mouse.get_node("StatsComponent")
+	assert_eq(stats.max_energy, 3, "max_energy from class_data")
+	assert_eq(stats.current_energy, 3, "current_energy initialized to max_energy")

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://b1cardfurious00"]
+
+[ext_resource type="Script" path="res://card/card_data.gd" id="1_card"]
+[ext_resource type="Resource" uid="uid://b1furiousbite00" path="res://effect/furious_bite_effect.tres" id="2_furious"]
+
+[resource]
+script = ExtResource("1_card")
+id = &"furious_bite"
+name = "Furious Bite"
+description = "A vicious 2d6+1 bite that exhausts."
+energy_cost = 2
+family = &"none"
+type = &"attack"
+range = 1
+range_shape = &"line"
+area_shape = &"single"
+area_size = 1
+effects = Array[Resource]([ExtResource("2_furious")])
+scaling_attributes = Array[StringName]([&"strength"])
+exhaust = true
+tags = Array[StringName]([&"damage"])

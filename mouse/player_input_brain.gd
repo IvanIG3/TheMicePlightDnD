@@ -4,8 +4,17 @@ extends Node
 const InputServiceAutoload: StringName = &"InputService"
 const MoveExecutorScript := preload("res://executor/move_executor.gd")
 const MoveDataScript := preload("res://executor/move_data.gd")
+const PlayCardExecutorScript := preload("res://executor/play_card_executor.gd")
+const PlayCardDataScript := preload("res://executor/play_card_data.gd")
 const ActionContextScript := preload("res://executor/action_context.gd")
 const ActionPlanScript := preload("res://executor/action_plan.gd")
+
+const NEIGHBOR_OFFSETS: Array[Vector2i] = [
+	Vector2i(1, 0),
+	Vector2i(-1, 0),
+	Vector2i(0, 1),
+	Vector2i(0, -1),
+]
 
 var pending_plan: ActionPlan = null
 var _actor: Node = null
@@ -14,8 +23,11 @@ var _actor: Node = null
 func bind(actor: Node) -> void:
 	_actor = actor
 	var input: Node = _get_input_service()
-	if input != null and not input.move_intent.is_connected(_on_move_intent):
-		input.move_intent.connect(_on_move_intent)
+	if input != null:
+		if not input.move_intent.is_connected(_on_move_intent):
+			input.move_intent.connect(_on_move_intent)
+		if input.has_signal(&"card_play_intent") and not input.card_play_intent.is_connected(_on_card_play_intent):
+			input.card_play_intent.connect(_on_card_play_intent)
 
 
 func _on_move_intent(direction: Vector2i) -> void:
@@ -28,6 +40,35 @@ func _on_move_intent(direction: Vector2i) -> void:
 	if executor.validate(ctx):
 		if executor.execute(ctx):
 			_spend_action_budget()
+
+
+func _on_card_play_intent(hand_index: int) -> void:
+	if _actor == null:
+		return
+	var deck: DeckComponent = _get_deck()
+	if deck == null:
+		return
+	if hand_index < 0 or hand_index >= deck.hand.size():
+		return
+	var card: CardData = deck.hand[hand_index]
+	if card == null:
+		return
+	var target: Variant = null
+	if card.range == 0:
+		target = _actor
+	else:
+		target = _find_adjacent_enemy()
+		if target == null:
+			return
+	var play_card_data: PlayCardData = PlayCardDataScript.new()
+	play_card_data.card = card
+	play_card_data.target = target
+	var executor: PlayCardExecutor = PlayCardExecutorScript.new()
+	executor.data = play_card_data
+	var ctx: ActionContext = _make_ctx()
+	if executor.validate(ctx):
+		if executor.execute(ctx):
+			_spend_play_card_budget()
 
 
 func submit_player_action(_plan: ActionPlan) -> void:
@@ -46,6 +87,8 @@ func _make_ctx() -> ActionContext:
 	var pos: GridPositionComponent = _get_position()
 	if pos != null:
 		ctx.grid = pos.grid
+	ctx.rng = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
+	ctx.bus = Engine.get_main_loop().root.get_node_or_null("/root/EventBus")
 	return ctx
 
 
@@ -75,6 +118,64 @@ func _spend_action_budget() -> void:
 		if child is ActionBudgetComponent:
 			child.spend(MoveData.type_id)
 			return
+
+
+func _spend_play_card_budget() -> void:
+	if _actor == null:
+		return
+	for child in _actor.get_children():
+		if child is ActionBudgetComponent:
+			child.spend(PlayCardData.type_id)
+			return
+
+
+func _get_deck() -> DeckComponent:
+	if _actor == null:
+		return null
+	for child in _actor.get_children():
+		if child is DeckComponent:
+			return child
+	return null
+
+
+func _find_adjacent_enemy() -> Node:
+	var pos: GridPositionComponent = _get_position()
+	if pos == null or pos.grid == null:
+		return null
+	var grid: GridSystem = pos.grid
+	var actor_faction: FactionComponent = _get_faction()
+	if actor_faction == null:
+		return null
+	for offset in NEIGHBOR_OFFSETS:
+		var occupant: Node = grid.get_at(pos.cell + offset)
+		if occupant == null:
+			continue
+		var occ_faction: FactionComponent = _get_faction_of(occupant)
+		if occ_faction == null:
+			continue
+		if actor_faction.is_hostile_to(occ_faction):
+			return occupant
+	return null
+
+
+func _get_faction() -> FactionComponent:
+	if _actor == null:
+		return null
+	for child in _actor.get_children():
+		if child is FactionComponent:
+			return child
+	return null
+
+
+func _get_faction_of(node: Node) -> FactionComponent:
+	if node == null:
+		return null
+	if node is FactionComponent:
+		return node
+	for child in node.get_children():
+		if child is FactionComponent:
+			return child
+	return null
 
 
 func _get_input_service() -> Node:

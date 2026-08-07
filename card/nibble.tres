@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://b1cardnibble00"]
+
+[ext_resource type="Script" path="res://card/card_data.gd" id="1_card"]
+[ext_resource type="Resource" uid="uid://b1nibblebite00" path="res://effect/nibble_bite.tres" id="2_nibble"]
+
+[resource]
+script = ExtResource("1_card")
+id = &"nibble"
+name = "Nibble"
+description = "A tiny poke at self."
+energy_cost = 0
+family = &"none"
+type = &"attack"
+range = 0
+range_shape = &"line"
+area_shape = &"single"
+area_size = 1
+effects = Array[Resource]([ExtResource("2_nibble")])
+scaling_attributes = Array[StringName]([&"strength"])
+exhaust = false
+tags = Array[StringName]([&"basic"])
