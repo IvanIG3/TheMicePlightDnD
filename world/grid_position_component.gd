@@ -1,6 +1,8 @@
 class_name GridPositionComponent
 extends Node
 
+const SIGNAL_CELL_CHANGED: StringName = &"cell_changed"
+
 signal cell_changed(old_cell: Vector2i, new_cell: Vector2i)
 
 @export var is_blocking: bool = true

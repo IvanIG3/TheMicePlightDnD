@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="HealEffectData" format=3 uid="uid://diryuamfb835"]
+
+[ext_resource type="Script" uid="uid://s24rkct4r4dy" path="res://effect/heal_effect_data.gd" id="1_heal"]
+[ext_resource type="Script" uid="uid://chq61xi65j6l2" path="res://dice/dice_formula.gd" id="2_dice"]
+
+[sub_resource type="Resource" id="Resource_dice"]
+script = ExtResource("2_dice")
+die = 4
+bonus = 2
+
+[resource]
+script = ExtResource("1_heal")
+dice = SubResource("Resource_dice")
+type_id = &"heal"
+description = "A soothing salve that restores a small amount of HP."
+tags = Array[StringName]([&"heal"])

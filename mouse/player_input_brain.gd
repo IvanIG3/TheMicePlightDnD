@@ -51,7 +51,7 @@ func _make_ctx() -> ActionContext:
 
 func _build_plan(direction: Vector2i, affected_tiles: Array[Vector2i]) -> ActionPlan:
 	var plan: ActionPlan = ActionPlanScript.new()
-	plan.action = &"move"
+	plan.action = MoveData.type_id
 	var pos: GridPositionComponent = _get_position()
 	if pos != null:
 		plan.target = pos.cell + direction
@@ -73,7 +73,7 @@ func _spend_action_budget() -> void:
 		return
 	for child in _actor.get_children():
 		if child is ActionBudgetComponent:
-			child.spend(&"move")
+			child.spend(MoveData.type_id)
 			return
 
 

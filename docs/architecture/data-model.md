@@ -73,7 +73,7 @@ Each is a `Resource` subclass of `EffectData` with the listed additional fields.
 
 | Class | Additional fields |
 | --- | --- |
-| `DamageEffectData` | `dice: DiceFormula`, `scaling_attribute: StringName`, `damage_type: StringName` (`physical` or `special`), `resistance_attribute: StringName`. |
+| `DamageEffectData` | `dice: DiceFormula`, `scaling_attribute: StringName`, `damage_type: StringName` (`physical` or `special`), `resistance_attribute: StringName`, `resistance_value: int` (the DC for special attacks, per GDD:131). |
 | `HealEffectData` | `dice: DiceFormula`. |
 | `GrantTempHpEffectData` | `amount: int`. |
 | `ApplyStatusEffectData` | `status: StatusData`, `chance: float` (0.0–1.0). |

@@ -6,10 +6,14 @@ const _THEME_DIRS: Array[String] = [
 	"res://health/",
 	"res://stats/",
 	"res://dice/",
+	"res://effect/",
 ]
 
 
 const MoveExecutorScript := preload("res://executor/move_executor.gd")
+const DamageExecutorScript := preload("res://effect/damage_executor.gd")
+const HealExecutorScript := preload("res://effect/heal_executor.gd")
+const CompositeExecutorScript := preload("res://effect/composite_executor.gd")
 
 
 var effect_executors: Dictionary[StringName, Script] = {}
@@ -20,6 +24,9 @@ var data_index: Dictionary[StringName, Resource] = {}
 
 func _ready() -> void:
 	_scan_themes()
+	register_effect_executor(&"damage", DamageExecutorScript)
+	register_effect_executor(&"heal", HealExecutorScript)
+	register_effect_executor(&"composite", CompositeExecutorScript)
 	_assert_effect_data_complete()
 	register_action_executor(&"move", MoveExecutorScript)
 
@@ -71,26 +78,15 @@ func _scan_themes() -> void:
 
 
 func _scan_directory(dir_path: String) -> void:
-	var dir: DirAccess = DirAccess.open(dir_path)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var entry: String = dir.get_next()
-	while entry != "":
-		if entry == "." or entry == "..":
-			entry = dir.get_next()
-			continue
+	var entries: PackedStringArray = ResourceLoader.list_directory(dir_path)
+	for entry in entries:
 		var full_path: String = dir_path.path_join(entry)
-		if dir.current_is_dir():
-			if entry == "tests":
-				entry = dir.get_next()
+		if full_path.ends_with("/"):
+			if full_path.trim_suffix("/").get_file() == "tests":
 				continue
 			_scan_directory(full_path)
-		else:
-			if entry.ends_with(".tres") or entry.ends_with(".res"):
-				_index_file(full_path)
-		entry = dir.get_next()
-	dir.list_dir_end()
+		elif full_path.ends_with(".tres") or full_path.ends_with(".res"):
+			_index_file(full_path)
 
 
 func _index_file(path: String) -> void:

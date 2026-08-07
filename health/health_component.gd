@@ -5,6 +5,7 @@ extends Node
 @export var temp_hp: int = 0
 
 var max_hp: int = 0
+var toughness: int = 10
 var _attribute_component: Node = null
 var _max_hp_base: int = 0
 var _wounded: bool = false
@@ -55,6 +56,8 @@ func apply_damage(amount: int, source: Node = null) -> int:
 
 
 func apply_heal(amount: int) -> int:
+	if is_dead():
+		return 0
 	var prev_hp: int = current_hp
 	current_hp = mini(current_hp + amount, max_hp)
 

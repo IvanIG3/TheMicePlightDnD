@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CompositeEffectData" format=3 uid="uid://m2a826xtrqa6"]
+
+[ext_resource type="Script" uid="uid://d54snfwaf2bm" path="res://effect/composite_effect_data.gd" id="1_composite"]
+[ext_resource type="Script" uid="uid://bpuscr7k7v8l1" path="res://effect/effect_data.gd" id="1_g304a"]
+[ext_resource type="Resource" uid="uid://c2bll16vqhod8" path="res://effect/scratch_bite.tres" id="2_scratch"]
+
+[resource]
+script = ExtResource("1_composite")
+effects = Array[ExtResource("1_g304a")]([ExtResource("2_scratch"), ExtResource("2_scratch")])
+type_id = &"composite"
+description = "A combination of two bite attacks."
+tags = Array[StringName]([&"damage", &"physical", &"combo"])

@@ -42,7 +42,7 @@ The first deliverable is a runnable vertical slice that exercises the full archi
 - Unit tests for `RngService.dice_roll` (Nat 20 max-roll, Nat 1 fumble, advantage/disadvantage if implemented).
 - Unit tests for `DeckComponent` (draw, reshuffle when empty, memorize/learn roundtrip).
 - Unit tests for `AttributeComponent` (modifier stacking, removal by `source`).
-- Unit tests for `DamageExecutor` (hardiness, resistance, crit, fumble).
+- Unit tests for `DamageExecutor` (toughness, resistance, crit, fumble).
 - Integration test: one full turn with one static predator.
 - Determinism test: same seed produces the same biome layout (snapshot).
 

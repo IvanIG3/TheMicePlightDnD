@@ -11,7 +11,7 @@ const TILE_SIZE: int = 64
 func _subscribe() -> void:
 	var pos: GridPositionComponent = _get_position()
 	if pos != null:
-		_connect_to(pos, &"cell_changed", _on_cell_changed)
+		_connect_to(pos, GridPositionComponent.SIGNAL_CELL_CHANGED, _on_cell_changed)
 
 
 func _replay_state_from(_target_model: Node) -> void:

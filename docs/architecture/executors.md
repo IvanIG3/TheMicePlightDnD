@@ -91,7 +91,7 @@ Each is a `RefCounted` subclass of `EffectExecutor`. The data column points to t
 
 | Executor | Data | Behavior summary |
 | --- | --- | --- |
-| `DamageExecutor` | `DamageEffectData` | Rolls `dice` (or `max_roll()` on a Nat 20), applies scaling attribute, subtracts defender's `Hardiness` or runs the resistance check (Nat 1 auto-fails). Emits `damage_applied` on `EventBus`. |
+| `DamageExecutor` | `DamageEffectData` | Rolls `dice` (or `max_roll()` on a Nat 20), applies scaling attribute, runs defender's `Toughness` or `Resistance` check (Nat 1 auto-fails). Emits `damage_applied` on `EventBus`. |
 | `HealExecutor` | `HealEffectData` | Rolls `dice`, calls `HealthComponent.apply_heal`. Emits `heal_applied`. |
 | `GrantTempHpExecutor` | `GrantTempHpEffectData` | Calls `HealthComponent.grant_temp_hp`. |
 | `ApplyStatusExecutor` | `ApplyStatusEffectData` | Rolls `chance`; on success, calls `StatusComponent.apply_status`. |

@@ -28,7 +28,7 @@ func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val
 func _make_bonus(attr: StringName, value: int, source: StringName) -> AttributeBonus:
 	var b: AttributeBonus = AttributeBonusScript.new()
 	b.attribute = attr
-	b.mode = AttributeBonus.MODE_ADD
+	b.mode = AttributeModes.MODE_ADD
 	b.value = value
 	b.source = source
 	return b

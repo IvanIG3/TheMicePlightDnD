@@ -10,6 +10,7 @@
 	"res://mouse/tests/",
 	"res://executor/tests/",
 	"res://input/tests/",
+	"res://effect/tests/",
     "res://view/tests/"
   ],
   "prefix": "test_",

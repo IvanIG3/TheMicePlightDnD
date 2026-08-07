@@ -109,11 +109,12 @@ func test_walker_indexes_attribute_data_tres() -> void:
 		assert_eq(resource.id, attr_id, "indexed resource has matching id")
 
 
-func test_walker_indexes_exactly_six_resources() -> void:
+func test_walker_indexes_all_theme_resources() -> void:
 	var registry := _registry()
 	registry.data_index.clear()
 	registry._scan_themes()
-	assert_eq(registry.data_index.size(), AttributeIds.ALL.size(), "walker indexed exactly the 6 attribute resources, no more, no less")
+	var expected_count: int = AttributeIds.ALL.size() + 3
+	assert_eq(registry.data_index.size(), expected_count, "walker indexed all theme resources (6 attribute + 3 effect)")
 
 
 func test_walker_skips_tests_subdir() -> void:
