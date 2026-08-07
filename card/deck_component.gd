@@ -33,10 +33,7 @@ func bind_attribute_score(int_score: int) -> void:
 
 
 func shuffle_initial_deck() -> void:
-	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
-	if rng == null:
-		return
-	deck = rng.shuffle(deck)
+	deck = RngService.shuffle(deck)
 
 
 func draw(n: int) -> void:
