@@ -13,6 +13,10 @@ var cell: Vector2i = Vector2i.ZERO
 var _grid: GridSystem = null
 
 
+var grid: GridSystem:
+	get: return _grid
+
+
 func init(grid: GridSystem) -> void:
 	_grid = grid
 
