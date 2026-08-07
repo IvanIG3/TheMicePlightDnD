@@ -24,9 +24,9 @@ func reachable_tiles(max_range: int) -> Array[Vector2i]:
 
 
 func area_tiles(center: Vector2i, shape: StringName, size: int) -> Array[Vector2i]:
-	if shape == &"single" or size <= 0:
+	if shape == AreaShapes.SINGLE or size <= 0:
 		return [center]
-	if shape == &"cross":
+	if shape == AreaShapes.CROSS:
 		var tiles: Array[Vector2i] = [center]
 		for s in range(1, size + 1):
 			tiles.append(center + Vector2i(s, 0))

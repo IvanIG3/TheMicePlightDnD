@@ -16,7 +16,7 @@ func test_default_range_is_one() -> void:
 
 func test_default_area_shape_is_single() -> void:
 	var data: BasicAttackData = BasicAttackDataScript.new()
-	assert_eq(data.area_shape, &"single", "default area_shape is &\"single\"")
+	assert_eq(data.area_shape, AreaShapes.SINGLE, "default area_shape is AreaShapes.SINGLE")
 
 
 func test_default_area_size_is_one() -> void:
