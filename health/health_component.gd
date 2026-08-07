@@ -56,6 +56,8 @@ func apply_damage(amount: int, source: Node = null) -> int:
 
 
 func apply_heal(amount: int) -> int:
+	if is_dead():
+		return 0
 	var prev_hp: int = current_hp
 	current_hp = mini(current_hp + amount, max_hp)
 

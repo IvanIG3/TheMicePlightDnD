@@ -86,16 +86,15 @@ func test_overheal_caps_at_max_hp() -> void:
 
 
 # Seed 3: 2d4+2 = 6 (r1=1, r2=3)
-# Target 0/100: apply_heal does not check is_dead (arch: "Returns amount actually healed")
-# so a dead target is healed back to 6 HP, emit heal_applied with the returned value
-func test_heal_on_dead_target_revives_with_actual_heal() -> void:
+# Target 0/100: dead targets cannot be healed. apply_heal returns 0; HP stays 0.
+func test_heal_on_dead_target_is_no_op() -> void:
 	_data = _build_data(2, 4, 2)
 	_target = _build_target(0)
 	_build_context(3)
 	watch_signals(_bus)
 	_executor.execute(_ctx)
-	assert_signal_emitted(_bus, "heal_applied", [6, _target])
-	assert_eq(_health.current_hp, 6, "current_hp = 0 + 6 = 6 (revived)")
+	assert_signal_emitted(_bus, "heal_applied", [0, _target])
+	assert_eq(_health.current_hp, 0, "current_hp stays 0 (dead targets cannot be healed)")
 
 
 # No target: actual_healed=0, emit heal_applied(0, null)

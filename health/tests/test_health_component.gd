@@ -137,3 +137,15 @@ func test_died_killer_typed_as_node() -> void:
 	_health.apply_damage(5, source)
 	assert_signal_emit_count(_health, "died", 1, "died fired once with the source Node as killer")
 	source.free()
+
+
+func test_apply_heal_on_dead_target_is_no_op() -> void:
+	var source: Node = Node.new()
+	add_child_autofree(source)
+	_health.apply_damage(_health.current_hp, source)
+	assert_true(_health.is_dead(), "target is dead after lethal damage")
+	watch_signals(_health)
+	var healed: int = _health.apply_heal(10)
+	assert_eq(healed, 0, "no healing on dead target")
+	assert_eq(_health.current_hp, 0, "current_hp stays 0")
+	assert_signal_emit_count(_health, "hp_changed", 0, "hp_changed must NOT fire when dead")
