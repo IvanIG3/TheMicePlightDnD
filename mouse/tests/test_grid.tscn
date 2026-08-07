@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1t3stgr1dscn01"]
+[gd_scene format=3 uid="uid://dxrtmq1dcq1u7"]
 
 [ext_resource type="Script" path="res://mouse/tests/test_grid.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://mouse/mouse.tscn" id="2_mouse"]

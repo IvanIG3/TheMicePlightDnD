@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1m2usetscn0001"]
+[gd_scene format=3 uid="uid://r8n5upkrnamy"]
 
 [ext_resource type="PackedScene" path="res://character/character.tscn" id="1_char"]
 [ext_resource type="Script" path="res://mouse/mouse.gd" id="2_mouse"]
