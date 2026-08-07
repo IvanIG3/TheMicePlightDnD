@@ -1,17 +1,17 @@
 {
   "dirs": [
 	"res://attribute/tests/",
+	"res://character/tests/",
 	"res://stats/tests/",
 	"res://health/tests/",
 	"res://dice/tests/",
 	"res://global/tests/",
 	"res://world/tests/",
-	"res://character/tests/",
 	"res://mouse/tests/",
 	"res://executor/tests/",
 	"res://input/tests/",
-    "res://effect/tests/",
-    "res://view/tests/",
+	"res://effect/tests/",
+	"res://view/tests/",
     "res://card/tests/"
   ],
   "prefix": "test_",

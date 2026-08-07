@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DamageEffectData" format=3 uid="uid://b1nibblebite00"]
+[gd_resource type="Resource" script_class="DamageEffectData" format=3 uid="uid://cod8gqli1sanj"]
 
 [ext_resource type="Script" path="res://effect/damage_effect_data.gd" id="1_damage"]
 [ext_resource type="Script" path="res://dice/dice_formula.gd" id="2_dice"]
