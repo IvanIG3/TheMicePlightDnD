@@ -32,7 +32,7 @@ Each layer depends only on the layer below it. Higher layers never reach down to
 | [`data-model.md`](./data-model.md) | Every `Resource` type, its fields, and the data-level relationships. The most stable section. |
 | [`components.md`](./components.md) | Every `Node` component, its signals, and the rules for how components compose into entities. |
 | [`executors.md`](./executors.md) | The `EffectExecutor` / `ActionExecutor` pattern, the `Registry` lookup, and how to add new types without modifying existing code. |
-| [`systems.md`](./systems.md) | The autoloads (`RngService`, `EventBus`, `Registry`, `InputService`, `RunService`, `GridSystem`) and the "no God-object" rule. |
+| [`systems.md`](./systems.md) | The autoloads (`RngService`, `EventBus`, `Registry`, `RunService`), the scene-level injected services (`GridSystem`, and `InputService` once `Main`/`HUDController` land), and the "no God-object" rule. |
 | [`run-flow.md`](./run-flow.md) | The run state machine, the turn manager, and the cycle from `Burrow` to `RunEnd`. |
 | [`entities.md`](./entities.md) | The `Character`, `Mouse`, `Predator`, and `Corpse` scenes and how they compose components without inheritance. |
 | [`views.md`](./views.md) | World and HUD views, the `View` contract, the disposal policy, and the single-source-of-truth rule in practice. |

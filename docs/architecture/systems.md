@@ -73,7 +73,7 @@ Owns the four lookup tables described in `executors.md`:
 
 On startup, `Registry` walks each theme folder (`res://attribute/`, `res://health/`, `res://stats/`, `res://dice/`, ...) recursively — skipping `*/tests/*` and `*.gd` — and loads every `Resource` whose filename matches its `id` field (or falls back to filename), then indexes it. The walk is `O(N)` where `N` is the total number of content files. There is no shared `res://data/` folder; content lives next to its theme's scripts.
 
-### `InputService` (Node, autoload)
+### `InputService` (Node, autoload — pending de-autoload)
 
 Translates Godot's `InputEvent` stream into logical intent signals. Brains consume these signals; they never read `InputEvent` directly.
 
@@ -91,6 +91,20 @@ Translates Godot's `InputEvent` stream into logical intent signals. Brains consu
 | `rest_action_intent` | `action: StringName` | `confirm` while in a rest menu. |
 
 This is the only place that knows Godot's action names. Swapping the input scheme (gamepad, touch) only changes this service.
+
+#### Planned migration (injected, not autoloaded)
+
+`InputService` has only two consumers in code (`HandUI`, `PlayerInputBrain`) and one planned (`TargetingReticle`). All three are constructed by owners that can hold a reference: `Character` constructs the brain; the future `HUDController` constructs the HUD views; the future `Main` scene will own `InputService` as a child for its game-lifetime tree presence (`_unhandled_input` and `InputMap` registration require a node in the tree).
+
+When `Main` and `HUDController` land:
+
+1. Remove `InputService` from `[autoload]` in `project.godot`.
+2. `Main` instantiates `InputService` as a child and holds the reference.
+3. `Main` passes the reference to the `Mouse` (which forwards it to the brain via `set_input_service`) and to `HUDController` (which forwards it to `HandUI` and `TargetingReticle`).
+4. Consumers add `set_input_service(input: Node)`, store the reference, and replace `get_node_or_null("/root/InputService")` with the stored field. The defensive `if input != null` guard is removed — wiring is trusted at the contract boundary.
+5. Tests instantiate `InputService` directly and inject it, mirroring `test_input_service.gd`'s existing pattern.
+
+This brings `InputService` into line with `GridSystem` (injected per scene) and removes the only `/root/...` lookup in a consumer.
 
 ### `RunService` (Node, autoload)
 
