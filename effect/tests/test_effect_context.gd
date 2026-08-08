@@ -1,11 +1,8 @@
 extends GutTest
 
 
-const EffectContextScript := preload("res://effect/effect_context.gd")
-
-
 func test_fields_default_to_null_or_empty() -> void:
-	var ctx: EffectContext = EffectContextScript.new()
+	var ctx: EffectContext = EffectContext.new()
 	assert_null(ctx.source, "source defaults to null")
 	assert_null(ctx.target, "target defaults to null")
 	assert_null(ctx.rng, "rng defaults to null")
@@ -14,7 +11,7 @@ func test_fields_default_to_null_or_empty() -> void:
 
 
 func test_fields_are_assignable() -> void:
-	var ctx: EffectContext = EffectContextScript.new()
+	var ctx: EffectContext = EffectContext.new()
 	var source_node: Node = Node.new()
 	var target_node: Node = Node.new()
 	var rng_node: Node = Node.new()

@@ -1,13 +1,8 @@
 extends GutTest
 
 
-const DamageEffectDataPath := "res://effect/damage_effect_data.gd"
-
-
 func _load_data() -> Resource:
-	var script: GDScript = load(DamageEffectDataPath)
-	assert_not_null(script, "DamageEffectData script must exist at " + DamageEffectDataPath)
-	return script.new()
+	return DamageEffectData.new()
 
 
 func test_damage_effect_data_inherits_from_effect_data() -> void:
@@ -49,8 +44,7 @@ func test_dice_defaults_to_null() -> void:
 
 func test_fields_are_assignable() -> void:
 	var data: Resource = _load_data()
-	var DiceFormulaScript: GDScript = load("res://dice/dice_formula.gd")
-	var dice: DiceFormula = DiceFormulaScript.new()
+	var dice: DiceFormula = DiceFormula.new()
 	dice.count = 2
 	dice.die = 6
 	dice.bonus = 3

@@ -1,37 +1,34 @@
 extends GutTest
 
 
-const EffectDataScript := preload("res://effect/effect_data.gd")
-
-
 func test_effect_data_is_resource() -> void:
-	var data: Resource = EffectDataScript.new()
+	var data: Resource = EffectData.new()
 	assert_true(data is Resource, "EffectData is a Resource")
 
 
 func test_default_description_is_empty() -> void:
-	var data: Resource = EffectDataScript.new()
+	var data: Resource = EffectData.new()
 	assert_eq(data.description, "", "default description is empty string")
 
 
 func test_default_tags_is_empty() -> void:
-	var data: Resource = EffectDataScript.new()
+	var data: Resource = EffectData.new()
 	assert_eq(data.tags.size(), 0, "default tags is empty array")
 
 
 func test_default_type_id_is_empty_stringname() -> void:
-	var data: Resource = EffectDataScript.new()
+	var data: Resource = EffectData.new()
 	assert_eq(data.type_id, &"", "default type_id is empty StringName")
 
 
 func test_description_is_assignable() -> void:
-	var data: Resource = EffectDataScript.new()
+	var data: Resource = EffectData.new()
 	data.description = "Burns the target"
 	assert_eq(data.description, "Burns the target", "description round-trips")
 
 
 func test_tags_are_assignable() -> void:
-	var data: Resource = EffectDataScript.new()
+	var data: Resource = EffectData.new()
 	var new_tags: Array[StringName] = [&"damage", &"fire"]
 	data.tags = new_tags
 	assert_eq(data.tags, new_tags, "tags round-trip")

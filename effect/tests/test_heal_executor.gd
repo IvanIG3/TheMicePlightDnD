@@ -1,13 +1,6 @@
 extends GutTest
 
 
-const EffectContextScript := preload("res://effect/effect_context.gd")
-const DiceFormulaScript := preload("res://dice/dice_formula.gd")
-const HealthComponentScript := preload("res://health/health_component.gd")
-const HealExecutorPath := "res://effect/heal_executor.gd"
-const HealEffectDataPath := "res://effect/heal_effect_data.gd"
-
-
 var _target: Node
 var _ctx: EffectContext
 var _executor: RefCounted
@@ -24,7 +17,7 @@ func before_each() -> void:
 
 func _build_target(current_hp: int) -> Node:
 	var target_node: Node = Node.new()
-	_health = HealthComponentScript.new()
+	_health = HealthComponent.new()
 	_health.max_hp = 100
 	_health.current_hp = current_hp
 	target_node.add_child(_health)
@@ -33,10 +26,8 @@ func _build_target(current_hp: int) -> Node:
 
 
 func _build_data(count: int, die: int, bonus: int) -> Resource:
-	var data_script: GDScript = load(HealEffectDataPath)
-	assert_not_null(data_script, "HealEffectData script must exist at " + HealEffectDataPath)
-	var d: Resource = data_script.new()
-	var dice: DiceFormula = DiceFormulaScript.new()
+	var d: Resource = HealEffectData.new()
+	var dice: DiceFormula = DiceFormula.new()
 	dice.count = count
 	dice.die = die
 	dice.bonus = bonus
@@ -45,16 +36,14 @@ func _build_data(count: int, die: int, bonus: int) -> Resource:
 
 
 func _build_executor() -> RefCounted:
-	var executor_script: GDScript = load(HealExecutorPath)
-	assert_not_null(executor_script, "HealExecutor script must exist at " + HealExecutorPath)
-	var ex: RefCounted = executor_script.new()
+	var ex: RefCounted = HealExecutor.new()
 	ex.data = _data
 	return ex
 
 
 func _build_context(seed_value: int) -> void:
 	_rng_node.set_seed(seed_value)
-	_ctx = EffectContextScript.new()
+	_ctx = EffectContext.new()
 	_ctx.target = _target
 	_ctx.rng = _rng_node
 	_ctx.bus = _bus

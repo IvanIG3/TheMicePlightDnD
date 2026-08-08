@@ -1,13 +1,8 @@
 extends GutTest
 
 
-const HealEffectDataPath := "res://effect/heal_effect_data.gd"
-
-
 func _load_data() -> Resource:
-	var script: GDScript = load(HealEffectDataPath)
-	assert_not_null(script, "HealEffectData script must exist at " + HealEffectDataPath)
-	return script.new()
+	return HealEffectData.new()
 
 
 func test_heal_effect_data_inherits_from_effect_data() -> void:
@@ -39,8 +34,7 @@ func test_dice_defaults_to_null() -> void:
 
 func test_dice_is_assignable() -> void:
 	var data: Resource = _load_data()
-	var DiceFormulaScript: GDScript = load("res://dice/dice_formula.gd")
-	var dice: DiceFormula = DiceFormulaScript.new()
+	var dice: DiceFormula = DiceFormula.new()
 	dice.count = 2
 	dice.die = 4
 	dice.bonus = 2
