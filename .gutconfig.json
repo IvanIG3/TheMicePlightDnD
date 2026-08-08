@@ -1,6 +1,7 @@
 {
   "dirs": [
-	"res://"
+	"res://",
+	"res://basic_attack/tests/"
   ],
   "prefix": "test_",
   "suffix": ".gd",
