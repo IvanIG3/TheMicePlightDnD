@@ -68,7 +68,7 @@ func _make_predator(grid: GridSystem, cell: Vector2i, scripted_plan: ActionPlan)
 	stats.initiative = 8
 	var intent: IntentComponent = IntentComponent.new()
 	actor.add_child(intent)
-	var brain: StaticPredatorBrain = StaticPredatorBrain.new()
+	var brain: Node = load("res://predator/tests/fixtures/scripted_predator_brain.gd").new()
 	actor.add_child(brain)
 	brain.scripted_plan = scripted_plan
 	brain.bind(actor)

@@ -22,7 +22,7 @@ var _targeting: TargetingComponent = null
 var _basic_attack: BasicAttackData = null
 
 
-# Mirrors StaticPredatorBrain.bind(actor). Called from the predator's _ready.
+# Called from the predator's _ready. Captures the actor's components.
 # Use set_context(player, grid) before plan_turn so the brain can see the current
 # player and grid; the predator's _ready has neither.
 func bind(actor: Node) -> void:

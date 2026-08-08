@@ -1,5 +1,11 @@
-class_name StaticPredatorBrain
 extends Node
+
+
+## Test fixture: a brain that publishes a pre-set ActionPlan each turn.
+## Replaces the production StaticPredatorBrain which is being removed.
+## The TurnManager tests use this to drive specific plans without depending
+## on PredatorAIBrain's decision tree.
+
 
 var scripted_plan: ActionPlan = null
 
