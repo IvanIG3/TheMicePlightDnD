@@ -1,16 +1,11 @@
 extends GutTest
 
 
-const TargetingComponentScript := preload("res://character/targeting_component.gd")
-const GridSystemScript := preload("res://world/grid_system.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-
-
 func _make_setup() -> Dictionary:
-	var grid: GridSystem = GridSystemScript.new()
-	var pos: GridPositionComponent = GridPositionComponentScript.new()
+	var grid: GridSystem = GridSystem.new()
+	var pos: GridPositionComponent = GridPositionComponent.new()
 	var character: Node = Node.new()
-	var targeting: TargetingComponent = TargetingComponentScript.new()
+	var targeting: TargetingComponent = TargetingComponent.new()
 	character.add_child(grid)
 	character.add_child(pos)
 	character.add_child(targeting)

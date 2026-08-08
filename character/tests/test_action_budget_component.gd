@@ -1,14 +1,11 @@
 extends GutTest
 
 
-const ActionBudgetComponentScript := preload("res://character/action_budget_component.gd")
-
-
 var _comp: ActionBudgetComponent
 
 
 func before_each() -> void:
-	_comp = ActionBudgetComponentScript.new()
+	_comp = ActionBudgetComponent.new()
 	add_child_autofree(_comp)
 
 

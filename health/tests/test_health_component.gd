@@ -1,20 +1,15 @@
 extends GutTest
 
 
-const HealthComponentScript := preload("res://health/health_component.gd")
-const AttributeComponentScript := preload("res://attribute/attribute_component.gd")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
-
-
 var _health: HealthComponent
 var _attr: AttributeComponent
 var _max_hp_base_for_test: int = 10
 
 
 func before_each() -> void:
-	_health = HealthComponentScript.new()
+	_health = HealthComponent.new()
 	add_child_autofree(_health)
-	_attr = AttributeComponentScript.new()
+	_attr = AttributeComponent.new()
 	add_child_autofree(_attr)
 	_attr.base = _make_set()
 	_health.init(_max_hp_base_for_test, _attr)
@@ -24,15 +19,15 @@ func before_each() -> void:
 
 
 func _make_set(constitution_val: int = 10) -> AttributeSet:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_CON, constitution_val)
 	return attribute_set
 
 
 func test_recompute_max_hp_uses_con_modifier() -> void:
-	_health = HealthComponentScript.new()
+	_health = HealthComponent.new()
 	add_child_autofree(_health)
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	add_child_autofree(attr)
 	attr.base = _make_set(14)
 	_health.init(10, attr)
@@ -41,9 +36,9 @@ func test_recompute_max_hp_uses_con_modifier() -> void:
 
 
 func test_recompute_max_hp_emits_hp_changed_when_value_changes() -> void:
-	_health = HealthComponentScript.new()
+	_health = HealthComponent.new()
 	add_child_autofree(_health)
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	add_child_autofree(attr)
 	attr.base = _make_set(14)
 	_health.init(10, attr)

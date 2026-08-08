@@ -1,9 +1,6 @@
 extends GutTest
 
 
-const FactionComponentScript := preload("res://character/faction_component.gd")
-
-
 var _mouse: FactionComponent
 var _predator: FactionComponent
 var _neutral: FactionComponent
@@ -11,19 +8,19 @@ var _corpse: FactionComponent
 
 
 func before_each() -> void:
-	_mouse = FactionComponentScript.new()
+	_mouse = FactionComponent.new()
 	add_child_autofree(_mouse)
 	_mouse.faction = FactionIds.FACTION_MOUSE
 
-	_predator = FactionComponentScript.new()
+	_predator = FactionComponent.new()
 	add_child_autofree(_predator)
 	_predator.faction = FactionIds.FACTION_PREDATOR
 
-	_neutral = FactionComponentScript.new()
+	_neutral = FactionComponent.new()
 	add_child_autofree(_neutral)
 	_neutral.faction = FactionIds.FACTION_NEUTRAL
 
-	_corpse = FactionComponentScript.new()
+	_corpse = FactionComponent.new()
 	add_child_autofree(_corpse)
 	_corpse.faction = FactionIds.FACTION_CORPSE
 

@@ -1,10 +1,6 @@
 extends GutTest
 
 
-const ViewScript := preload("res://view/view.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-
-
 class TestView extends View:
 	var subscribed: bool = false
 	var replayed: bool = false
@@ -22,7 +18,7 @@ class TestView extends View:
 
 
 func test_initialize_stores_model() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
@@ -30,7 +26,7 @@ func test_initialize_stores_model() -> void:
 
 
 func test_initialize_calls_subscribe() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
@@ -38,7 +34,7 @@ func test_initialize_calls_subscribe() -> void:
 
 
 func test_initialize_calls_replay_state_from() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
@@ -46,7 +42,7 @@ func test_initialize_calls_replay_state_from() -> void:
 
 
 func test_initialize_throws_on_double_init() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
@@ -58,7 +54,7 @@ func test_initialize_throws_on_double_init() -> void:
 
 
 func test_dispose_sets_disposed_flag() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
@@ -67,7 +63,7 @@ func test_dispose_sets_disposed_flag() -> void:
 
 
 func test_dispose_disconnects_signals() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
@@ -77,7 +73,7 @@ func test_dispose_disconnects_signals() -> void:
 
 
 func test_dispose_is_idempotent() -> void:
-	var model: GridPositionComponent = GridPositionComponentScript.new()
+	var model: GridPositionComponent = GridPositionComponent.new()
 	add_child_autofree(model)
 	var view: TestView = TestView.new()
 	view.initialize(model)
