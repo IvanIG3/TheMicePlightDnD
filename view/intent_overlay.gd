@@ -55,10 +55,12 @@ func dispose() -> void:
 	if _disposed:
 		return
 	for conn in _connections:
+		if not is_instance_valid(conn["target"]):
+			continue
 		var target: Object = conn["target"]
 		var signal_name: StringName = conn["signal"]
 		var callable: Callable = conn["callable"]
-		if is_instance_valid(target) and target.has_signal(signal_name) and target.is_connected(signal_name, callable):
+		if target.has_signal(signal_name) and target.is_connected(signal_name, callable):
 			target.disconnect(signal_name, callable)
 	_connections.clear()
 	for tween in _active_tweens.values():

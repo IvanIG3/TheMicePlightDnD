@@ -26,7 +26,6 @@ func _build_predator() -> Node:
 	var sprite: Sprite2D = Sprite2D.new()
 	sprite.name = "Sprite2D"
 	actor.add_child(sprite)
-	add_child_autofree(actor)
 	_predator_intent = intent
 	return actor
 
