@@ -1,11 +1,8 @@
 extends GutTest
 
 
-const AttributeDataScript := preload("res://attribute/attribute_data.gd")
-
-
 func test_field_defaults() -> void:
-	var data: AttributeData = AttributeDataScript.new()
+	var data: AttributeData = AttributeData.new()
 	assert_eq(data.id, &"", "id defaults to empty StringName")
 	assert_eq(data.display_name, "", "display_name defaults to empty String")
 	assert_eq(data.description, "", "description defaults to empty String")
@@ -14,7 +11,7 @@ func test_field_defaults() -> void:
 
 
 func test_field_round_trip() -> void:
-	var data: AttributeData = AttributeDataScript.new()
+	var data: AttributeData = AttributeData.new()
 	data.id = &"strength"
 	data.display_name = "Strength"
 	data.description = "Physical power."
@@ -26,7 +23,7 @@ func test_field_round_trip() -> void:
 
 
 func test_resource_survives_as_resource() -> void:
-	var data: AttributeData = AttributeDataScript.new()
+	var data: AttributeData = AttributeData.new()
 	data.id = &"strength"
 	var container: Dictionary = {"inner": data}
 	var retrieved: Resource = container["inner"]
