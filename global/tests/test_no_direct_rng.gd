@@ -9,7 +9,7 @@ const _THEME_DIRS: Array[String] = [
 	"res://global/",
 	"res://predator/",
 	"res://turn/",
-	"res://executor/",
+	"res://action/",
 	"res://effect/",
 	"res://card/",
 	"res://character/",
