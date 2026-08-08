@@ -25,6 +25,7 @@ func _ready() -> void:
 	_assert_effect_data_complete()
 	register_action_executor(&"move", MoveExecutor)
 	register_action_executor(PlayCardData.type_id, PlayCardExecutor)
+	register_action_executor(BasicAttackData.type_id, BasicAttackExecutor)
 
 
 func register_effect_executor(type_id: StringName, script: Script) -> void:

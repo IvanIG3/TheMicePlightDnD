@@ -46,3 +46,18 @@ func test_range_is_assignable() -> void:
 	var data: BasicAttackData = BasicAttackData.new()
 	data.range = 2
 	assert_eq(data.range, 2, "range is set to 2")
+
+
+func test_type_id_is_basic_attack() -> void:
+	var data: BasicAttackData = BasicAttackData.new()
+	assert_eq(data.type_id, &"basic_attack", "type_id is &\"basic_attack\"")
+
+
+func test_default_damage_is_null() -> void:
+	var data: BasicAttackData = BasicAttackData.new()
+	assert_null(data.damage, "default damage is null")
+
+
+func test_default_target_is_null() -> void:
+	var data: BasicAttackData = BasicAttackData.new()
+	assert_null(data.target, "default target is null")
