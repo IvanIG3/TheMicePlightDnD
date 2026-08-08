@@ -77,22 +77,22 @@ func run_remaining_cycle() -> void:
 		advance()
 
 
-func get_predator_brain(predator: Node) -> StaticPredatorBrain:
+func get_predator_brain(predator: Node) -> Node:
 	if predator == null:
 		return null
 	for child in predator.get_children():
-		if child is StaticPredatorBrain:
+		if child.has_method(&"plan_turn"):
 			return child
 	return null
 
 
 func _run_enemy_planning() -> void:
 	for predator in predators:
-		var brain: StaticPredatorBrain = get_predator_brain(predator)
+		var brain: Node = get_predator_brain(predator)
 		if brain == null:
 			continue
-		if not brain.has_method(&"plan_turn"):
-			continue
+		if brain.has_method(&"set_context"):
+			brain.set_context(player, grid)
 		brain.plan_turn(TurnStates.ENEMY_PLANNING)
 		enemy_plan_published.emit(predator)
 	_enter_state(TurnStates.ENEMY_RESOLVING)
