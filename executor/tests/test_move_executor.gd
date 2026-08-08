@@ -1,13 +1,6 @@
 extends GutTest
 
 
-const MoveExecutorScript := preload("res://executor/move_executor.gd")
-const MoveDataScript := preload("res://executor/move_data.gd")
-const ActionContextScript := preload("res://executor/action_context.gd")
-const GridSystemScript := preload("res://world/grid_system.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-
-
 var _grid: GridSystem
 var _actor: Node
 var _pos: GridPositionComponent
@@ -16,21 +9,21 @@ var _executor: MoveExecutor
 
 
 func before_each() -> void:
-	_grid = GridSystemScript.new()
+	_grid = GridSystem.new()
 	_actor = Node.new()
-	_pos = GridPositionComponentScript.new()
+	_pos = GridPositionComponent.new()
 	_actor.add_child(_pos)
 	_pos.grid = _grid
 	_pos.set_cell(Vector2i(2, 2))
 	add_child_autofree(_actor)
-	_ctx = ActionContextScript.new()
+	_ctx = ActionContext.new()
 	_ctx.actor = _actor
 	_ctx.grid = _grid
-	_executor = MoveExecutorScript.new()
+	_executor = MoveExecutor.new()
 
 
 func _make_move(direction: Vector2i) -> MoveData:
-	var move_data: MoveData = MoveDataScript.new()
+	var move_data: MoveData = MoveData.new()
 	move_data.direction = direction
 	_executor.data = move_data
 	return move_data
