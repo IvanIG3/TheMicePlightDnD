@@ -185,6 +185,22 @@ func _data_from_plan(plan: ActionPlan, actor: Node) -> Resource:
 		data.card = plan.card
 		data.target = plan.target
 		return data
+	if plan.action == BasicAttackData.type_id:
+		var equipped: BasicAttackData = _get_basic_attack(actor)
+		if equipped == null:
+			return null
+		var data: BasicAttackData = BasicAttackData.new()
+		data.display_name = equipped.display_name
+		data.description = equipped.description
+		data.range = equipped.range
+		data.area_shape = equipped.area_shape
+		data.area_size = equipped.area_size
+		data.damage = equipped.damage
+		data.effects = equipped.effects.duplicate()
+		data.scaling_attributes = equipped.scaling_attributes.duplicate()
+		data.tags = equipped.tags.duplicate()
+		data.target = plan.target
+		return data
 	return null
 
 
@@ -263,4 +279,12 @@ func _get_intent(predator: Node) -> IntentComponent:
 	for child in predator.get_children():
 		if child is IntentComponent:
 			return child
+	return null
+
+
+func _get_basic_attack(actor: Node) -> BasicAttackData:
+	if actor == null:
+		return null
+	if "basic_attack" in actor and actor.basic_attack is BasicAttackData:
+		return actor.basic_attack
 	return null

@@ -18,7 +18,7 @@ func validate(ctx: ActionContext) -> bool:
 	var target_cell: Vector2i = basic_data.target
 	if _chebyshev(pos.cell, target_cell) > basic_data.range:
 		return false
-	var target_actor: Node = ctx.grid.get_at(target_cell)
+	var target_actor: Node = _actor_at(ctx, target_cell)
 	if target_actor == null:
 		return false
 	if not _is_hostile(ctx.actor, target_actor):
@@ -31,7 +31,7 @@ func execute(ctx: ActionContext) -> bool:
 	if basic_data == null:
 		return false
 	var target_cell: Vector2i = basic_data.target
-	var target_actor: Node = ctx.grid.get_at(target_cell)
+	var target_actor: Node = _actor_at(ctx, target_cell)
 	if target_actor == null:
 		return false
 
@@ -54,6 +54,17 @@ func get_affected_tiles(_ctx: ActionContext) -> Array[Vector2i]:
 	if basic_data == null or not (basic_data.target is Vector2i):
 		return [] as Array[Vector2i]
 	return [basic_data.target]
+
+
+func _actor_at(ctx: ActionContext, cell: Vector2i) -> Node:
+	var occupant: Node = ctx.grid.get_at(cell)
+	if occupant == null:
+		return null
+	# GridSystem.register_entity receives the GridPositionComponent, not the actor.
+	# Walk up to the actor so callers can find FactionComponent / HealthComponent.
+	if occupant is GridPositionComponent:
+		return occupant.get_parent()
+	return occupant
 
 
 func _build_damage_data(basic_data: BasicAttackData) -> DamageEffectData:

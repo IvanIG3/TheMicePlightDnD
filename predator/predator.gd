@@ -2,6 +2,9 @@ class_name Predator
 extends Character
 
 
+@export var basic_attack: BasicAttackData = null
+
+
 func _ready() -> void:
 	faction = FactionIds.FACTION_PREDATOR
 	super._ready()

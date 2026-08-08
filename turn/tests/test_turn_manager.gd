@@ -327,3 +327,110 @@ func test_predator_without_brain_skipped_in_planning() -> void:
 	tm.submit_player_plan(executor, ctx)
 	tm.run_remaining_cycle()
 	assert_eq(tm.current_state, TurnStates.PLAYER, "cycle completes even with a brain-less predator")
+
+
+func _make_basic_attack_data() -> BasicAttackData:
+	var d: BasicAttackData = BasicAttackData.new()
+	d.display_name = "Bite"
+	d.range = 1
+	var dice: DiceFormula = DiceFormula.new()
+	dice.count = 1
+	dice.die = 6
+	dice.bonus = 0
+	d.damage = dice
+	return d
+
+
+func _make_predator_with_basic_attack(
+	grid: GridSystem, cell: Vector2i, target_cell: Vector2i
+) -> Dictionary:
+	var attr: AttributeComponent = _make_attribute_component()
+	var actor: Node = Node.new()
+	actor.name = "Predator"
+	actor.add_child(attr)
+	var pos: GridPositionComponent = GridPositionComponent.new()
+	actor.add_child(pos)
+	pos.grid = grid
+	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
+	actor.add_child(budget)
+	var faction: FactionComponent = FactionComponent.new()
+	actor.add_child(faction)
+	faction.faction = FactionIds.FACTION_PREDATOR
+	var health: HealthComponent = HealthComponent.new()
+	actor.add_child(health)
+	health.max_hp = 30
+	health.current_hp = 30
+	var stats: StatsComponent = _make_stats(actor, attr)
+	stats.initiative = 5
+	var intent: IntentComponent = IntentComponent.new()
+	actor.add_child(intent)
+	var brain: StaticPredatorBrain = StaticPredatorBrain.new()
+	actor.add_child(brain)
+	var plan: ActionPlan = ActionPlan.new()
+	plan.action = BasicAttackData.type_id
+	plan.target = target_cell
+	plan.predicted_affected_tiles = [target_cell]
+	brain.scripted_plan = plan
+	brain.bind(actor)
+	add_child_autofree(actor)
+	pos.set_cell(cell)
+	grid.register_entity(actor, cell)
+	# Equip the basic attack via the script property.
+	var fixture: Script = load("res://turn/tests/fixtures/predator_with_basic_attack.gd")
+	actor.set_script(fixture)
+	var equipped: BasicAttackData = _make_basic_attack_data()
+	actor.basic_attack = equipped
+	return {"actor": actor, "pos": pos, "intent": intent, "brain": brain, "stats": stats, "budget": budget, "basic_attack": equipped}
+
+
+# Player at (2, 2) moves to (2, 3). Predator at (2, 4) — adjacent to (2, 3).
+# Predator's plan targets (2, 3). With seed 41, d20=10, STR=10 (mod +0),
+# Toughness=10: 10+0 = 10 >= 10 → hit. 1d6 = 4 → 4 damage.
+func test_predator_basic_attack_plan_resolves_and_damages_player() -> void:
+	var tm: TurnManager = TurnManager.new()
+	add_child_autofree(tm)
+	var s: Dictionary = _make_player()
+	var grid: GridSystem = s.grid
+	var p: Dictionary = _make_predator_with_basic_attack(grid, Vector2i(2, 4), Vector2i(2, 3))
+	assert_true("basic_attack" in p.actor, "predator actor has basic_attack property")
+	assert_not_null(p.actor.basic_attack, "basic_attack is set on predator")
+	tm.start(s.actor, grid, [s.actor, p.actor])
+	# Player moves into the cell the predator's plan targets.
+	var player_executor: RefCounted = _make_move_executor(Vector2i(0, 1))
+	var player_ctx: RefCounted = _make_ctx(s.actor, grid)
+	tm.submit_player_plan(player_executor, player_ctx)
+	assert_eq(s.pos.cell, Vector2i(2, 3), "player moved to (2, 3)")
+	assert_eq(grid.get_at(Vector2i(2, 3)), s.pos, "grid has player GridPositionComponent at (2, 3)")
+	var resolved: Array = []
+	tm.enemy_plan_resolved.connect(func(pred: Node) -> void: resolved.append(pred))
+	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
+	rng.set_seed(41)
+	var initial_hp: int = s.health.current_hp
+	tm.run_remaining_cycle()
+	assert_eq(resolved.size(), 1, "one enemy plan resolved (got %d)" % resolved.size())
+	assert_eq(resolved[0], p.actor, "predator's plan resolved")
+	assert_true(s.health.current_hp < initial_hp, "player took damage (hp was %d, now %d)" % [initial_hp, s.health.current_hp])
+
+
+# Predator with no basic attack equipped: cycle completes, no damage to player.
+func test_predator_basic_attack_plan_fizzles_without_equipped_attack() -> void:
+	var tm: TurnManager = TurnManager.new()
+	add_child_autofree(tm)
+	var s: Dictionary = _make_player()
+	var grid: GridSystem = s.grid
+	# No basic_attack on the predator.
+	var p: Dictionary = _make_predator(grid, Vector2i(2, 4), null)
+	# But the plan is a basic attack, so TurnManager should return null data.
+	var plan: ActionPlan = ActionPlan.new()
+	plan.action = BasicAttackData.type_id
+	plan.target = Vector2i(2, 3)
+	plan.predicted_affected_tiles = [Vector2i(2, 3)]
+	p.intent.publish(plan)
+	tm.start(s.actor, grid, [s.actor, p.actor])
+	var player_executor: RefCounted = _make_move_executor(Vector2i(0, 1))
+	var player_ctx: RefCounted = _make_ctx(s.actor, grid)
+	tm.submit_player_plan(player_executor, player_ctx)
+	var initial_hp: int = s.health.current_hp
+	tm.run_remaining_cycle()
+	assert_eq(s.health.current_hp, initial_hp, "player took no damage when predator has no basic attack")
+	assert_eq(tm.current_state, TurnStates.PLAYER, "cycle completes")
