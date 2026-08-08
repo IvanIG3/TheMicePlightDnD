@@ -1,24 +1,11 @@
 extends GutTest
 
 
-const PlayerInputBrainScript := preload("res://mouse/player_input_brain.gd")
-const GridSystemScript := preload("res://world/grid_system.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-const ActionBudgetComponentScript := preload("res://character/action_budget_component.gd")
-const FactionComponentScript := preload("res://character/faction_component.gd")
-const StatsComponentPath := "res://stats/stats_component.gd"
-const AttributeComponentPath := "res://attribute/attribute_component.gd"
-const AttributeSetPath := "res://attribute/attribute_set.gd"
-const HealthComponentPath := "res://health/health_component.gd"
-const DeckComponentPath := "res://card/deck_component.gd"
-const MemorizationComponentPath := "res://card/memorization_component.gd"
-
-
 func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
-	var grid: GridSystem = GridSystemScript.new()
-	var pos: GridPositionComponent = GridPositionComponentScript.new()
-	var budget: ActionBudgetComponent = ActionBudgetComponentScript.new()
-	var faction: FactionComponent = FactionComponentScript.new()
+	var grid: GridSystem = GridSystem.new()
+	var pos: GridPositionComponent = GridPositionComponent.new()
+	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
+	var faction: FactionComponent = FactionComponent.new()
 	var actor: Node = Node.new()
 	actor.add_child(pos)
 	actor.add_child(budget)
@@ -26,17 +13,14 @@ func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	faction.faction = FactionIds.FACTION_MOUSE
 	pos.grid = grid
 	pos.set_cell(start_cell)
-	var mem_script: GDScript = load(MemorizationComponentPath)
-	var mem: MemorizationComponent = mem_script.new()
+	var mem: MemorizationComponent = MemorizationComponent.new()
 	actor.add_child(mem)
-	var deck_script: GDScript = load(DeckComponentPath)
-	var deck: DeckComponent = deck_script.new()
+	var deck: DeckComponent = DeckComponent.new()
 	actor.add_child(deck)
 	deck.bind_memorization(mem)
-	var attr_script: GDScript = load(AttributeComponentPath)
-	var attr: AttributeComponent = attr_script.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	actor.add_child(attr)
-	var attrs: AttributeSet = (load(AttributeSetPath) as GDScript).new()
+	var attrs: AttributeSet = AttributeSet.new()
 	attrs.set_score(AttributeIds.ATTR_STR, 10)
 	attrs.set_score(AttributeIds.ATTR_DEX, 10)
 	attrs.set_score(AttributeIds.ATTR_CON, 10)
@@ -44,7 +28,7 @@ func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	attrs.set_score(AttributeIds.ATTR_WIS, 10)
 	attrs.set_score(AttributeIds.ATTR_CHA, 10)
 	attr.base = attrs
-	var stats: StatsComponent = (load(StatsComponentPath) as GDScript).new()
+	var stats: StatsComponent = StatsComponent.new()
 	actor.add_child(stats)
 	stats.init(3, attr)
 	stats.recompute_max_energy()
@@ -59,12 +43,12 @@ func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 
 func _make_enemy(cell: Vector2i) -> Node:
 	var enemy: Node = Node.new()
-	var enemy_health: HealthComponent = (load(HealthComponentPath) as GDScript).new()
+	var enemy_health: HealthComponent = HealthComponent.new()
 	enemy.add_child(enemy_health)
 	enemy_health.max_hp = 100
 	enemy_health.current_hp = 100
 	enemy_health.toughness = 1
-	var enemy_faction: FactionComponent = FactionComponentScript.new()
+	var enemy_faction: FactionComponent = FactionComponent.new()
 	enemy.add_child(enemy_faction)
 	enemy_faction.faction = FactionIds.FACTION_PREDATOR
 	add_child_autofree(enemy)
@@ -74,9 +58,7 @@ func _make_enemy(cell: Vector2i) -> Node:
 func test_play_heal_card_spends_energy_and_heals() -> void:
 	var s: Dictionary = _make_mouse_actor()
 	var stats: StatsComponent = s.stats
-	var health_path: String = HealthComponentPath
-	var health_script: GDScript = load(health_path)
-	var health: HealthComponent = health_script.new()
+	var health: HealthComponent = HealthComponent.new()
 	s.actor.add_child(health)
 	health.max_hp = 50
 	health.current_hp = 30
@@ -87,7 +69,7 @@ func test_play_heal_card_spends_energy_and_heals() -> void:
 	watch_signals(bus)
 	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
 	rng.set_seed(0)
-	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
+	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
 	brain._on_card_play_intent(0)
@@ -113,7 +95,7 @@ func test_play_attack_card_auto_picks_adjacent_enemy() -> void:
 	watch_signals(bus)
 	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
 	rng.set_seed(41)
-	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
+	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
 	brain._on_card_play_intent(0)
@@ -134,7 +116,7 @@ func test_play_exhaust_card_routes_to_exhausted_list() -> void:
 	var bus: Node = Engine.get_main_loop().root.get_node_or_null("/root/EventBus")
 	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
 	rng.set_seed(0)
-	var brain: PlayerInputBrain = PlayerInputBrainScript.new()
+	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
 	brain.bind(s.actor)
 	brain._on_card_play_intent(0)

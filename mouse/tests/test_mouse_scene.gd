@@ -2,9 +2,6 @@ extends GutTest
 
 
 const MouseScene := preload("res://mouse/mouse.tscn")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
-const MouseClassDataScript := preload("res://mouse/mouse_class_data.gd")
-const CardDataScript := preload("res://card/card_data.gd")
 
 
 func _instantiate(class_data: Resource = null) -> Node:
@@ -48,10 +45,10 @@ func test_brain_is_bound_to_mouse() -> void:
 
 
 func test_class_data_attributes_are_applied() -> void:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_STR, 14)
 	attribute_set.set_score(AttributeIds.ATTR_CON, 12)
-	var class_data: MouseClassData = MouseClassDataScript.new()
+	var class_data: MouseClassData = MouseClassData.new()
 	class_data.attributes = attribute_set
 	class_data.max_hp_base = 15
 	var mouse: Node = _instantiate(class_data)
@@ -62,9 +59,9 @@ func test_class_data_attributes_are_applied() -> void:
 
 
 func test_class_data_max_hp_initializes_health_to_max() -> void:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_CON, 10)
-	var class_data: MouseClassData = MouseClassDataScript.new()
+	var class_data: MouseClassData = MouseClassData.new()
 	class_data.attributes = attribute_set
 	class_data.max_hp_base = 20
 	var mouse: Node = _instantiate(class_data)
@@ -88,8 +85,7 @@ func test_deck_is_bound_to_memorization() -> void:
 	var deck_comp: DeckComponent = mouse.get_node("DeckComponent")
 	# The bind happens inside _ready; we exercise it via the public API.
 	# Adding a card through deck.memorize routes to memorization_component.
-	var card_data_script: GDScript = load("res://card/card_data.gd")
-	var card: Resource = card_data_script.new()
+	var card: Resource = CardData.new()
 	card.id = &"test_card"
 	deck_comp.memorize(card)
 	var mem_comp: MemorizationComponent = mouse.get_node("MemorizationComponent")
@@ -99,12 +95,12 @@ func test_deck_is_bound_to_memorization() -> void:
 func test_class_data_initial_deck_is_applied_to_deck() -> void:
 	var initial: Array[CardData] = []
 	for i in 12:
-		var card: CardData = CardDataScript.new()
+		var card: CardData = CardData.new()
 		card.id = StringName("card_%d" % i)
 		initial.append(card)
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_INT, 10)
-	var class_data: MouseClassData = MouseClassDataScript.new()
+	var class_data: MouseClassData = MouseClassData.new()
 	class_data.attributes = attribute_set
 	class_data.initial_deck = initial
 	var mouse: Node = _instantiate(class_data)
@@ -115,9 +111,9 @@ func test_class_data_initial_deck_is_applied_to_deck() -> void:
 
 
 func test_class_data_max_energy_initializes_stats() -> void:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_INT, 10)
-	var class_data: MouseClassData = MouseClassDataScript.new()
+	var class_data: MouseClassData = MouseClassData.new()
 	class_data.attributes = attribute_set
 	class_data.max_energy_base = 3
 	var mouse: Node = _instantiate(class_data)

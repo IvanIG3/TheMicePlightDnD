@@ -2,8 +2,6 @@ extends GutTest
 
 
 const PredatorScene := preload("res://predator/predator.tscn")
-const StaticPredatorBrainScript := preload("res://predator/static_predator_brain.gd")
-const IntentComponentScript := preload("res://predator/intent_component.gd")
 
 
 func _instantiate() -> Node:

@@ -1,26 +1,14 @@
 extends GutTest
 
 
-const DeckComponentPath := "res://card/deck_component.gd"
-const MemorizationComponentPath := "res://card/memorization_component.gd"
-const CardDataPath := "res://card/card_data.gd"
-
-
 var _deck: Node
 var _mem: Node
-var _card_script: GDScript
 
 
 func before_each() -> void:
-	_card_script = load(CardDataPath)
-	assert_not_null(_card_script, "CardData script must exist at " + CardDataPath)
-	var mem_script: GDScript = load(MemorizationComponentPath)
-	assert_not_null(mem_script, "MemorizationComponent script must exist at " + MemorizationComponentPath)
-	_mem = mem_script.new()
+	_mem = MemorizationComponent.new()
 	add_child_autofree(_mem)
-	var deck_script: GDScript = load(DeckComponentPath)
-	assert_not_null(deck_script, "DeckComponent script must exist at " + DeckComponentPath)
-	_deck = deck_script.new()
+	_deck = DeckComponent.new()
 	_deck.bind_memorization(_mem)
 	add_child_autofree(_deck)
 	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
@@ -29,7 +17,7 @@ func before_each() -> void:
 
 
 func _make_card(card_id: StringName) -> Resource:
-	var card: Resource = _card_script.new()
+	var card: Resource = CardData.new()
 	card.id = card_id
 	return card
 

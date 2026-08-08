@@ -2,26 +2,11 @@ extends GutTest
 
 
 const TurnManagerScript := preload("res://global/turn_manager.gd")
-const GridSystemScript := preload("res://world/grid_system.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-const ActionBudgetComponentScript := preload("res://character/action_budget_component.gd")
-const FactionComponentScript := preload("res://character/faction_component.gd")
-const HealthComponentPath := "res://health/health_component.gd"
-const StatsComponentPath := "res://stats/stats_component.gd"
-const AttributeComponentPath := "res://attribute/attribute_component.gd"
-const AttributeSetPath := "res://attribute/attribute_set.gd"
-const IntentComponentScript := preload("res://predator/intent_component.gd")
-const StaticPredatorBrainScript := preload("res://predator/static_predator_brain.gd")
-const ActionPlanScript := preload("res://executor/action_plan.gd")
-const MoveExecutorScript := preload("res://executor/move_executor.gd")
-const MoveDataScript := preload("res://executor/move_data.gd")
-const ActionContextScript := preload("res://executor/action_context.gd")
-const DeckComponentPath := "res://card/deck_component.gd"
 
 
 func _make_attribute_component() -> AttributeComponent:
-	var attr: AttributeComponent = (load(AttributeComponentPath) as GDScript).new()
-	var attrs: AttributeSet = (load(AttributeSetPath) as GDScript).new()
+	var attr: AttributeComponent = AttributeComponent.new()
+	var attrs: AttributeSet = AttributeSet.new()
 	attrs.set_score(AttributeIds.ATTR_STR, 10)
 	attrs.set_score(AttributeIds.ATTR_DEX, 10)
 	attrs.set_score(AttributeIds.ATTR_CON, 10)
@@ -37,25 +22,25 @@ func _make_player(grid: GridSystem, cell: Vector2i) -> Dictionary:
 	actor.name = "Mouse"
 	var attr: AttributeComponent = _make_attribute_component()
 	actor.add_child(attr)
-	var pos: GridPositionComponent = GridPositionComponentScript.new()
+	var pos: GridPositionComponent = GridPositionComponent.new()
 	actor.add_child(pos)
 	pos.grid = grid
 	pos.set_cell(cell)
-	var budget: ActionBudgetComponent = ActionBudgetComponentScript.new()
+	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
 	actor.add_child(budget)
-	var faction: FactionComponent = FactionComponentScript.new()
+	var faction: FactionComponent = FactionComponent.new()
 	actor.add_child(faction)
 	faction.faction = FactionIds.FACTION_MOUSE
-	var health: HealthComponent = (load(HealthComponentPath) as GDScript).new()
+	var health: HealthComponent = HealthComponent.new()
 	actor.add_child(health)
 	health.max_hp = 50
 	health.current_hp = 50
-	var stats: StatsComponent = (load(StatsComponentPath) as GDScript).new()
+	var stats: StatsComponent = StatsComponent.new()
 	actor.add_child(stats)
 	stats.init(3, attr)
 	stats.recompute_max_energy()
 	stats.current_energy = stats.max_energy - 1
-	var deck: DeckComponent = (load(DeckComponentPath) as GDScript).new()
+	var deck: DeckComponent = DeckComponent.new()
 	actor.add_child(deck)
 	deck.reload_charges = 0
 	add_child_autofree(actor)
@@ -67,26 +52,26 @@ func _make_predator(grid: GridSystem, cell: Vector2i, scripted_plan: ActionPlan)
 	actor.name = "Predator"
 	var attr: AttributeComponent = _make_attribute_component()
 	actor.add_child(attr)
-	var pos: GridPositionComponent = GridPositionComponentScript.new()
+	var pos: GridPositionComponent = GridPositionComponent.new()
 	actor.add_child(pos)
 	pos.grid = grid
-	var budget: ActionBudgetComponent = ActionBudgetComponentScript.new()
+	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
 	actor.add_child(budget)
-	var faction: FactionComponent = FactionComponentScript.new()
+	var faction: FactionComponent = FactionComponent.new()
 	actor.add_child(faction)
 	faction.faction = FactionIds.FACTION_PREDATOR
-	var health: HealthComponent = (load(HealthComponentPath) as GDScript).new()
+	var health: HealthComponent = HealthComponent.new()
 	actor.add_child(health)
 	health.max_hp = 30
 	health.current_hp = 30
-	var stats: StatsComponent = (load(StatsComponentPath) as GDScript).new()
+	var stats: StatsComponent = StatsComponent.new()
 	actor.add_child(stats)
 	stats.init(1, attr)
 	stats.recompute_max_energy()
 	stats.initiative = 8
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	actor.add_child(intent)
-	var brain: StaticPredatorBrain = StaticPredatorBrainScript.new()
+	var brain: StaticPredatorBrain = StaticPredatorBrain.new()
 	actor.add_child(brain)
 	brain.scripted_plan = scripted_plan
 	brain.bind(actor)
@@ -96,23 +81,23 @@ func _make_predator(grid: GridSystem, cell: Vector2i, scripted_plan: ActionPlan)
 
 
 func _make_move_plan(target: Vector2i) -> ActionPlan:
-	var plan: ActionPlan = ActionPlanScript.new()
-	plan.action = MoveDataScript.type_id
+	var plan: ActionPlan = ActionPlan.new()
+	plan.action = MoveData.type_id
 	plan.target = target
 	plan.predicted_affected_tiles = [target]
 	return plan
 
 
 func _make_move_executor(direction: Vector2i) -> RefCounted:
-	var executor: MoveExecutor = MoveExecutorScript.new()
-	var data: MoveData = MoveDataScript.new()
+	var executor: MoveExecutor = MoveExecutor.new()
+	var data: MoveData = MoveData.new()
 	data.direction = direction
 	executor.data = data
 	return executor
 
 
 func _make_ctx(actor: Node, grid: GridSystem) -> RefCounted:
-	var ctx: ActionContext = ActionContextScript.new()
+	var ctx: ActionContext = ActionContext.new()
 	ctx.actor = actor
 	ctx.grid = grid
 	ctx.rng = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
@@ -121,7 +106,7 @@ func _make_ctx(actor: Node, grid: GridSystem) -> RefCounted:
 
 
 func test_full_cycle_player_moves_predator_publishes_and_resolves() -> void:
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	add_child_autofree(grid)
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var predator_plan: ActionPlan = _make_move_plan(Vector2i(1, 0))
@@ -151,11 +136,11 @@ func test_full_cycle_player_moves_predator_publishes_and_resolves() -> void:
 	assert_eq(tm.current_state, TurnStates.PLAYER, "state is back to PLAYER after full cycle")
 	assert_eq(tm.turn_count, 1, "turn count incremented to 1")
 	assert_null(predator.intent.current_intent, "predator's intent is cleared after resolution")
-	assert_true(player.budget.can_perform(MoveDataScript.type_id), "player move budget is reset for next turn")
+	assert_true(player.budget.can_perform(MoveData.type_id), "player move budget is reset for next turn")
 
 
 func test_full_cycle_with_no_predator_just_completes() -> void:
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	add_child_autofree(grid)
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var tm: TurnManager = TurnManagerScript.new()
@@ -170,7 +155,7 @@ func test_full_cycle_with_no_predator_just_completes() -> void:
 
 
 func test_intent_published_then_cleared_in_same_cycle() -> void:
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	add_child_autofree(grid)
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var predator_plan: ActionPlan = _make_move_plan(Vector2i(1, 0))
@@ -191,7 +176,7 @@ func test_intent_published_then_cleared_in_same_cycle() -> void:
 
 
 func test_intent_execution_matches_announced_plan() -> void:
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	add_child_autofree(grid)
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var predator_plan: ActionPlan = _make_move_plan(Vector2i(1, 0))

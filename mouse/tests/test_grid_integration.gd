@@ -2,11 +2,10 @@ extends GutTest
 
 
 const MouseScene := preload("res://mouse/mouse.tscn")
-const GridSystemScript := preload("res://world/grid_system.gd")
 
 
 func _setup_mouse_on_grid() -> Dictionary:
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	var mouse: Node = MouseScene.instantiate()
 	add_child_autofree(grid)
 	add_child_autofree(mouse)

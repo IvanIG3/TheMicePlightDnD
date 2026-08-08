@@ -1,25 +1,16 @@
 extends GutTest
 
 
-const MemorizationComponentPath := "res://card/memorization_component.gd"
-const CardDataPath := "res://card/card_data.gd"
-
-
 var _comp: Node
-var _card_script: GDScript
 
 
 func before_each() -> void:
-	_card_script = load(CardDataPath)
-	assert_not_null(_card_script, "CardData script must exist at " + CardDataPath)
-	var comp_script: GDScript = load(MemorizationComponentPath)
-	assert_not_null(comp_script, "MemorizationComponent script must exist at " + MemorizationComponentPath)
-	_comp = comp_script.new()
+	_comp = MemorizationComponent.new()
 	add_child_autofree(_comp)
 
 
 func _make_card(card_id: StringName) -> Resource:
-	var card: Resource = _card_script.new()
+	var card: Resource = CardData.new()
 	card.id = card_id
 	return card
 

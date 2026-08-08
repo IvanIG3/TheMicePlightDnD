@@ -1,12 +1,8 @@
 extends GutTest
 
 
-const IntentComponentScript := preload("res://predator/intent_component.gd")
-const ActionPlanScript := preload("res://executor/action_plan.gd")
-
-
 func _make_plan(tiles: Array[Vector2i] = [Vector2i(3, 2)]) -> ActionPlan:
-	var plan: ActionPlan = ActionPlanScript.new()
+	var plan: ActionPlan = ActionPlan.new()
 	plan.action = &"move"
 	plan.target = Vector2i(3, 2)
 	plan.predicted_affected_tiles = tiles
@@ -14,7 +10,7 @@ func _make_plan(tiles: Array[Vector2i] = [Vector2i(3, 2)]) -> ActionPlan:
 
 
 func test_publish_stores_plan() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	var plan: ActionPlan = _make_plan()
 	intent.publish(plan)
@@ -22,7 +18,7 @@ func test_publish_stores_plan() -> void:
 
 
 func test_publish_emits_intent_published() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	watch_signals(intent)
 	var plan: ActionPlan = _make_plan()
@@ -31,7 +27,7 @@ func test_publish_emits_intent_published() -> void:
 
 
 func test_publish_signal_carries_plan() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	var sink: Dictionary = {"plan": null}
 	intent.intent_published.connect(func(p: ActionPlan) -> void: sink["plan"] = p)
@@ -41,7 +37,7 @@ func test_publish_signal_carries_plan() -> void:
 
 
 func test_clear_resets_plan() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	intent.publish(_make_plan())
 	intent.clear()
@@ -49,7 +45,7 @@ func test_clear_resets_plan() -> void:
 
 
 func test_clear_emits_intent_cleared() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	watch_signals(intent)
 	intent.publish(_make_plan())
@@ -58,7 +54,7 @@ func test_clear_emits_intent_cleared() -> void:
 
 
 func test_get_affected_tiles_returns_predicted() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	var tiles: Array[Vector2i] = [Vector2i(3, 2), Vector2i(4, 2)]
 	intent.publish(_make_plan(tiles))
@@ -66,13 +62,13 @@ func test_get_affected_tiles_returns_predicted() -> void:
 
 
 func test_get_affected_tiles_empty_when_no_intent() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	assert_eq(intent.get_affected_tiles(), [] as Array[Vector2i], "empty array when no intent")
 
 
 func test_get_affected_tiles_empty_after_clear() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	intent.publish(_make_plan([Vector2i(1, 1)]))
 	intent.clear()
@@ -80,7 +76,7 @@ func test_get_affected_tiles_empty_after_clear() -> void:
 
 
 func test_double_publish_replaces_plan() -> void:
-	var intent: IntentComponent = IntentComponentScript.new()
+	var intent: IntentComponent = IntentComponent.new()
 	add_child_autofree(intent)
 	var plan_a: ActionPlan = _make_plan([Vector2i(1, 1)])
 	var plan_b: ActionPlan = _make_plan([Vector2i(2, 2)])
