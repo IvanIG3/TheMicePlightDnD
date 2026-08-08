@@ -85,6 +85,44 @@ func _make_move_plan(target: Vector2i) -> ActionPlan:
 	return plan
 
 
+func _make_ai_predator(grid: GridSystem, cell: Vector2i) -> Dictionary:
+	var actor: Node = Node.new()
+	actor.name = "Predator"
+	var attr: AttributeComponent = AttributeComponent.new()
+	actor.add_child(attr)
+	var attr_set: AttributeSet = AttributeSet.new()
+	attr_set.set_score(AttributeIds.ATTR_STR, 10)
+	attr.base = attr_set
+	var pos: GridPositionComponent = GridPositionComponent.new()
+	actor.add_child(pos)
+	pos.grid = grid
+	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
+	actor.add_child(budget)
+	var faction: FactionComponent = FactionComponent.new()
+	actor.add_child(faction)
+	faction.faction = FactionIds.FACTION_PREDATOR
+	var health: HealthComponent = HealthComponent.new()
+	actor.add_child(health)
+	health.max_hp = 30
+	health.current_hp = 30
+	var stats: StatsComponent = StatsComponent.new()
+	actor.add_child(stats)
+	stats.init(1, attr)
+	stats.recompute_max_energy()
+	stats.initiative = 8
+	var intent: IntentComponent = IntentComponent.new()
+	actor.add_child(intent)
+	var targeting: TargetingComponent = TargetingComponent.new()
+	actor.add_child(targeting)
+	targeting.grid_ref = grid.get_path()
+	var brain: PredatorAIBrain = load("res://turn/tests/fixtures/spy_predator_ai_brain.gd").new()
+	actor.add_child(brain)
+	brain.bind(actor)
+	add_child_autofree(actor)
+	pos.set_cell(cell)
+	return {"actor": actor, "pos": pos, "intent": intent, "brain": brain, "stats": stats, "budget": budget, "health": health}
+
+
 func _make_move_executor(direction: Vector2i) -> RefCounted:
 	var executor: MoveExecutor = MoveExecutor.new()
 	var data: MoveData = MoveData.new()
@@ -189,3 +227,63 @@ func test_intent_execution_matches_announced_plan() -> void:
 	tm.run_remaining_cycle()
 	assert_eq(sink["target"], Vector2i(1, 0), "announced target matches the plan's target")
 	assert_eq(predator.pos.cell, Vector2i(1, 0), "predator executed the announced move")
+
+
+# T8 — full predator turn integration with PredatorAIBrain.
+# Verifies (a) intent was published, (b) executed action matches announced
+# intent, (c) the brain's plan_turn was NOT called during ENEMY_RESOLVING.
+func test_full_cycle_with_predator_ai_brain_basic_attack() -> void:
+	var grid: GridSystem = GridSystem.new()
+	add_child_autofree(grid)
+	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
+	var predator: Dictionary = _make_ai_predator(grid, Vector2i(3, 2))
+	# Equip basic attack: range 1, 1d6+0.
+	var basic: BasicAttackData = BasicAttackData.new()
+	basic.display_name = "Bite"
+	basic.range = 1
+	var dice: DiceFormula = DiceFormula.new()
+	dice.count = 1
+	dice.die = 6
+	dice.bonus = 0
+	basic.damage = dice
+	var fixture: Script = load("res://turn/tests/fixtures/predator_with_basic_attack.gd")
+	predator.actor.set_script(fixture)
+	predator.actor.basic_attack = basic
+	# Re-bind so the brain re-reads the basic_attack.
+	predator.brain.bind(predator.actor)
+	var tm: TurnManager = TurnManager.new()
+	add_child_autofree(tm)
+	tm.start(player.actor, grid, ([player.actor, predator.actor] as Array[Node]))
+	# (c) Spy on the brain's plan_turn — should be called once during PLANNING
+	# and never during RESOLVING. The spy brain is a fixture subclass.
+	# (a) Subscribe to intent_published.
+	var published: Array = []
+	predator.intent.intent_published.connect(func(p: ActionPlan) -> void: published.append(p))
+	assert_not_null(predator.brain._intent, "brain has intent after re-bind")
+	assert_not_null(predator.brain._basic_attack, "brain has basic_attack after re-bind")
+	# Player submits a no-op move (player.pos is at (2,2) which is the same as
+	# the start of the basic-attack cell — they don't actually move; we just
+	# need the player's plan to trigger the cycle).
+	# Actually player must move somewhere valid. Have player move to (2, 3).
+	var player_executor: RefCounted = _make_move_executor(Vector2i(0, 1))
+	var player_ctx: RefCounted = _make_ctx(player.actor, grid)
+	tm.submit_player_plan(player_executor, player_ctx)
+	# Player is now at (2, 3). Predator's plan should now target (2, 3).
+	# Re-publish a fresh plan by calling plan_turn after the move.
+	# Actually set_context will be called by the TurnManager in planning,
+	# so just run the cycle.
+	var initial_hp: int = player.health.current_hp
+	var rng: Node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
+	rng.set_seed(41)
+	tm.run_remaining_cycle()
+	# (a) intent was published exactly once.
+	assert_eq(published.size(), 1, "intent published once during the cycle (got %d)" % published.size())
+	# (b) Executed action matches announced intent: a BasicAttack plan against
+	# the player's cell, the player took damage.
+	var plan: ActionPlan = published[0]
+	assert_eq(plan.action, BasicAttackData.type_id, "announced action is basic attack")
+	assert_eq(plan.target, Vector2i(2, 3), "announced target is player's cell after move")
+	assert_true(player.health.current_hp < initial_hp, "player took damage from basic attack")
+	# (c) Brain called only during PLANNING, never during RESOLVING.
+	assert_eq(predator.brain.call_count[TurnStates.ENEMY_PLANNING], 1, "brain called once during PLANNING")
+	assert_eq(predator.brain.call_count[TurnStates.ENEMY_RESOLVING], 0, "brain not called during RESOLVING")
