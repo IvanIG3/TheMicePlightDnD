@@ -8,22 +8,19 @@ extends Character
 func _ready() -> void:
 	faction = FactionIds.FACTION_PREDATOR
 	super._ready()
-	var brain: Node = _get_brain()
-	if brain != null and brain.has_method(&"bind"):
+	var brain: PredatorBrain = _get_brain()
+	if brain != null:
 		brain.bind(self)
 
 
 func get_intent() -> IntentComponent:
-	for child in get_children():
-		if child is IntentComponent:
-			return child
-	return null
+	return ActorUtils.find_component(self, IntentComponent)
 
 
-func _get_brain() -> Node:
+func _get_brain() -> PredatorBrain:
 	if brain_slot == null:
 		return null
 	for child in brain_slot.get_children():
-		if child.has_method(&"plan_turn"):
+		if child is PredatorBrain:
 			return child
 	return null

@@ -128,7 +128,8 @@ func test_decide_basic_attack_when_player_in_melee() -> void:
 	assert_not_null(plan, "intent published")
 	assert_eq(plan.action, BasicAttackData.type_id, "plan is basic attack")
 	assert_eq(plan.target, Vector2i(2, 2), "target is player's cell")
-	assert_eq(plan.predicted_affected_tiles, [Vector2i(2, 2)] as Array[Vector2i], "predicted tiles = [player]")
+	var expected_basic_tiles: Array[Vector2i] = [Vector2i(2, 2)] as Array[Vector2i]
+	assert_eq(plan.predicted_affected_tiles, expected_basic_tiles, "predicted tiles = [player]")
 
 
 # (b) Player in card range but not melee → PlayCard plan
@@ -159,7 +160,8 @@ func test_decide_move_when_player_out_of_range() -> void:
 	assert_not_null(plan, "intent published")
 	assert_eq(plan.action, MoveData.type_id, "plan is move")
 	assert_eq(plan.target, Vector2i(1, 0), "move toward player: (1, 0)")
-	assert_eq(plan.predicted_affected_tiles, [Vector2i(1, 0)] as Array[Vector2i], "predicted tile = destination")
+	var expected_move_tiles: Array[Vector2i] = [Vector2i(1, 0)] as Array[Vector2i]
+	assert_eq(plan.predicted_affected_tiles, expected_move_tiles, "predicted tile = destination")
 
 
 # (d) Player out of range AND all neighbors blocked → Wait plan
@@ -175,7 +177,8 @@ func test_decide_wait_when_all_neighbors_blocked() -> void:
 	var plan: ActionPlan = _predator_intent.current_intent
 	assert_not_null(plan, "intent published")
 	assert_eq(plan.action, &"wait", "plan is wait")
-	assert_eq(plan.predicted_affected_tiles, [] as Array[Vector2i], "no predicted tiles for wait")
+	var expected_wait_tiles: Array[Vector2i] = [] as Array[Vector2i]
+	assert_eq(plan.predicted_affected_tiles, expected_wait_tiles, "no predicted tiles for wait")
 
 
 # (e) Determinism — same setup produces the same plan
@@ -254,3 +257,117 @@ func test_plan_turn_no_intent_does_not_crash() -> void:
 	brain.set_context(_player, _grid)
 	brain.plan_turn(TurnStates.ENEMY_PLANNING)
 	assert_null(brain._intent, "no intent on bare node")
+
+
+# LOS blocked: predator at (5, 2), player at (2, 2), wall at (3, 2) and (4, 2).
+# Brain's basic attack range is 1 so (5,2)→(2,2) is out of range. The card
+# (range 3) is in range but LOS is blocked → not a card plan. Falls through
+# to Move.
+func test_decide_no_basic_attack_when_los_blocked() -> void:
+	_predator.basic_attack = _build_basic_attack(1)
+	_predator_pos.set_cell(Vector2i(5, 2))
+	_player_pos.set_cell(Vector2i(2, 2))
+	_grid.set_blocked(Vector2i(3, 2), true)
+	_grid.set_blocked(Vector2i(4, 2), true)
+	_grid.register_entity(_predator_pos, Vector2i(5, 2))
+	_grid.register_entity(_player_pos, Vector2i(2, 2))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var plan: ActionPlan = _predator_intent.current_intent
+	assert_not_null(plan, "intent published")
+	assert_ne(plan.action, BasicAttackData.type_id, "no basic attack when out of range / blocked")
+
+
+# LOS blocked: predator at (5, 2) with a card of range 3, player at (2, 2),
+# wall at (3, 2). Card is in range but LOS is blocked → not a card plan.
+func test_decide_no_card_when_los_blocked() -> void:
+	_predator.basic_attack = _build_basic_attack(1)
+	var card: CardData = _build_card(&"ranged", 3)
+	_predator_deck.hand = [card]
+	_predator_pos.set_cell(Vector2i(5, 2))
+	_player_pos.set_cell(Vector2i(2, 2))
+	_grid.set_blocked(Vector2i(3, 2), true)
+	_grid.register_entity(_predator_pos, Vector2i(5, 2))
+	_grid.register_entity(_player_pos, Vector2i(2, 2))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var plan: ActionPlan = _predator_intent.current_intent
+	assert_not_null(plan, "intent published")
+	assert_ne(plan.action, PlayCardData.type_id, "no card play when LOS blocked")
+
+
+# Predator dead → Wait plan
+func test_decide_wait_when_predator_is_dead() -> void:
+	_predator_health.current_hp = 0
+	_predator_pos.set_cell(Vector2i(3, 2))
+	_grid.register_entity(_predator_pos, Vector2i(3, 2))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var plan: ActionPlan = _predator_intent.current_intent
+	assert_not_null(plan, "intent published")
+	assert_eq(plan.action, &"wait", "plan is wait when predator is dead")
+
+
+# Closest neighbor is the player (occupied). The predator should Wait, not
+# slide sideways to a worse neighbor.
+func test_decide_wait_when_closest_neighbor_is_player() -> void:
+	# Player at (1, 0), predator at (0, 0). All 4 neighbors: right=(1,0) dist 1
+	# (player), left=(-1,0) dist 2, down=(0,1) dist 2, up=(0,-1) dist 2.
+	# Right is best but occupied by player → Wait.
+	_predator.basic_attack = null
+	_predator_pos.set_cell(Vector2i(0, 0))
+	_player_pos.set_cell(Vector2i(1, 0))
+	_grid.register_entity(_predator_pos, Vector2i(0, 0))
+	_grid.register_entity(_player_pos, Vector2i(1, 0))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var plan: ActionPlan = _predator_intent.current_intent
+	assert_not_null(plan, "intent published")
+	assert_eq(plan.action, &"wait", "plan is wait when closest neighbor is the player")
+
+
+# Determinism: card branch — hand with 2 cards in range, same setup,
+# run twice, assert same card.
+func test_decide_deterministic_card_branch() -> void:
+	_predator.basic_attack = _build_basic_attack(1)
+	var card_a: CardData = _build_card(&"aardvark", 2)
+	var card_b: CardData = _build_card(&"beaver", 2)
+	_predator_deck.hand = [card_b, card_a]  # Add in reverse order
+	_predator_pos.set_cell(Vector2i(0, 0))
+	_player_pos.set_cell(Vector2i(2, 0))
+	_grid.register_entity(_predator_pos, Vector2i(0, 0))
+	_grid.register_entity(_player_pos, Vector2i(2, 0))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var first: ActionPlan = _predator_intent.current_intent
+	_predator_intent.clear()
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var second: ActionPlan = _predator_intent.current_intent
+	assert_eq(first.action, second.action, "card branch action is deterministic")
+	assert_eq(first.card, second.card, "card branch card is deterministic")
+
+
+# Determinism: basic attack branch — player in melee, run twice, same plan.
+func test_decide_deterministic_basic_attack_branch() -> void:
+	_predator_pos.set_cell(Vector2i(3, 2))
+	_grid.register_entity(_predator_pos, Vector2i(3, 2))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var first: ActionPlan = _predator_intent.current_intent
+	_predator_intent.clear()
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var second: ActionPlan = _predator_intent.current_intent
+	assert_eq(second.action, first.action, "basic attack action is deterministic")
+	assert_eq(second.target, first.target, "basic attack target is deterministic")
+
+
+# Grid edge: predator at the top-left corner, all neighbors either out of
+# bounds or the player — plan should be Wait, not a Move off-grid.
+func test_decide_wait_when_neighbors_out_of_bounds() -> void:
+	_grid.bounds = Rect2i(0, 0, 3, 3)
+	_predator_pos.set_cell(Vector2i(0, 0))
+	_player_pos.set_cell(Vector2i(0, 2))
+	_grid.register_entity(_predator_pos, Vector2i(0, 0))
+	_grid.register_entity(_player_pos, Vector2i(0, 2))
+	_predator_brain.plan_turn(TurnStates.ENEMY_PLANNING)
+	var plan: ActionPlan = _predator_intent.current_intent
+	assert_not_null(plan, "intent published")
+	# Neighbors of (0,0): up=(0,-1) out of bounds, left=(-1,0) out of bounds,
+	# right=(1,0) dist 2, down=(0,1) dist 1 → best is down. Down is in bounds
+	# and walkable → Move to (0, 1).
+	assert_eq(plan.action, MoveData.type_id, "down is in bounds, so move")
+	assert_eq(plan.target, Vector2i(0, 1), "moves down toward player")

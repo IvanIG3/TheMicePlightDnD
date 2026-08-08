@@ -77,22 +77,21 @@ func run_remaining_cycle() -> void:
 		advance()
 
 
-func get_predator_brain(predator: Node) -> Node:
+func get_predator_brain(predator: Node) -> PredatorBrain:
 	if predator == null:
 		return null
 	for child in predator.get_children():
-		if child.has_method(&"plan_turn"):
+		if child is PredatorBrain:
 			return child
 	return null
 
 
 func _run_enemy_planning() -> void:
 	for predator in predators:
-		var brain: Node = get_predator_brain(predator)
+		var brain: PredatorBrain = get_predator_brain(predator)
 		if brain == null:
 			continue
-		if brain.has_method(&"set_context"):
-			brain.set_context(player, grid)
+		brain.set_context(player, grid)
 		brain.plan_turn(TurnStates.ENEMY_PLANNING)
 		enemy_plan_published.emit(predator)
 	_enter_state(TurnStates.ENEMY_RESOLVING)
@@ -119,14 +118,14 @@ func _run_enemy_resolving() -> void:
 
 func _run_post_turn() -> void:
 	if player != null:
-		var status: Node = _get_status(player)
+		var status: Node = ActorUtils.find_component(player, Node)
 		if status != null and status.has_method(&"tick_end_of_turn"):
 			status.tick_end_of_turn()
-		var stats: StatsComponent = _get_stats(player)
+		var stats: StatsComponent = ActorUtils.find_component(player, StatsComponent)
 		if stats != null:
 			stats.gain_energy(1)
 			if turn_count > 0 and (turn_count + 1) % 5 == 0:
-				var deck: DeckComponent = _get_deck(player)
+				var deck: DeckComponent = ActorUtils.find_component(player, DeckComponent)
 				if deck != null and deck.reload_charges < 3:
 					deck.reload_charges += 1
 					deck.reload_charges_changed.emit(deck.reload_charges)
@@ -136,7 +135,7 @@ func _run_post_turn() -> void:
 
 func _run_end_turn() -> void:
 	for actor in actors:
-		var budget: ActionBudgetComponent = _get_budget(actor)
+		var budget: ActionBudgetComponent = ActorUtils.find_component(actor, ActionBudgetComponent)
 		if budget != null:
 			budget.reset()
 	turn_count += 1
@@ -147,8 +146,8 @@ func _run_end_turn() -> void:
 func _order_by_initiative(list: Array[Node]) -> Array[Node]:
 	var copy: Array[Node] = list.duplicate()
 	copy.sort_custom(func(a: Node, b: Node) -> bool:
-		var sa: StatsComponent = _get_stats(a)
-		var sb: StatsComponent = _get_stats(b)
+		var sa: StatsComponent = ActorUtils.find_component(a, StatsComponent)
+		var sb: StatsComponent = ActorUtils.find_component(b, StatsComponent)
 		var ia: int = sa.initiative if sa != null else 0
 		var ib: int = sb.initiative if sb != null else 0
 		return ia > ib
@@ -157,11 +156,10 @@ func _order_by_initiative(list: Array[Node]) -> Array[Node]:
 
 
 func _build_executor_for(plan: ActionPlan, actor: Node) -> RefCounted:
-	if plan == null:
-		return null
+	assert(plan != null, "TurnManager._build_executor_for: plan is required")
+	assert(actor != null, "TurnManager._build_executor_for: actor is required")
 	var registry: Node = Engine.get_main_loop().root.get_node_or_null("/root/Registry")
-	if registry == null:
-		return null
+	assert(registry != null, "TurnManager._build_executor_for: Registry autoload missing")
 	var script: Variant = registry.action_executors.get(plan.action, null)
 	if script == null:
 		return null
@@ -176,7 +174,7 @@ func _build_executor_for(plan: ActionPlan, actor: Node) -> RefCounted:
 func _data_from_plan(plan: ActionPlan, actor: Node) -> Resource:
 	if plan.action == MoveData.type_id:
 		var data: MoveData = MoveData.new()
-		var pos: GridPositionComponent = _get_position(actor)
+		var pos: GridPositionComponent = ActorUtils.find_component(actor, GridPositionComponent)
 		if pos != null and plan.target is Vector2i:
 			data.direction = (plan.target as Vector2i) - pos.cell
 		return data
@@ -189,22 +187,14 @@ func _data_from_plan(plan: ActionPlan, actor: Node) -> Resource:
 		var equipped: BasicAttackData = _get_basic_attack(actor)
 		if equipped == null:
 			return null
-		var data: BasicAttackData = BasicAttackData.new()
-		data.display_name = equipped.display_name
-		data.description = equipped.description
-		data.range = equipped.range
-		data.area_shape = equipped.area_shape
-		data.area_size = equipped.area_size
-		data.damage = equipped.damage
-		data.effects = equipped.effects.duplicate()
-		data.scaling_attributes = equipped.scaling_attributes.duplicate()
-		data.tags = equipped.tags.duplicate()
+		var data: BasicAttackData = equipped.duplicate(true)
 		data.target = plan.target
 		return data
 	return null
 
 
 func _build_ctx_for(actor: Node) -> RefCounted:
+	assert(actor != null, "TurnManager._build_ctx_for: actor is required")
 	var ctx = ActionContext.new()
 	ctx.actor = actor
 	ctx.grid = grid
@@ -221,65 +211,14 @@ func _enter_state(new_state: StringName) -> void:
 
 
 func _spend_budget(actor: Node, action_type: StringName) -> void:
-	if actor == null or action_type == &"":
-		return
-	var budget: ActionBudgetComponent = _get_budget(actor)
-	if budget != null:
-		budget.spend(action_type)
-
-
-func _get_position(actor: Node) -> GridPositionComponent:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child is GridPositionComponent:
-			return child
-	return null
-
-
-func _get_budget(actor: Node) -> ActionBudgetComponent:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child is ActionBudgetComponent:
-			return child
-	return null
-
-
-func _get_stats(actor: Node) -> StatsComponent:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child is StatsComponent:
-			return child
-	return null
-
-
-func _get_status(actor: Node) -> Node:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child.has_method(&"tick_end_of_turn"):
-			return child
-	return null
-
-
-func _get_deck(actor: Node) -> DeckComponent:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child is DeckComponent:
-			return child
-	return null
+	assert(actor != null, "TurnManager._spend_budget: actor is required")
+	assert(action_type != &"", "TurnManager._spend_budget: action_type is required")
+	var budget: ActionBudgetComponent = ActorUtils.find_component(actor, ActionBudgetComponent)
+	budget.spend(action_type)
 
 
 func _get_intent(predator: Node) -> IntentComponent:
-	if predator == null:
-		return null
-	for child in predator.get_children():
-		if child is IntentComponent:
-			return child
-	return null
+	return ActorUtils.find_component(predator, IntentComponent)
 
 
 func _get_basic_attack(actor: Node) -> BasicAttackData:

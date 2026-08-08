@@ -5,8 +5,7 @@ extends Node
 const TILE_SIZE: int = 64
 const SPRITE_PATH: NodePath = ^"Sprite2D"
 const TILE_COLOR: Color = Color(1, 0.3, 0.3, 0.4)
-const PREDATOR_GROUP: StringName = &"predator"
-const POPUP_SCENE_PATH: String = "res://view/intent_inspect_popup.tscn"
+const PREDATOR_GROUP: StringName = FactionIds.FACTION_PREDATOR
 const PULSE_SCALE: float = 1.2
 const PULSE_DURATION: float = 0.15
 
@@ -14,37 +13,73 @@ const PULSE_DURATION: float = 0.15
 var _predators: Array[Node] = []
 var _tile_rects: Dictionary = {}
 var _sprites: Dictionary = {}
-var _popup: AcceptDialog = null
+var _active_tweens: Dictionary = {}
+var _popup: IntentInspectPopup = null
 var _grid: GridSystem = null
+var _connections: Array[Dictionary] = []
+var _disposed: bool = false
 
 
 func _ready() -> void:
-	_find_predators()
-	for predator in _predators:
-		var intent: IntentComponent = _get_intent(predator)
+	refresh()
+
+
+func _exit_tree() -> void:
+	dispose()
+
+
+func set_grid(grid: GridSystem) -> void:
+	assert(grid != null, "IntentOverlay.set_grid: grid is required")
+	_grid = grid
+
+
+func refresh() -> void:
+	assert(not _disposed, "IntentOverlay.refresh: overlay is disposed")
+	var added: Array[Node] = []
+	for node in get_tree().get_nodes_in_group(PREDATOR_GROUP):
+		if not _predators.has(node):
+			added.append(node)
+	_predators = get_tree().get_nodes_in_group(PREDATOR_GROUP).duplicate()
+	for predator in added:
+		var intent: IntentComponent = ActorUtils.find_component(predator, IntentComponent)
 		if intent == null:
 			continue
-		intent.intent_published.connect(_on_intent_published.bind(predator))
-		intent.intent_cleared.connect(_on_intent_cleared.bind(predator))
+		_connect_to(intent, &"intent_published", _on_intent_published.bind(predator))
+		_connect_to(intent, &"intent_cleared", _on_intent_cleared.bind(predator))
 		var sprite: Sprite2D = predator.get_node_or_null(SPRITE_PATH) as Sprite2D
 		if sprite != null:
 			_sprites[predator] = sprite
 
 
-func set_grid(grid: GridSystem) -> void:
-	_grid = grid
-	if _popup != null and _popup.has_method(&"set_grid"):
-		_popup.set_grid(grid)
+func dispose() -> void:
+	if _disposed:
+		return
+	for conn in _connections:
+		var target: Object = conn["target"]
+		var signal_name: StringName = conn["signal"]
+		var callable: Callable = conn["callable"]
+		if is_instance_valid(target) and target.has_signal(signal_name) and target.is_connected(signal_name, callable):
+			target.disconnect(signal_name, callable)
+	_connections.clear()
+	for tween in _active_tweens.values():
+		if is_instance_valid(tween):
+			tween.kill()
+	_active_tweens.clear()
+	_disposed = true
 
 
-func _find_predators() -> void:
-	_predators.clear()
-	for node in get_tree().get_nodes_in_group(PREDATOR_GROUP):
-		if not _predators.has(node):
-			_predators.append(node)
+func open_inspect_for(predator: Node) -> void:
+	assert(predator != null, "IntentOverlay.open_inspect_for: predator is required")
+	var intent: IntentComponent = ActorUtils.find_component(predator, IntentComponent)
+	assert(intent != null, "IntentOverlay.open_inspect_for: predator has no IntentComponent")
+	if intent.current_intent == null:
+		return
+	_show_popup(intent.current_intent)
 
 
 func _on_intent_published(plan: ActionPlan, predator: Node) -> void:
+	if not is_instance_valid(predator):
+		return
 	_clear_tiles_for(predator)
 	var tiles: Array[Vector2i] = plan.predicted_affected_tiles
 	if tiles.is_empty():
@@ -63,17 +98,10 @@ func _on_intent_published(plan: ActionPlan, predator: Node) -> void:
 
 
 func _on_intent_cleared(predator: Node) -> void:
+	if not is_instance_valid(predator):
+		return
 	_clear_tiles_for(predator)
 	_unpulse_sprite(predator)
-
-
-func open_inspect_for(predator: Node) -> void:
-	if predator == null:
-		return
-	var intent: IntentComponent = _get_intent(predator)
-	if intent == null or intent.current_intent == null:
-		return
-	_show_popup(intent.current_intent)
 
 
 func _clear_tiles_for(predator: Node) -> void:
@@ -87,32 +115,32 @@ func _pulse_sprite(predator: Node) -> void:
 	if not _sprites.has(predator):
 		return
 	var sprite: Sprite2D = _sprites[predator]
+	if _active_tweens.has(predator) and is_instance_valid(_active_tweens[predator]):
+		_active_tweens[predator].kill()
 	var tween: Tween = create_tween()
 	tween.tween_property(sprite, "scale", Vector2(PULSE_SCALE, PULSE_SCALE), PULSE_DURATION)
 	tween.tween_property(sprite, "scale", Vector2.ONE, PULSE_DURATION)
+	_active_tweens[predator] = tween
 
 
 func _unpulse_sprite(predator: Node) -> void:
 	if not _sprites.has(predator):
 		return
+	if _active_tweens.has(predator) and is_instance_valid(_active_tweens[predator]):
+		_active_tweens[predator].kill()
+		_active_tweens.erase(predator)
 	_sprites[predator].scale = Vector2.ONE
 
 
 func _show_popup(plan: ActionPlan) -> void:
 	if _popup == null:
-		var popup_scene: PackedScene = load(POPUP_SCENE_PATH)
-		if popup_scene == null:
-			return
-		_popup = popup_scene.instantiate()
+		_popup = IntentInspectPopup.new()
 		add_child(_popup)
-	_popup.set_plan(plan, _grid)
+	_popup.set_plan(plan)
 	_popup.popup_centered()
 
 
-func _get_intent(predator: Node) -> IntentComponent:
-	if predator == null:
-		return null
-	for child in predator.get_children():
-		if child is IntentComponent:
-			return child
-	return null
+func _connect_to(target: Object, signal_name: StringName, callable: Callable) -> void:
+	assert(target != null, "IntentOverlay._connect_to: target is null")
+	target.connect(signal_name, callable)
+	_connections.append({"target": target, "signal": signal_name, "callable": callable})

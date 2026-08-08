@@ -25,6 +25,9 @@ func _move_to(target: Vector2i) -> bool:
 		return true
 	if grid == null:
 		return false
+	if not grid.is_in_bounds(target):
+		push_error("GridPositionComponent._move_to: target out of bounds: %s" % str(target))
+		return false
 	if grid.is_blocked(target):
 		return false
 	if grid.get_at(target) != null:

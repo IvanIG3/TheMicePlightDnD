@@ -6,17 +6,19 @@ func validate(ctx: ActionContext) -> bool:
 	var basic_data: BasicAttackData = data as BasicAttackData
 	if basic_data == null:
 		return false
-	if _is_dead(ctx.actor):
+	if basic_data.damage == null:
+		return false
+	if ActorUtils.is_dead(ctx.actor):
 		return false
 	if not (basic_data.target is Vector2i):
 		return false
 	if ctx.grid == null:
 		return false
-	var pos: GridPositionComponent = _get_position(ctx.actor)
+	var pos: GridPositionComponent = ActorUtils.find_component(ctx.actor, GridPositionComponent)
 	if pos == null:
 		return false
 	var target_cell: Vector2i = basic_data.target
-	if _chebyshev(pos.cell, target_cell) > basic_data.range:
+	if ActorUtils.chebyshev(pos.cell, target_cell) > basic_data.range:
 		return false
 	var target_actor: Node = _actor_at(ctx, target_cell)
 	if target_actor == null:
@@ -58,12 +60,13 @@ func get_affected_tiles(_ctx: ActionContext) -> Array[Vector2i]:
 
 func _actor_at(ctx: ActionContext, cell: Vector2i) -> Node:
 	var occupant: Node = ctx.grid.get_at(cell)
-	if occupant == null:
+	if occupant == null or not is_instance_valid(occupant):
 		return null
-	# GridSystem.register_entity receives the GridPositionComponent, not the actor.
-	# Walk up to the actor so callers can find FactionComponent / HealthComponent.
 	if occupant is GridPositionComponent:
-		return occupant.get_parent()
+		var actor: Node = occupant.get_parent()
+		if not is_instance_valid(actor):
+			return null
+		return actor
 	return occupant
 
 
@@ -75,40 +78,10 @@ func _build_damage_data(basic_data: BasicAttackData) -> DamageEffectData:
 	return dmg_data
 
 
-func _is_dead(actor: Node) -> bool:
-	if actor == null:
-		return true
-	for child in actor.get_children():
-		if child is HealthComponent:
-			return child.is_dead()
-	return false
-
-
 func _is_hostile(actor: Node, other: Node) -> bool:
-	var actor_faction: FactionComponent = _get_faction(actor)
-	var other_faction: FactionComponent = _get_faction(other)
+	var actor_faction: FactionComponent = ActorUtils.find_component(actor, FactionComponent)
+	var other_faction: FactionComponent = ActorUtils.find_component(other, FactionComponent)
 	if actor_faction == null or other_faction == null:
 		return false
 	return actor_faction.is_hostile_to(other_faction)
 
-
-func _chebyshev(a: Vector2i, b: Vector2i) -> int:
-	return maxi(absi(a.x - b.x), absi(a.y - b.y))
-
-
-func _get_position(actor: Node) -> GridPositionComponent:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child is GridPositionComponent:
-			return child
-	return null
-
-
-func _get_faction(actor: Node) -> FactionComponent:
-	if actor == null:
-		return null
-	for child in actor.get_children():
-		if child is FactionComponent:
-			return child
-	return null

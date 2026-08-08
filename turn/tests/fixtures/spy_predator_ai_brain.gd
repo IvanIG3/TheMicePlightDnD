@@ -2,8 +2,6 @@ extends PredatorAIBrain
 
 
 ## Test fixture: counts how often plan_turn is called per state.
-## Verifies the brain is only called during ENEMY_PLANNING, never during
-## ENEMY_RESOLVING (the locked design).
 
 
 var call_count: Dictionary = {

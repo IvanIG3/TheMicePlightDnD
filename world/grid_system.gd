@@ -2,8 +2,16 @@ class_name GridSystem
 extends Node
 
 
+const DEFAULT_BOUNDS: Rect2i = Rect2i(0, 0, 1024, 1024)
+
+
+var bounds: Rect2i = DEFAULT_BOUNDS
 var occupants: Dictionary[Vector2i, Node] = {}
 var blocked: Dictionary[Vector2i, bool] = {}
+
+
+func is_in_bounds(cell: Vector2i) -> bool:
+	return bounds.has_point(cell)
 
 
 func get_at(cell: Vector2i) -> Node:

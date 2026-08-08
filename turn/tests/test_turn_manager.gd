@@ -341,6 +341,14 @@ func _make_basic_attack_data() -> BasicAttackData:
 	return d
 
 
+func _make_basic_attack_plan(target: Vector2i) -> ActionPlan:
+	var plan: ActionPlan = ActionPlan.new()
+	plan.action = BasicAttackData.type_id
+	plan.target = target
+	plan.predicted_affected_tiles = [target]
+	return plan
+
+
 func _make_predator_with_basic_attack(
 	grid: GridSystem, cell: Vector2i, target_cell: Vector2i
 ) -> Dictionary:
@@ -380,7 +388,10 @@ func _make_predator_with_basic_attack(
 	actor.set_script(fixture)
 	var equipped: BasicAttackData = _make_basic_attack_data()
 	actor.basic_attack = equipped
-	return {"actor": actor, "pos": pos, "intent": intent, "brain": brain, "stats": stats, "budget": budget, "basic_attack": equipped}
+	return {
+		"actor": actor, "pos": pos, "intent": intent, "brain": brain,
+		"stats": stats, "budget": budget, "basic_attack": equipped,
+	}
 
 
 # Player at (2, 2) moves to (2, 3). Predator at (2, 4) — adjacent to (2, 3).
@@ -409,7 +420,8 @@ func test_predator_basic_attack_plan_resolves_and_damages_player() -> void:
 	tm.run_remaining_cycle()
 	assert_eq(resolved.size(), 1, "one enemy plan resolved (got %d)" % resolved.size())
 	assert_eq(resolved[0], p.actor, "predator's plan resolved")
-	assert_true(s.health.current_hp < initial_hp, "player took damage (hp was %d, now %d)" % [initial_hp, s.health.current_hp])
+	assert_true(s.health.current_hp < initial_hp,
+		"player took damage (hp was %d, now %d)" % [initial_hp, s.health.current_hp])
 
 
 # Predator with no basic attack equipped: cycle completes, no damage to player.
@@ -432,5 +444,23 @@ func test_predator_basic_attack_plan_fizzles_without_equipped_attack() -> void:
 	tm.submit_player_plan(player_executor, player_ctx)
 	var initial_hp: int = s.health.current_hp
 	tm.run_remaining_cycle()
-	assert_eq(s.health.current_hp, initial_hp, "player took no damage when predator has no basic attack")
+	assert_eq(s.health.current_hp, initial_hp,
+		"player took no damage when predator has no basic attack")
 	assert_eq(tm.current_state, TurnStates.PLAYER, "cycle completes")
+	assert_null(p.intent.current_intent, "plan was cleared")
+
+
+# Deep copy: mutating the runtime BasicAttackData must not mutate the equipped
+# one. The `duplicate(true)` on _data_from_plan should produce an independent
+# subresource tree.
+func test_basic_attack_data_deep_copy_is_independent() -> void:
+	var tm: TurnManager = TurnManager.new()
+	add_child_autofree(tm)
+	var s: Dictionary = _make_player()
+	var grid: GridSystem = s.grid
+	var p: Dictionary = _make_predator_with_basic_attack(grid, Vector2i(2, 4), Vector2i(2, 3))
+	var equipped: BasicAttackData = p.basic_attack
+	var data: Resource = tm._data_from_plan(_make_basic_attack_plan(Vector2i(2, 3)), p.actor)
+	assert_not_null(data, "data built from plan")
+	data.damage.count = 5
+	assert_eq(equipped.damage.count, 1, "equipped dice count unchanged after mutating runtime copy")

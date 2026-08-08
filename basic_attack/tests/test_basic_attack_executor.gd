@@ -155,6 +155,73 @@ func test_validate_returns_false_with_non_vector_target() -> void:
 	assert_false(_executor.validate(_ctx), "null target → false")
 
 
+func test_validate_returns_false_when_damage_is_null() -> void:
+	_basic_data.damage = null
+	assert_false(_executor.validate(_ctx), "null damage → false")
+
+
+func test_validate_returns_false_when_grid_is_null() -> void:
+	_ctx.grid = null
+	assert_false(_executor.validate(_ctx), "null grid → false")
+
+
+func test_validate_returns_false_when_position_is_null() -> void:
+	# Build a source without a GridPositionComponent; other components intact.
+	var actor: Node = Node.new()
+	var attr: AttributeComponent = AttributeComponent.new()
+	actor.add_child(attr)
+	attr.base = _make_set(14)
+	var faction: FactionComponent = FactionComponent.new()
+	actor.add_child(faction)
+	faction.faction = FactionIds.FACTION_PREDATOR
+	var health: HealthComponent = HealthComponent.new()
+	actor.add_child(health)
+	health.max_hp = 30
+	health.current_hp = 30
+	add_child_autofree(actor)
+	var ctx_no_pos: ActionContext = ActionContext.new()
+	ctx_no_pos.actor = actor
+	ctx_no_pos.grid = _grid
+	ctx_no_pos.rng = _rng
+	ctx_no_pos.bus = _bus
+	assert_false(_executor.validate(ctx_no_pos), "actor without GridPositionComponent → false")
+
+
+func test_execute_returns_false_when_target_disappeared_between_validate_and_execute() -> void:
+	# Re-register the grid occupants to match production: GridPositionComponent
+	# is what register_entity receives in real gameplay.
+	_grid.unregister_entity(_target, Vector2i(3, 2))
+	_grid.register_entity(_target_pos, Vector2i(3, 2))
+	assert_true(_executor.validate(_ctx), "validate passes before disappearance")
+	# Unregister the target's GridPositionComponent from the grid so the
+	# occupant lookup returns null (target "disappeared" from the grid).
+	_grid.unregister_entity(_target_pos, Vector2i(3, 2))
+	assert_false(_executor.execute(_ctx), "execute returns false when target disappeared")
+
+
+func test_validate_returns_false_when_faction_missing_on_either_side() -> void:
+	# Build a source without a FactionComponent; other components intact.
+	var actor: Node = Node.new()
+	var attr: AttributeComponent = AttributeComponent.new()
+	actor.add_child(attr)
+	attr.base = _make_set(14)
+	var pos: GridPositionComponent = GridPositionComponent.new()
+	actor.add_child(pos)
+	pos.grid = _grid
+	pos.set_cell(Vector2i(2, 2))
+	var health: HealthComponent = HealthComponent.new()
+	actor.add_child(health)
+	health.max_hp = 30
+	health.current_hp = 30
+	add_child_autofree(actor)
+	var ctx_no_faction: ActionContext = ActionContext.new()
+	ctx_no_faction.actor = actor
+	ctx_no_faction.grid = _grid
+	ctx_no_faction.rng = _rng
+	ctx_no_faction.bus = _bus
+	assert_false(_executor.validate(ctx_no_faction), "missing faction on source → false")
+
+
 # Seed 41: d20=10, source STR=14 (mod +4), target Toughness=10
 # attack_roll = 10+4 = 14 >= 10 → hit
 # damage 1d6+0: 4 (single die) → amount = 4+4 = 8

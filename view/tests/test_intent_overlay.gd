@@ -15,22 +15,12 @@ func before_each() -> void:
 	_overlay = IntentOverlay.new()
 	add_child_autofree(_overlay)
 	_overlay.set_grid(_grid)
-	# Re-trigger _ready on the overlay to find predators added after construction.
-	_overlay._find_predators()
-	for predator in _overlay._predators:
-		var intent: IntentComponent = _get_intent(predator)
-		if intent == null:
-			continue
-		intent.intent_published.connect(_overlay._on_intent_published.bind(predator))
-		intent.intent_cleared.connect(_overlay._on_intent_cleared.bind(predator))
-		var sprite: Sprite2D = predator.get_node_or_null(^"Sprite2D") as Sprite2D
-		if sprite != null:
-			_overlay._sprites[predator] = sprite
+	_overlay.refresh()
 
 
 func _build_predator() -> Node:
 	var actor: Node = Node.new()
-	actor.add_to_group(&"predator")
+	actor.add_to_group(FactionIds.FACTION_PREDATOR)
 	var intent: IntentComponent = IntentComponent.new()
 	actor.add_child(intent)
 	var sprite: Sprite2D = Sprite2D.new()
@@ -39,15 +29,6 @@ func _build_predator() -> Node:
 	add_child_autofree(actor)
 	_predator_intent = intent
 	return actor
-
-
-func _get_intent(predator: Node) -> IntentComponent:
-	if predator == null:
-		return null
-	for child in predator.get_children():
-		if child is IntentComponent:
-			return child
-	return null
 
 
 func _make_plan(tiles: Array[Vector2i]) -> ActionPlan:
@@ -99,12 +80,19 @@ func test_publish_pulses_sprite() -> void:
 	sprite.scale = Vector2.ONE
 	var plan: ActionPlan = _make_plan([Vector2i(3, 2)])
 	_predator_intent.publish(plan)
-	# After publish, a tween starts. We can't easily test tween mid-flight,
-	# but we can verify the sprite is in the overlay's tracked sprites.
 	assert_true(_overlay._sprites.has(_predator), "predator sprite tracked")
-	# And the tween created doesn't error — verify by waiting for it to complete.
 	await get_tree().create_timer(0.5).timeout
 	assert_eq(sprite.scale, Vector2.ONE, "sprite returns to 1.0 after pulse")
+
+
+func test_publish_kills_previous_tween() -> void:
+	var plan: ActionPlan = _make_plan([Vector2i(3, 2)])
+	_predator_intent.publish(plan)
+	var first_tween: Tween = _overlay._active_tweens[_predator]
+	_predator_intent.publish(plan)
+	var second_tween: Tween = _overlay._active_tweens[_predator]
+	assert_false(first_tween.is_valid(), "first tween was killed")
+	assert_true(second_tween.is_valid(), "second tween is running")
 
 
 func test_clear_reverts_sprite() -> void:
@@ -123,13 +111,11 @@ func test_open_inspect_opens_popup_with_action_name() -> void:
 	var popup: Node = _overlay._popup
 	assert_not_null(popup, "popup was created")
 	assert_true(popup is AcceptDialog, "popup is an AcceptDialog")
-	# Check that the popup contains the action name.
-	var label: Label = popup.get_node("Label") if popup.has_node("Label") else null
-	if label == null:
-		for child in popup.get_children():
-			if child is Label:
-				label = child
-				break
+	var label: Label = null
+	for child in popup.get_children():
+		if child is Label:
+			label = child
+			break
 	assert_not_null(label, "popup has a Label child")
 	assert_true(label.text.contains("move"), "label contains action name")
 
@@ -155,3 +141,23 @@ func test_open_inspect_shows_card_name_for_play_card() -> void:
 	assert_not_null(label, "popup has a Label child")
 	assert_true(label.text.contains("Test Card"), "label contains card name")
 	assert_true(label.text.contains("A test card description"), "label contains card description")
+
+
+func test_disconnect_signals_on_dispose() -> void:
+	_overlay.dispose()
+	assert_false(
+		_predator_intent.intent_published.is_connected(_overlay._on_intent_published.bind(_predator)),
+		"intent_published disconnected after dispose"
+	)
+	assert_false(
+		_predator_intent.intent_cleared.is_connected(_overlay._on_intent_cleared.bind(_predator)),
+		"intent_cleared disconnected after dispose"
+	)
+	assert_true(_overlay._disposed, "_disposed flag set")
+	assert_eq(_overlay._connections.size(), 0, "_connections cleared")
+
+
+func test_dispose_is_idempotent() -> void:
+	_overlay.dispose()
+	_overlay.dispose()
+	assert_true(_overlay._disposed, "still disposed after second call")

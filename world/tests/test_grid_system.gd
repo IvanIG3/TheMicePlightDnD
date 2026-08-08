@@ -80,3 +80,22 @@ func test_neighbors_at_arbitrary_cell() -> void:
 	assert_true(result.has(Vector2i(4, -3)), "neighbors includes (4, -3)")
 	assert_true(result.has(Vector2i(5, -2)), "neighbors includes (5, -2)")
 	assert_true(result.has(Vector2i(5, -4)), "neighbors includes (5, -4)")
+
+
+func test_is_in_bounds_default_origin_inside() -> void:
+	assert_true(_grid.is_in_bounds(Vector2i(0, 0)), "origin is in default bounds")
+	assert_true(_grid.is_in_bounds(Vector2i(512, 512)), "center is in default bounds")
+
+
+func test_is_in_bounds_outside() -> void:
+	assert_false(_grid.is_in_bounds(Vector2i(2000, 2000)), "far cell is out of default bounds")
+	assert_false(_grid.is_in_bounds(Vector2i(-1, 0)), "negative x is out of bounds")
+	assert_false(_grid.is_in_bounds(Vector2i(0, -1)), "negative y is out of bounds")
+
+
+func test_is_in_bounds_custom_rect() -> void:
+	_grid.bounds = Rect2i(10, 10, 5, 5)
+	assert_true(_grid.is_in_bounds(Vector2i(10, 10)), "top-left corner in bounds")
+	assert_true(_grid.is_in_bounds(Vector2i(14, 14)), "bottom-right corner in bounds")
+	assert_false(_grid.is_in_bounds(Vector2i(15, 14)), "just outside right edge")
+	assert_false(_grid.is_in_bounds(Vector2i(9, 10)), "just outside left edge")
