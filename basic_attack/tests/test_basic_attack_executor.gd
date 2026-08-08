@@ -26,6 +26,7 @@ func before_all() -> void:
 
 func before_each() -> void:
 	_grid = GridSystem.new()
+	add_child_autofree(_grid)
 	var src: Dictionary = _build_source()
 	_source = src.actor
 	_source_pos = src.pos

@@ -52,7 +52,9 @@ func test_brain_slot_is_empty_by_default() -> void:
 
 func test_brain_scene_is_instantiated_into_brain_slot() -> void:
 	var brain_scene: PackedScene = PackedScene.new()
-	brain_scene.pack(Node.new())
+	var brain_root: Node = Node.new()
+	brain_scene.pack(brain_root)
+	brain_root.free()
 	var character: Node = _instantiate({"brain_scene": brain_scene})
 	var brain_slot: Node = character.get_node("BrainSlot")
 	assert_eq(brain_slot.get_child_count(), 1, "BrainSlot has 1 child from brain_scene")

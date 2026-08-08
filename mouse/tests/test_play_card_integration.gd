@@ -3,6 +3,7 @@ extends GutTest
 
 func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	var grid: GridSystem = GridSystem.new()
+	add_child_autofree(grid)
 	var pos: GridPositionComponent = GridPositionComponent.new()
 	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
 	var faction: FactionComponent = FactionComponent.new()

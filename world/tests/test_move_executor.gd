@@ -10,6 +10,7 @@ var _executor: MoveExecutor
 
 func before_each() -> void:
 	_grid = GridSystem.new()
+	add_child_autofree(_grid)
 	_actor = Node.new()
 	_pos = GridPositionComponent.new()
 	_actor.add_child(_pos)

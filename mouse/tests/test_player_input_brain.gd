@@ -10,6 +10,7 @@ func _start_turn_manager(actor: Node, grid: GridSystem) -> TurnManager:
 
 func _make_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	var grid: GridSystem = GridSystem.new()
+	add_child_autofree(grid)
 	var pos: GridPositionComponent = GridPositionComponent.new()
 	var budget: ActionBudgetComponent = ActionBudgetComponent.new()
 	var actor: Node = Node.new()
@@ -146,7 +147,9 @@ func test_bind_connects_to_input_service_move_intent() -> void:
 	assert_not_null(input, "InputService autoload must be registered")
 	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
-	brain.bind(Node.new())
+	var dummy: Node = Node.new()
+	add_child_autofree(dummy)
+	brain.bind(dummy)
 	assert_true(input.move_intent.is_connected(brain._on_move_intent), "brain is connected to move_intent")
 
 
