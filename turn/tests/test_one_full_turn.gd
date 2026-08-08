@@ -1,9 +1,6 @@
 extends GutTest
 
 
-const TurnManagerScript := preload("res://global/turn_manager.gd")
-
-
 func _make_attribute_component() -> AttributeComponent:
 	var attr: AttributeComponent = AttributeComponent.new()
 	var attrs: AttributeSet = AttributeSet.new()
@@ -111,7 +108,7 @@ func test_full_cycle_player_moves_predator_publishes_and_resolves() -> void:
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var predator_plan: ActionPlan = _make_move_plan(Vector2i(1, 0))
 	var predator: Dictionary = _make_predator(grid, Vector2i(0, 0), predator_plan)
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	tm.start(player.actor, grid, ([player.actor, predator.actor] as Array[Node]))
 	var player_start: Vector2i = player.pos.cell
@@ -143,7 +140,7 @@ func test_full_cycle_with_no_predator_just_completes() -> void:
 	var grid: GridSystem = GridSystem.new()
 	add_child_autofree(grid)
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	tm.start(player.actor, grid, ([player.actor] as Array[Node]))
 	var executor: RefCounted = _make_move_executor(Vector2i(1, 0))
@@ -160,7 +157,7 @@ func test_intent_published_then_cleared_in_same_cycle() -> void:
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var predator_plan: ActionPlan = _make_move_plan(Vector2i(1, 0))
 	var predator: Dictionary = _make_predator(grid, Vector2i(0, 0), predator_plan)
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	tm.start(player.actor, grid, ([player.actor, predator.actor] as Array[Node]))
 	var published_emitted: Array = []
@@ -181,7 +178,7 @@ func test_intent_execution_matches_announced_plan() -> void:
 	var player: Dictionary = _make_player(grid, Vector2i(2, 2))
 	var predator_plan: ActionPlan = _make_move_plan(Vector2i(1, 0))
 	var predator: Dictionary = _make_predator(grid, Vector2i(0, 0), predator_plan)
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	tm.start(player.actor, grid, ([player.actor, predator.actor] as Array[Node]))
 	var sink: Dictionary = {"target": Vector2i.ZERO}

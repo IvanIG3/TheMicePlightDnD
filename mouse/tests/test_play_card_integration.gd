@@ -34,11 +34,10 @@ func _make_mouse_actor(start_cell: Vector2i = Vector2i(2, 2)) -> Dictionary:
 	stats.recompute_max_energy()
 	stats.current_energy = stats.max_energy
 	add_child_autofree(actor)
-	var turn_manager: Node = Engine.get_main_loop().root.get_node_or_null("/root/TurnManager")
-	if turn_manager != null:
-		turn_manager.stop()
-		turn_manager.start(actor, grid, ([actor] as Array[Node]))
-	return {"grid": grid, "pos": pos, "budget": budget, "actor": actor, "deck": deck, "stats": stats}
+	var turn_manager: TurnManager = TurnManager.new()
+	add_child_autofree(turn_manager)
+	turn_manager.start(actor, grid, ([actor] as Array[Node]))
+	return {"grid": grid, "pos": pos, "budget": budget, "actor": actor, "deck": deck, "stats": stats, "turn_manager": turn_manager}
 
 
 func _make_enemy(cell: Vector2i) -> Node:
@@ -71,6 +70,7 @@ func test_play_heal_card_spends_energy_and_heals() -> void:
 	rng.set_seed(0)
 	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
+	brain.set_turn_manager(s.turn_manager)
 	brain.bind(s.actor)
 	brain._on_card_play_intent(0)
 	assert_signal_emit_count(bus, "heal_applied", 1, "heal_applied emitted")
@@ -97,6 +97,7 @@ func test_play_attack_card_auto_picks_adjacent_enemy() -> void:
 	rng.set_seed(41)
 	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
+	brain.set_turn_manager(s.turn_manager)
 	brain.bind(s.actor)
 	brain._on_card_play_intent(0)
 	assert_signal_emit_count(bus, "damage_applied", 1, "damage_applied emitted")
@@ -118,6 +119,7 @@ func test_play_exhaust_card_routes_to_exhausted_list() -> void:
 	rng.set_seed(0)
 	var brain: PlayerInputBrain = PlayerInputBrain.new()
 	add_child_autofree(brain)
+	brain.set_turn_manager(s.turn_manager)
 	brain.bind(s.actor)
 	brain._on_card_play_intent(0)
 	assert_eq(s.deck.hand.size(), 0, "card removed from hand")

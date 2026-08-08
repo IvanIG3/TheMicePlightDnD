@@ -11,6 +11,7 @@ const NEIGHBOR_OFFSETS: Array[Vector2i] = [
 ]
 
 var pending_plan: ActionPlan = null
+var turn_manager: TurnManager = null
 var _actor: Node = null
 
 
@@ -31,9 +32,7 @@ func _on_move_intent(direction: Vector2i) -> void:
 	executor.data = _make_move_data(direction)
 	var ctx: ActionContext = _make_ctx()
 	pending_plan = _build_plan(direction, executor.get_affected_tiles(ctx))
-	var turn_manager: Node = _get_turn_manager()
-	if turn_manager != null:
-		turn_manager.submit_player_plan(executor, ctx)
+	turn_manager.submit_player_plan(executor, ctx)
 
 
 func _on_card_play_intent(hand_index: int) -> void:
@@ -60,9 +59,7 @@ func _on_card_play_intent(hand_index: int) -> void:
 	var executor: PlayCardExecutor = PlayCardExecutor.new()
 	executor.data = play_card_data
 	var ctx: ActionContext = _make_ctx()
-	var turn_manager: Node = _get_turn_manager()
-	if turn_manager != null:
-		turn_manager.submit_player_plan(executor, ctx)
+	turn_manager.submit_player_plan(executor, ctx)
 
 
 func submit_player_action(_plan: ActionPlan) -> void:
@@ -158,5 +155,5 @@ func _get_input_service() -> Node:
 	return Engine.get_main_loop().root.get_node_or_null("/root/InputService")
 
 
-func _get_turn_manager() -> Node:
-	return Engine.get_main_loop().root.get_node_or_null("/root/TurnManager")
+func set_turn_manager(tm: TurnManager) -> void:
+	turn_manager = tm

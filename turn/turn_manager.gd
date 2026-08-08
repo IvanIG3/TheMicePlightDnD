@@ -1,3 +1,4 @@
+class_name TurnManager
 extends Node
 
 signal state_changed(old_state: StringName, new_state: StringName)

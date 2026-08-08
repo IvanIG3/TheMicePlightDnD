@@ -168,9 +168,9 @@ Caller: `BiomeGenerator.generate` (for initial spawns) and `BiomeState` (for mid
 
 The `Mouse` is **not** built by `EntityFactory`: the Mouse is the one persistent entity per run, instantiated once by `RunStateMachine.start_run` and reparented across biomes (see [`entities.md`](./entities.md) §`Mouse persistence rule`).
 
-### `TurnManager` (Node, autoload)
+### `TurnManager` (Node, per-combat)
 
-Drives the per-turn cycle. Detailed in `run-flow.md`. It is an autoload because turn state must outlive scene changes (e.g., between biomes the `TurnManager` resets, but the autoload itself stays).
+Drives the per-turn cycle. Detailed in `run-flow.md`. Constructed per combat by the combat scene (e.g., a `Biome` or `Combat` root that also owns `GridSystem` and the actors). State is per-combat; the instance is freed when the combat ends. Injected into the `PlayerInputBrain` via `set_turn_manager` so the brain submits player plans without a global lookup.
 
 ### `RunStateMachine` (Node, autoload)
 
@@ -189,10 +189,12 @@ graph TB
         Registry
         InputService
         RunService
+    end
+    subgraph "Combat Scene (constructed per combat)"
+        TurnManager
         GridSystem
     end
     subgraph "Gameplay Systems"
-        TurnManager
         RunStateMachine
         BiomeGenerator
     end

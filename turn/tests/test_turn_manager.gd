@@ -1,9 +1,6 @@
 extends GutTest
 
 
-const TurnManagerScript := preload("res://global/turn_manager.gd")
-
-
 func _make_stats(actor: Node, attr: AttributeComponent) -> StatsComponent:
 	var stats: StatsComponent = StatsComponent.new()
 	actor.add_child(stats)
@@ -109,7 +106,7 @@ func _make_ctx(actor: Node, grid: GridSystem) -> RefCounted:
 
 
 func test_start_sets_state_to_player() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	tm.start(s.actor, s.grid, [s.actor])
@@ -117,7 +114,7 @@ func test_start_sets_state_to_player() -> void:
 
 
 func test_start_registers_player_grid_and_actors() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	var p: Dictionary = _make_predator(s.grid, Vector2i(0, 0), null)
@@ -129,7 +126,7 @@ func test_start_registers_player_grid_and_actors() -> void:
 
 
 func test_submit_player_plan_moves_player() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	tm.start(s.actor, s.grid, [s.actor])
@@ -142,7 +139,7 @@ func test_submit_player_plan_moves_player() -> void:
 
 
 func test_submit_player_plan_spends_move_budget() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	tm.start(s.actor, s.grid, [s.actor])
@@ -153,7 +150,7 @@ func test_submit_player_plan_spends_move_budget() -> void:
 
 
 func test_submit_player_plan_rejects_blocked_move() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	s.grid.set_blocked(Vector2i(3, 2), true)
@@ -168,7 +165,7 @@ func test_submit_player_plan_rejects_blocked_move() -> void:
 
 
 func test_submit_player_plan_rejects_outside_player_state() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	tm.start(s.actor, s.grid, [s.actor])
@@ -183,7 +180,7 @@ func test_submit_player_plan_rejects_outside_player_state() -> void:
 
 
 func test_advance_from_enemy_planning_calls_predator_brain() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	var plan: ActionPlan = _make_move_plan(Vector2i(3, 2), [Vector2i(3, 2)])
@@ -198,7 +195,7 @@ func test_advance_from_enemy_planning_calls_predator_brain() -> void:
 
 
 func test_advance_from_enemy_resolving_executes_predator_plan() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	var plan: ActionPlan = _make_move_plan(Vector2i(1, 0), [Vector2i(1, 0)])
@@ -215,7 +212,7 @@ func test_advance_from_enemy_resolving_executes_predator_plan() -> void:
 
 
 func test_advance_from_post_turn_gains_player_energy() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	s.stats.current_energy = s.stats.max_energy - 1
@@ -229,7 +226,7 @@ func test_advance_from_post_turn_gains_player_energy() -> void:
 
 
 func test_advance_from_end_turn_increments_turn_count() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	tm.start(s.actor, s.grid, [s.actor])
@@ -243,7 +240,7 @@ func test_advance_from_end_turn_increments_turn_count() -> void:
 
 
 func test_end_turn_resets_action_budgets() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	tm.start(s.actor, s.grid, [s.actor])
@@ -256,7 +253,7 @@ func test_end_turn_resets_action_budgets() -> void:
 
 
 func test_predator_resolved_in_initiative_order() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	var plan_a: ActionPlan = _make_move_plan(Vector2i(1, 0), [Vector2i(1, 0)])
@@ -278,7 +275,7 @@ func test_predator_resolved_in_initiative_order() -> void:
 
 
 func test_post_turn_grants_reload_charge_every_5_turns() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	s.deck.reload_charges = 0
@@ -302,7 +299,7 @@ func test_post_turn_grants_reload_charge_every_5_turns() -> void:
 
 
 func test_state_changed_signal_fires_on_each_transition() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	var transitions: Array[Dictionary] = []
@@ -318,7 +315,7 @@ func test_state_changed_signal_fires_on_each_transition() -> void:
 
 
 func test_predator_without_brain_skipped_in_planning() -> void:
-	var tm: TurnManager = TurnManagerScript.new()
+	var tm: TurnManager = TurnManager.new()
 	add_child_autofree(tm)
 	var s: Dictionary = _make_player()
 	var bare_predator: Node = Node.new()

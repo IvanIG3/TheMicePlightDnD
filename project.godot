@@ -24,7 +24,6 @@ RngService="*res://global/rng_service.gd"
 EventBus="*res://global/event_bus.gd"
 Registry="*res://global/registry.gd"
 InputService="*res://input/input_service.gd"
-TurnManager="*res://global/turn_manager.gd"
 
 [debug]
 
