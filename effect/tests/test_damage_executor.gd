@@ -1,15 +1,6 @@
 extends GutTest
 
 
-const EffectContextScript := preload("res://effect/effect_context.gd")
-const DamageEffectDataScript := preload("res://effect/damage_effect_data.gd")
-const DiceFormulaScript := preload("res://dice/dice_formula.gd")
-const HealthComponentScript := preload("res://health/health_component.gd")
-const AttributeComponentScript := preload("res://attribute/attribute_component.gd")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
-const DamageExecutorPath := "res://effect/damage_executor.gd"
-
-
 var _source: Node
 var _target: Node
 var _ctx: EffectContext
@@ -26,7 +17,7 @@ func before_each() -> void:
 
 
 func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val: int = 10, intelligence_val: int = 10, wisdom_val: int = 10, charisma_val: int = 10) -> AttributeSet:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_STR, strength_val)
 	attribute_set.set_score(AttributeIds.ATTR_DEX, dexterity_val)
 	attribute_set.set_score(AttributeIds.ATTR_CON, constitution_val)
@@ -38,7 +29,7 @@ func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val
 
 func _build_source(str_val: int, int_val: int = 10) -> Node:
 	var actor: Node = Node.new()
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	actor.add_child(attr)
 	attr.base = _make_set(str_val, 10, 10, int_val)
 	add_child_autofree(actor)
@@ -47,10 +38,10 @@ func _build_source(str_val: int, int_val: int = 10) -> Node:
 
 func _build_target(dex_val: int, toughness_val: int) -> Node:
 	var target_node: Node = Node.new()
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	target_node.add_child(attr)
 	attr.base = _make_set(10, dex_val)
-	_health = HealthComponentScript.new()
+	_health = HealthComponent.new()
 	target_node.add_child(_health)
 	_health.toughness = toughness_val
 	_health.max_hp = 100
@@ -60,8 +51,8 @@ func _build_target(dex_val: int, toughness_val: int) -> Node:
 
 
 func _build_data(count: int, die: int, bonus: int, scaling: StringName, damage_type: StringName, resistance_attr: StringName = &"", resistance_value: int = 0) -> Resource:
-	var d: Resource = DamageEffectDataScript.new()
-	var dice: DiceFormula = DiceFormulaScript.new()
+	var d: Resource = DamageEffectData.new()
+	var dice: DiceFormula = DiceFormula.new()
 	dice.count = count
 	dice.die = die
 	dice.bonus = bonus
@@ -75,14 +66,12 @@ func _build_data(count: int, die: int, bonus: int, scaling: StringName, damage_t
 
 func _build_context(seed_value: int) -> void:
 	_rng_node.set_seed(seed_value)
-	_ctx = EffectContextScript.new()
+	_ctx = EffectContext.new()
 	_ctx.source = _source
 	_ctx.target = _target
 	_ctx.rng = _rng_node
 	_ctx.bus = _bus
-	var executor_script: GDScript = load(DamageExecutorPath)
-	assert_not_null(executor_script, "DamageExecutor script must exist at " + DamageExecutorPath)
-	_executor = executor_script.new()
+	_executor = DamageExecutor.new()
 	_executor.data = _data
 
 

@@ -1,15 +1,6 @@
 extends GutTest
 
 
-const EffectContextScript := preload("res://effect/effect_context.gd")
-const HealthComponentScript := preload("res://health/health_component.gd")
-const AttributeComponentScript := preload("res://attribute/attribute_component.gd")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
-const DamageEffectDataScript := preload("res://effect/damage_effect_data.gd")
-const HealEffectDataScript := preload("res://effect/heal_effect_data.gd")
-const CompositeEffectDataScript := preload("res://effect/composite_effect_data.gd")
-
-
 var _registry: Node
 var _bus: Node
 var _rng_node: Node
@@ -27,14 +18,14 @@ func before_all() -> void:
 
 
 func _make_set(strength_val: int = 10) -> AttributeSet:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_STR, strength_val)
 	return attribute_set
 
 
 func _build_source(str_val: int) -> Node:
 	var actor: Node = Node.new()
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	actor.add_child(attr)
 	attr.base = _make_set(str_val)
 	add_child_autofree(actor)
@@ -43,10 +34,10 @@ func _build_source(str_val: int) -> Node:
 
 func _build_target(toughness_val: int) -> Node:
 	var target_node: Node = Node.new()
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	target_node.add_child(attr)
 	attr.base = _make_set(10)
-	_health = HealthComponentScript.new()
+	_health = HealthComponent.new()
 	target_node.add_child(_health)
 	_health.toughness = toughness_val
 	_health.max_hp = 100
@@ -103,7 +94,7 @@ func test_scratch_bite_executes_via_registry_end_to_end() -> void:
 	_source = _build_source(14)
 	_target = _build_target(10)
 	_rng_node.set_seed(57)
-	_ctx = EffectContextScript.new()
+	_ctx = EffectContext.new()
 	_ctx.source = _source
 	_ctx.target = _target
 	_ctx.rng = _rng_node
@@ -124,7 +115,7 @@ func test_scratch_bite_fumble_via_registry_emits_zero_damage() -> void:
 	_source = _build_source(20)
 	_target = _build_target(0)
 	_rng_node.set_seed(24)
-	_ctx = EffectContextScript.new()
+	_ctx = EffectContext.new()
 	_ctx.source = _source
 	_ctx.target = _target
 	_ctx.rng = _rng_node

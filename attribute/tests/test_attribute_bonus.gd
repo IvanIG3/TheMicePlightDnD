@@ -1,11 +1,8 @@
 extends GutTest
 
 
-const AttributeBonusScript := preload("res://attribute/attribute_bonus.gd")
-
-
 func test_field_defaults() -> void:
-	var b: AttributeBonus = AttributeBonusScript.new()
+	var b: AttributeBonus = AttributeBonus.new()
 	assert_eq(b.attribute, &"", "attribute defaults to empty StringName")
 	assert_eq(b.mode, AttributeModes.MODE_ADD, "mode defaults to MODE_ADD")
 	assert_eq(b.value, 0, "value defaults to 0")
@@ -13,7 +10,7 @@ func test_field_defaults() -> void:
 
 
 func test_field_round_trip() -> void:
-	var b: AttributeBonus = AttributeBonusScript.new()
+	var b: AttributeBonus = AttributeBonus.new()
 	b.attribute = AttributeIds.ATTR_STR
 	b.mode = AttributeModes.MODE_ADD
 	b.value = 4
@@ -35,6 +32,6 @@ func test_mode_constants_are_distinct_stringnames() -> void:
 
 
 func test_bonus_value_can_be_negative() -> void:
-	var b: AttributeBonus = AttributeBonusScript.new()
+	var b: AttributeBonus = AttributeBonus.new()
 	b.value = -2
 	assert_eq(b.value, -2, "value can be negative (penalty)")

@@ -1,21 +1,16 @@
 extends GutTest
 
 
-const AttributeComponentScript := preload("res://attribute/attribute_component.gd")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
-const AttributeBonusScript := preload("res://attribute/attribute_bonus.gd")
-
-
 var _component: AttributeComponent
 
 
 func before_each() -> void:
-	_component = AttributeComponentScript.new()
+	_component = AttributeComponent.new()
 	add_child_autofree(_component)
 
 
 func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val: int = 10, intelligence_val: int = 10, wisdom_val: int = 10, charisma_val: int = 10) -> AttributeSet:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_STR, strength_val)
 	attribute_set.set_score(AttributeIds.ATTR_DEX, dexterity_val)
 	attribute_set.set_score(AttributeIds.ATTR_CON, constitution_val)
@@ -26,7 +21,7 @@ func _make_set(strength_val: int = 10, dexterity_val: int = 10, constitution_val
 
 
 func _make_bonus(attr: StringName, value: int, source: StringName) -> AttributeBonus:
-	var b: AttributeBonus = AttributeBonusScript.new()
+	var b: AttributeBonus = AttributeBonus.new()
 	b.attribute = attr
 	b.mode = AttributeModes.MODE_ADD
 	b.value = value

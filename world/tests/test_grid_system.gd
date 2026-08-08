@@ -1,14 +1,11 @@
 extends GutTest
 
 
-const GridSystemScript := preload("res://world/grid_system.gd")
-
-
 var _grid: GridSystem
 
 
 func before_each() -> void:
-	_grid = GridSystemScript.new()
+	_grid = GridSystem.new()
 	add_child_autofree(_grid)
 
 

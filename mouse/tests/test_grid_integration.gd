@@ -2,16 +2,19 @@ extends GutTest
 
 
 const MouseScene := preload("res://mouse/mouse.tscn")
-const GridSystemScript := preload("res://world/grid_system.gd")
 
 
 func _setup_mouse_on_grid() -> Dictionary:
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	var mouse: Node = MouseScene.instantiate()
 	add_child_autofree(grid)
 	add_child_autofree(mouse)
 	mouse.grid_position_component.grid = grid
 	mouse.grid_position_component.set_cell(Vector2i(2, 2))
+	var turn_manager: TurnManager = TurnManager.new()
+	add_child_autofree(turn_manager)
+	turn_manager.start(mouse, grid, ([mouse] as Array[Node]))
+	mouse.brain.set_turn_manager(turn_manager)
 	return {"grid": grid, "mouse": mouse}
 
 

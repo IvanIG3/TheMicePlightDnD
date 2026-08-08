@@ -1,18 +1,14 @@
 extends GutTest
 
 
-const GridSystemScript := preload("res://world/grid_system.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-
-
 var _grid: GridSystem
 var _comp: GridPositionComponent
 
 
 func before_each() -> void:
-	_grid = GridSystemScript.new()
+	_grid = GridSystem.new()
 	add_child_autofree(_grid)
-	_comp = GridPositionComponentScript.new()
+	_comp = GridPositionComponent.new()
 	add_child_autofree(_comp)
 	_comp.grid = _grid
 

@@ -293,7 +293,7 @@ Disposal: tied to the `Biome` scene's free. The base class's `dispose()` is invo
 
 ### `TargetingReticle` (Control, scene: `view/targeting_reticle.tscn`)
 
-A `Control` that follows the mouse cursor over valid target tiles. State: `idle`, `selecting_target`, `confirming`. Driven by `InputService` intents and the mouse's `TargetingComponent`.
+A `Control` that follows the mouse cursor over valid target tiles. State: `idle`, `selecting_target`, `confirming`. Driven by `InputService` intents (the reference is injected by `HUDController` via `set_input_service`) and the mouse's `TargetingComponent`.
 
 | Signal subscribed | Source | Handler |
 | --- | --- | --- |
@@ -393,7 +393,7 @@ A `View` is never a child of a model that contains gameplay state. It may be a c
 | The HUD reads `RngService` to randomize a damage number display. | The HUD reads the deterministic `damage_applied` payload; no RNG. |
 | A view subscribes to `EventBus` to learn about the mouse's HP. | The view subscribes to the mouse's `HealthComponent.hp_changed` directly. (Exception: `FloatingDamageView`, above.) |
 | A view holds a reference to another view. | Views are siblings; if they need to coordinate, the model coordinates. |
-| `HandUI` knows which `CardData` the player has selected. | `HandUI` is told via `InputService.card_play_intent(hand_index)`, then asks the model to play the card. The model coordinates. |
+| `HandUI` knows which `CardData` the player has selected. | `HandUI` is told via `InputService.card_play_intent(hand_index)` (the reference is injected by `HUDController` via `set_input_service`), then asks the model to play the card. The model coordinates. |
 
 ## Composition table
 
@@ -414,7 +414,7 @@ This document is the ninth file in the [architecture folder](./README.md). It de
 - [`principles.md`](./principles.md) for the "disposable views, persistent models" rule.
 - [`data-model.md`](./data-model.md) for the data types views render.
 - [`components.md`](./components.md) for every signal a view subscribes to.
-- [`systems.md`](./systems.md) for `EventBus` and `InputService` (the two non-model sources a view is allowed to read from).
+- [`systems.md`](./systems.md) for `EventBus` (a non-model source a view is allowed to read from) and the planned injection contract for `InputService` (consumers receive the reference via `set_input_service`; no `/root/...` lookup).
 - [`run-flow.md`](./run-flow.md) for the `BiomeState` lifecycle that drives HUD binding.
 - [`entities.md`](./entities.md) for the model scenes the views are children of.
 

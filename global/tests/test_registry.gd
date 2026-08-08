@@ -1,8 +1,7 @@
 extends GutTest
 
 
-const AttributeDataScript := preload("res://attribute/attribute_data.gd")
-const TestDataScript := preload("res://global/tests/fixtures/test_registry_data.gd")
+const TestRegistryDataScript := preload("res://global/tests/fixtures/test_registry_data.gd")
 
 
 func _registry() -> Node:
@@ -10,7 +9,7 @@ func _registry() -> Node:
 
 
 func _make_data_with_type_id(type_id: StringName) -> Resource:
-	var data: Resource = TestDataScript.new()
+	var data: Resource = TestRegistryDataScript.new()
 	data.type_id = type_id
 	return data
 
@@ -33,46 +32,46 @@ func test_typed_dictionaries_exist() -> void:
 
 func test_register_effect_executor() -> void:
 	var registry := _registry()
-	var script: Script = AttributeDataScript
+	var script: Script = AttributeData
 	registry.register_effect_executor(&"test_effect", script)
 	assert_same(registry.effect_executors[&"test_effect"], script, "effect_executor stored under type_id")
 
 
 func test_register_action_executor() -> void:
 	var registry := _registry()
-	var script: Script = AttributeDataScript
+	var script: Script = AttributeData
 	registry.register_action_executor(&"test_action", script)
 	assert_same(registry.action_executors[&"test_action"], script, "action_executor stored under type_id")
 
 
 func test_register_status_class() -> void:
 	var registry := _registry()
-	var script: Script = AttributeDataScript
+	var script: Script = AttributeData
 	registry.register_status_class(&"test_status", script)
 	assert_same(registry.status_classes[&"test_status"], script, "status_class stored under id")
 
 
 func test_create_effect_executor_returns_instance() -> void:
 	var registry := _registry()
-	registry.register_effect_executor(&"test_create_effect", AttributeDataScript)
+	registry.register_effect_executor(&"test_create_effect", AttributeData)
 	var data := _make_data_with_type_id(&"test_create_effect")
 	var executor: RefCounted = registry.create_effect_executor(data)
 	assert_not_null(executor, "create_effect_executor returns an instance")
-	assert_true(executor.get_script() == AttributeDataScript, "executor is instance of registered Script")
+	assert_true(executor.get_script() == AttributeData, "executor is instance of registered Script")
 
 
 func test_create_action_executor_returns_instance() -> void:
 	var registry := _registry()
-	registry.register_action_executor(&"test_create_action", AttributeDataScript)
+	registry.register_action_executor(&"test_create_action", AttributeData)
 	var data := _make_data_with_type_id(&"test_create_action")
 	var executor: RefCounted = registry.create_action_executor(data)
 	assert_not_null(executor, "create_action_executor returns an instance")
-	assert_true(executor.get_script() == AttributeDataScript, "executor is instance of registered Script")
+	assert_true(executor.get_script() == AttributeData, "executor is instance of registered Script")
 
 
 func test_index_data_populates_by_id() -> void:
 	var registry := _registry()
-	var data: Resource = AttributeDataScript.new()
+	var data: Resource = AttributeData.new()
 	data.id = &"test_index_data_id"
 	registry.index_data(data)
 	assert_same(registry.data_index[&"test_index_data_id"], data, "indexed under resource id")
@@ -80,7 +79,7 @@ func test_index_data_populates_by_id() -> void:
 
 func test_index_data_skips_empty_id() -> void:
 	var registry := _registry()
-	var data: Resource = AttributeDataScript.new()
+	var data: Resource = AttributeData.new()
 	data.id = &""
 	registry.index_data(data)
 	assert_false(registry.data_index.has(&""), "empty id is not indexed")
@@ -88,7 +87,7 @@ func test_index_data_skips_empty_id() -> void:
 
 func test_get_data_finds_indexed_resource() -> void:
 	var registry := _registry()
-	var data: Resource = AttributeDataScript.new()
+	var data: Resource = AttributeData.new()
 	data.id = &"test_get_data_id"
 	registry.index_data(data)
 	var result: Resource = registry.get_data(&"test_get_data_id")

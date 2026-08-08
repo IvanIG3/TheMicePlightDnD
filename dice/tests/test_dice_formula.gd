@@ -1,11 +1,8 @@
 extends GutTest
 
 
-const DiceFormulaScript := preload("res://dice/dice_formula.gd")
-
-
 func test_max_roll_arithmetic() -> void:
-	var f: DiceFormula = DiceFormulaScript.new()
+	var f: DiceFormula = DiceFormula.new()
 	f.count = 2
 	f.die = 6
 	f.bonus = 3
@@ -18,7 +15,7 @@ func test_max_roll_arithmetic() -> void:
 
 
 func test_average_roll_arithmetic() -> void:
-	var f: DiceFormula = DiceFormulaScript.new()
+	var f: DiceFormula = DiceFormula.new()
 	f.count = 2
 	f.die = 6
 	f.bonus = 3
@@ -27,7 +24,7 @@ func test_average_roll_arithmetic() -> void:
 
 func test_die_whitelist_validated() -> void:
 	for d in [4, 6, 8, 10, 12, 20]:
-		var f: DiceFormula = DiceFormulaScript.new()
+		var f: DiceFormula = DiceFormula.new()
 		f.count = 1
 		f.die = d
 		f.bonus = 0
@@ -36,7 +33,7 @@ func test_die_whitelist_validated() -> void:
 
 
 func test_zero_count_formula() -> void:
-	var f: DiceFormula = DiceFormulaScript.new()
+	var f: DiceFormula = DiceFormula.new()
 	f.count = 0
 	f.die = 6
 	f.bonus = 5
@@ -52,7 +49,7 @@ func test_roll_delegates_to_rng_service() -> void:
 		var rng_node: Node = Engine.get_main_loop().root.get_node("/root/RngService")
 		if rng_node.has_method("set_seed"):
 			rng_node.set_seed(42)
-	var f: DiceFormula = DiceFormulaScript.new()
+	var f: DiceFormula = DiceFormula.new()
 	f.count = 2
 	f.die = 6
 	f.bonus = 3
@@ -81,7 +78,7 @@ func test_roll_uses_rng_service_setter_for_tests() -> void:
 	rng_node.set_rng(custom_rng)
 	var first: int = rng_node.randi()
 	assert_ne(first, 0, "first RNG draw should not be 0 with seed 99 (custom RNG active)")
-	var f: DiceFormula = DiceFormulaScript.new()
+	var f: DiceFormula = DiceFormula.new()
 	f.count = 1
 	f.die = 6
 	f.bonus = 0

@@ -1,18 +1,11 @@
 extends GutTest
 
 
-const CardDataPath := "res://card/card_data.gd"
-const EffectDataPath := "res://effect/effect_data.gd"
-
-
-var _data_script: GDScript
 var _data: Resource
 
 
 func before_each() -> void:
-	_data_script = load(CardDataPath)
-	assert_not_null(_data_script, "CardData script must exist at " + CardDataPath)
-	_data = _data_script.new()
+	_data = CardData.new()
 
 
 func test_card_data_extends_resource() -> void:
@@ -88,7 +81,7 @@ func test_energy_cost_is_assignable() -> void:
 
 func test_range_is_assignable() -> void:
 	_data.range = 5
-	assert_eq(_data.range, 5, "range is settable")
+	assert_eq(_data.range, 5, "range is settable to 5")
 
 
 func test_exhaust_is_assignable() -> void:
@@ -97,9 +90,7 @@ func test_exhaust_is_assignable() -> void:
 
 
 func test_effects_array_accepts_effect_data() -> void:
-	var effect_script: GDScript = load(EffectDataPath)
-	assert_not_null(effect_script, "EffectData script must exist at " + EffectDataPath)
-	var effect: Resource = effect_script.new()
+	var effect: Resource = EffectData.new()
 	var arr: Array[EffectData] = [effect]
 	_data.effects = arr
 	assert_eq(_data.effects.size(), 1, "effects array holds EffectData entries")

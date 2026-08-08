@@ -15,7 +15,7 @@ The first deliverable is a runnable vertical slice that exercises the full archi
 
 ### Systems
 
-- All core services (autoloads): `RngService`, `EventBus`, `Registry`, `InputService`, `RunService`. `GridSystem` is scene-level and injected per biome (see [`systems.md`](./systems.md) §`GridSystem`).
+- All core services (autoloads): `RngService`, `EventBus`, `Registry`, `RunService`. `InputService` is currently an autoload and will move to scene-level injection once `Main` and `HUDController` exist (see [`systems.md`](./systems.md) §`InputService` — Planned migration). `GridSystem` is scene-level and injected per biome (see [`systems.md`](./systems.md) §`GridSystem`).
 - All components: `Attribute`, `Stats`, `Health`, `Faction`, `GridPosition`, `ActionBudget`, `Targeting`, `Status`, `Deck`, `Memorization`, `Trophy`, `Intent`, `Corpse`.
 - `TurnManager` and the full turn cycle.
 - `RunStateMachine` with all five `RunState`s.

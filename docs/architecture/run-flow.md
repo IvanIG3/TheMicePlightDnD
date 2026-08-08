@@ -2,7 +2,7 @@
 
 The game's macro-flow and micro-flow live in two cooperating state machines: the `RunStateMachine` (Burrow → Rest → Biome → ... → RunEnd) and the `TurnManager` (Player → Enemy Planning → Enemy Resolving → Post-turn).
 
-Both are `Node`s. `RunStateMachine` and `TurnManager` are autoloads; the per-state objects are `RefCounted` so they can be created cheaply and discarded when the state changes.
+Both are `Node`s. `RunStateMachine` is an autoload; `TurnManager` is constructed per combat by the combat scene (the `Biome` or `Combat` root). The per-state objects are `RefCounted` so they can be created cheaply and discarded when the state changes.
 
 ## Run state machine
 
@@ -105,7 +105,7 @@ stateDiagram-v2
 
 ## Turn manager
 
-`TurnManager` is an autoload that runs the per-turn cycle inside any `BiomeState` or `FinalBossState`. The player always acts first, then every predator in initiative order, then post-turn.
+`TurnManager` runs the per-turn cycle inside any `BiomeState` or `FinalBossState`. It is constructed per combat by the combat scene, started with `start(player, grid, actors)`, and freed when the combat ends. The player always acts first, then every predator in initiative order, then post-turn.
 
 ### States
 

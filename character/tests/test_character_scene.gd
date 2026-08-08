@@ -2,7 +2,6 @@ extends GutTest
 
 
 const CharacterScene := preload("res://character/character.tscn")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
 
 
 func _instantiate(extras: Dictionary = {}) -> Node:
@@ -38,7 +37,7 @@ func test_faction_export_is_copied_to_component() -> void:
 
 
 func test_attribute_set_export_is_copied_to_attribute_component() -> void:
-	var attribute_set: AttributeSet = AttributeSetScript.new()
+	var attribute_set: AttributeSet = AttributeSet.new()
 	attribute_set.set_score(AttributeIds.ATTR_STR, 16)
 	var character: Node = _instantiate({"attribute_set": attribute_set})
 	var attr_comp: AttributeComponent = character.get_node("AttributeComponent")

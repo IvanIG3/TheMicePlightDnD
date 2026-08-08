@@ -1,15 +1,8 @@
 extends GutTest
 
 
-const EffectDataScript := preload("res://effect/effect_data.gd")
-const DamageEffectDataScript := preload("res://effect/damage_effect_data.gd")
-const CompositeEffectDataPath := "res://effect/composite_effect_data.gd"
-
-
 func _load_data() -> Resource:
-	var script: GDScript = load(CompositeEffectDataPath)
-	assert_not_null(script, "CompositeEffectData script must exist at " + CompositeEffectDataPath)
-	return script.new()
+	return CompositeEffectData.new()
 
 
 func test_composite_effect_data_inherits_from_effect_data() -> void:
@@ -41,8 +34,8 @@ func test_default_description_is_empty() -> void:
 
 func test_effects_is_assignable() -> void:
 	var data: Resource = _load_data()
-	var inner: EffectData = EffectDataScript.new()
-	inner.type_id = DamageEffectDataScript.new().type_id
+	var inner: EffectData = EffectData.new()
+	inner.type_id = DamageEffectData.new().type_id
 	var arr: Array[EffectData] = [inner]
 	data.effects = arr
 	assert_eq(data.effects.size(), 1, "effects has one element")

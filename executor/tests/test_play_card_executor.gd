@@ -1,25 +1,6 @@
 extends GutTest
 
 
-const PlayCardExecutorScript := preload("res://executor/play_card_executor.gd")
-const PlayCardDataScript := preload("res://executor/play_card_data.gd")
-const CardDataScript := preload("res://card/card_data.gd")
-const DamageEffectDataScript := preload("res://effect/damage_effect_data.gd")
-const DiceFormulaScript := preload("res://dice/dice_formula.gd")
-const DeckComponentScript := preload("res://card/deck_component.gd")
-const MemorizationComponentScript := preload("res://card/memorization_component.gd")
-const StatsComponentScript := preload("res://stats/stats_component.gd")
-const AttributeComponentScript := preload("res://attribute/attribute_component.gd")
-const AttributeSetScript := preload("res://attribute/attribute_set.gd")
-const ActionBudgetComponentScript := preload("res://character/action_budget_component.gd")
-const HealthComponentScript := preload("res://health/health_component.gd")
-const FactionComponentScript := preload("res://character/faction_component.gd")
-const GridPositionComponentScript := preload("res://world/grid_position_component.gd")
-const GridSystemScript := preload("res://world/grid_system.gd")
-const ActionContextScript := preload("res://executor/action_context.gd")
-const TargetingComponentScript := preload("res://character/targeting_component.gd")
-
-
 var _executor: RefCounted
 var _data: Resource
 var _actor: Node
@@ -33,16 +14,16 @@ var _rng_node: Node
 
 
 func before_each() -> void:
-	_executor = PlayCardExecutorScript.new()
-	_data = PlayCardDataScript.new()
+	_executor = PlayCardExecutor.new()
+	_data = PlayCardData.new()
 	_bus = Engine.get_main_loop().root.get_node_or_null("/root/EventBus")
 	_rng_node = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
 
 
 func _build_actor_with_components(card: Resource = null, energy: int = 5) -> Node:
 	var actor: Node = Node.new()
-	var attr: AttributeComponent = AttributeComponentScript.new()
-	var attrs: AttributeSet = AttributeSetScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
+	var attrs: AttributeSet = AttributeSet.new()
 	attrs.set_score(AttributeIds.ATTR_STR, 10)
 	attrs.set_score(AttributeIds.ATTR_DEX, 10)
 	attrs.set_score(AttributeIds.ATTR_CON, 10)
@@ -51,19 +32,19 @@ func _build_actor_with_components(card: Resource = null, energy: int = 5) -> Nod
 	attrs.set_score(AttributeIds.ATTR_CHA, 10)
 	attr.base = attrs
 	actor.add_child(attr)
-	_stats = StatsComponentScript.new()
+	_stats = StatsComponent.new()
 	actor.add_child(_stats)
 	_stats.init(energy, attr)
 	_stats.recompute_max_energy()
 	_stats.current_energy = _stats.max_energy
-	_budget = ActionBudgetComponentScript.new()
+	_budget = ActionBudgetComponent.new()
 	actor.add_child(_budget)
-	var faction: FactionComponent = FactionComponentScript.new()
+	var faction: FactionComponent = FactionComponent.new()
 	actor.add_child(faction)
 	faction.faction = FactionIds.FACTION_MOUSE
-	var mem: MemorizationComponent = MemorizationComponentScript.new()
+	var mem: MemorizationComponent = MemorizationComponent.new()
 	actor.add_child(mem)
-	_deck = DeckComponentScript.new()
+	_deck = DeckComponent.new()
 	actor.add_child(_deck)
 	_deck.bind_memorization(mem)
 	if card != null:
@@ -75,13 +56,13 @@ func _build_actor_with_components(card: Resource = null, energy: int = 5) -> Nod
 
 func _build_target(dead: bool = false) -> Node:
 	var target_node: Node = Node.new()
-	var attr: AttributeComponent = AttributeComponentScript.new()
+	var attr: AttributeComponent = AttributeComponent.new()
 	actor_attrs_helper(target_node, attr)
-	_health_target = HealthComponentScript.new()
+	_health_target = HealthComponent.new()
 	target_node.add_child(_health_target)
 	_health_target.max_hp = 100
 	_health_target.current_hp = 0 if dead else 100
-	var faction: FactionComponent = FactionComponentScript.new()
+	var faction: FactionComponent = FactionComponent.new()
 	target_node.add_child(faction)
 	faction.faction = FactionIds.FACTION_PREDATOR
 	add_child_autofree(target_node)
@@ -89,7 +70,7 @@ func _build_target(dead: bool = false) -> Node:
 
 
 func actor_attrs_helper(target_node: Node, attr: AttributeComponent) -> void:
-	var attrs: AttributeSet = AttributeSetScript.new()
+	var attrs: AttributeSet = AttributeSet.new()
 	attrs.set_score(AttributeIds.ATTR_STR, 10)
 	attrs.set_score(AttributeIds.ATTR_DEX, 10)
 	attrs.set_score(AttributeIds.ATTR_CON, 10)
@@ -101,20 +82,20 @@ func actor_attrs_helper(target_node: Node, attr: AttributeComponent) -> void:
 
 
 func _build_context() -> void:
-	_ctx = ActionContextScript.new()
+	_ctx = ActionContext.new()
 	_ctx.actor = _actor
 	_ctx.rng = _rng_node
 	_ctx.bus = _bus
 
 
 func _make_damage_card(cost: int = 0) -> Resource:
-	var card: CardData = CardDataScript.new()
+	var card: CardData = CardData.new()
 	card.id = &"damage_card"
 	card.energy_cost = cost
 	card.type = CardTypes.ATTACK
 	card.range = 0
-	var damage: DamageEffectData = DamageEffectDataScript.new()
-	var dice: DiceFormula = DiceFormulaScript.new()
+	var damage: DamageEffectData = DamageEffectData.new()
+	var dice: DiceFormula = DiceFormula.new()
 	dice.count = 1
 	dice.die = 6
 	damage.dice = dice
@@ -273,17 +254,17 @@ func test_get_affected_tiles_returns_target_cell() -> void:
 	card.range = 1
 	_actor = _build_actor_with_components(card)
 	_build_context()
-	var grid: GridSystem = GridSystemScript.new()
+	var grid: GridSystem = GridSystem.new()
 	_actor.add_child(grid)
-	var pos: GridPositionComponent = GridPositionComponentScript.new()
+	var pos: GridPositionComponent = GridPositionComponent.new()
 	_actor.add_child(pos)
 	pos.grid = grid
 	pos.set_cell(Vector2i(2, 2))
-	var targeting: TargetingComponent = TargetingComponentScript.new()
+	var targeting: TargetingComponent = TargetingComponent.new()
 	_actor.add_child(targeting)
 	targeting.grid_ref = _actor.get_path_to(grid)
 	var target_node: Node = _build_target()
-	var target_pos: GridPositionComponent = GridPositionComponentScript.new()
+	var target_pos: GridPositionComponent = GridPositionComponent.new()
 	target_node.add_child(target_pos)
 	target_pos.grid = grid
 	target_pos.set_cell(Vector2i(3, 2))

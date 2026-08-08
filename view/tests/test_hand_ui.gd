@@ -165,3 +165,78 @@ func test_unplayable_card_is_disabled() -> void:
 	var card_view: Node = container.get_child(0)
 	assert_true(card_view.button.disabled, "button disabled when cost > energy")
 	assert_true(card_view.disabled_overlay.visible, "disabled overlay visible")
+
+
+func test_energy_changed_re_evaluates_card_playability() -> void:
+	var actor: Node = _make_actor_with_deck_and_stats(1, 2)
+	var stats: StatsComponent = null
+	for child in actor.get_children():
+		if child is StatsComponent:
+			stats = child
+			break
+	stats.current_energy = 1
+	var ui: Node = _hand_ui_scene.instantiate()
+	add_child_autofree(ui)
+	ui.initialize(actor)
+	var container: HBoxContainer = ui.get_node_or_null("HBoxContainer")
+	var card_view: Node = container.get_child(0)
+	assert_true(card_view.button.disabled, "card disabled at energy 1 (cost 2)")
+	stats.gain_energy(1)
+	assert_false(card_view.button.disabled, "card enabled at energy 2 (cost 2) after gain_energy")
+	assert_false(card_view.disabled_overlay.visible, "disabled overlay hidden when playable")
+
+
+func test_energy_changed_does_not_rebuild_hand() -> void:
+	var actor: Node = _make_actor_with_deck_and_stats(2, 3)
+	var stats: StatsComponent = null
+	for child in actor.get_children():
+		if child is StatsComponent:
+			stats = child
+			break
+	stats.current_energy = 0
+	var ui: Node = _hand_ui_scene.instantiate()
+	add_child_autofree(ui)
+	ui.initialize(actor)
+	var container: HBoxContainer = ui.get_node_or_null("HBoxContainer")
+	var initial_children: Array[Node] = container.get_children().duplicate()
+	assert_eq(initial_children.size(), 2, "2 CardView children after init")
+	var first_view: Node = initial_children[0]
+	stats.gain_energy(5)
+	assert_eq(container.get_child_count(), 2, "still 2 CardView children after energy_changed (no rebuild)")
+	assert_eq(container.get_child(0), first_view, "first CardView is the same instance (no rebuild)")
+
+
+func test_energy_changed_does_not_enable_cards_still_unaffordable() -> void:
+	var actor: Node = _make_actor_with_deck_and_stats(1, 5)
+	var stats: StatsComponent = null
+	for child in actor.get_children():
+		if child is StatsComponent:
+			stats = child
+			break
+	stats.current_energy = 3
+	var ui: Node = _hand_ui_scene.instantiate()
+	add_child_autofree(ui)
+	ui.initialize(actor)
+	var container: HBoxContainer = ui.get_node_or_null("HBoxContainer")
+	var card_view: Node = container.get_child(0)
+	assert_true(card_view.button.disabled, "card disabled at energy 3 (cost 5)")
+	stats.gain_energy(1)
+	assert_eq(stats.current_energy, 4, "energy is now 4 (not enough for cost 5)")
+	assert_true(card_view.button.disabled, "card still disabled at energy 4 (cost 5) after gain_energy")
+	assert_true(card_view.disabled_overlay.visible, "disabled overlay still visible")
+
+
+func test_dispose_disconnects_energy_changed() -> void:
+	var actor: Node = _make_actor_with_deck_and_stats(1, 2)
+	var stats: StatsComponent = null
+	for child in actor.get_children():
+		if child is StatsComponent:
+			stats = child
+			break
+	stats.current_energy = 1
+	var ui: Node = _hand_ui_scene.instantiate()
+	add_child_autofree(ui)
+	ui.initialize(actor)
+	assert_true(stats.energy_changed.is_connected(ui._on_energy_changed), "subscribed to energy_changed on init")
+	ui.dispose()
+	assert_false(stats.energy_changed.is_connected(ui._on_energy_changed), "disconnected from energy_changed on dispose")

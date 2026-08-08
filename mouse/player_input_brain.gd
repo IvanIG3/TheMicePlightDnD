@@ -2,12 +2,6 @@ class_name PlayerInputBrain
 extends Node
 
 const InputServiceAutoload: StringName = &"InputService"
-const MoveExecutorScript := preload("res://executor/move_executor.gd")
-const MoveDataScript := preload("res://executor/move_data.gd")
-const PlayCardExecutorScript := preload("res://executor/play_card_executor.gd")
-const PlayCardDataScript := preload("res://executor/play_card_data.gd")
-const ActionContextScript := preload("res://executor/action_context.gd")
-const ActionPlanScript := preload("res://executor/action_plan.gd")
 
 const NEIGHBOR_OFFSETS: Array[Vector2i] = [
 	Vector2i(1, 0),
@@ -17,6 +11,7 @@ const NEIGHBOR_OFFSETS: Array[Vector2i] = [
 ]
 
 var pending_plan: ActionPlan = null
+var turn_manager: TurnManager = null
 var _actor: Node = null
 
 
@@ -33,13 +28,11 @@ func bind(actor: Node) -> void:
 func _on_move_intent(direction: Vector2i) -> void:
 	if _actor == null:
 		return
-	var executor: MoveExecutor = MoveExecutorScript.new()
+	var executor: MoveExecutor = MoveExecutor.new()
 	executor.data = _make_move_data(direction)
 	var ctx: ActionContext = _make_ctx()
 	pending_plan = _build_plan(direction, executor.get_affected_tiles(ctx))
-	if executor.validate(ctx):
-		if executor.execute(ctx):
-			_spend_action_budget()
+	turn_manager.submit_player_plan(executor, ctx)
 
 
 func _on_card_play_intent(hand_index: int) -> void:
@@ -60,15 +53,13 @@ func _on_card_play_intent(hand_index: int) -> void:
 		target = _find_adjacent_enemy()
 		if target == null:
 			return
-	var play_card_data: PlayCardData = PlayCardDataScript.new()
+	var play_card_data: PlayCardData = PlayCardData.new()
 	play_card_data.card = card
 	play_card_data.target = target
-	var executor: PlayCardExecutor = PlayCardExecutorScript.new()
+	var executor: PlayCardExecutor = PlayCardExecutor.new()
 	executor.data = play_card_data
 	var ctx: ActionContext = _make_ctx()
-	if executor.validate(ctx):
-		if executor.execute(ctx):
-			_spend_play_card_budget()
+	turn_manager.submit_player_plan(executor, ctx)
 
 
 func submit_player_action(_plan: ActionPlan) -> void:
@@ -76,13 +67,13 @@ func submit_player_action(_plan: ActionPlan) -> void:
 
 
 func _make_move_data(direction: Vector2i) -> MoveData:
-	var move_data: MoveData = MoveDataScript.new()
+	var move_data: MoveData = MoveData.new()
 	move_data.direction = direction
 	return move_data
 
 
 func _make_ctx() -> ActionContext:
-	var ctx: ActionContext = ActionContextScript.new()
+	var ctx: ActionContext = ActionContext.new()
 	ctx.actor = _actor
 	var pos: GridPositionComponent = _get_position()
 	if pos != null:
@@ -93,7 +84,7 @@ func _make_ctx() -> ActionContext:
 
 
 func _build_plan(direction: Vector2i, affected_tiles: Array[Vector2i]) -> ActionPlan:
-	var plan: ActionPlan = ActionPlanScript.new()
+	var plan: ActionPlan = ActionPlan.new()
 	plan.action = MoveData.type_id
 	var pos: GridPositionComponent = _get_position()
 	if pos != null:
@@ -109,24 +100,6 @@ func _get_position() -> GridPositionComponent:
 		if child is GridPositionComponent:
 			return child
 	return null
-
-
-func _spend_action_budget() -> void:
-	if _actor == null:
-		return
-	for child in _actor.get_children():
-		if child is ActionBudgetComponent:
-			child.spend(MoveData.type_id)
-			return
-
-
-func _spend_play_card_budget() -> void:
-	if _actor == null:
-		return
-	for child in _actor.get_children():
-		if child is ActionBudgetComponent:
-			child.spend(PlayCardData.type_id)
-			return
 
 
 func _get_deck() -> DeckComponent:
@@ -180,3 +153,7 @@ func _get_faction_of(node: Node) -> FactionComponent:
 
 func _get_input_service() -> Node:
 	return Engine.get_main_loop().root.get_node_or_null("/root/InputService")
+
+
+func set_turn_manager(tm: TurnManager) -> void:
+	turn_manager = tm

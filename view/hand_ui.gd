@@ -7,6 +7,7 @@ const HandContainerPath := "HBoxContainer"
 const SignalHandChanged: StringName = &"hand_changed"
 const SignalDeckChanged: StringName = &"deck_changed"
 const SignalCardPlayIntent: StringName = &"card_play_intent"
+const SignalEnergyChanged: StringName = &"energy_changed"
 
 
 var hand_container: HBoxContainer = null
@@ -18,6 +19,9 @@ func _subscribe() -> void:
 	_deck = _get_deck(_model)
 	assert(_deck != null, "HandUI: model must have a DeckComponent")
 	_connect_to(_deck, SignalHandChanged, _on_hand_changed)
+	var stats: StatsComponent = _get_stats(_model)
+	if stats != null:
+		_connect_to(stats, SignalEnergyChanged, _on_energy_changed)
 
 
 func _replay_state_from(_m: Node) -> void:
@@ -56,6 +60,15 @@ func _can_play(card: CardData) -> bool:
 	if stats == null or card == null:
 		return false
 	return stats.current_energy >= card.energy_cost
+
+
+func _on_energy_changed(_current: int, _max: int) -> void:
+	for cv in _card_views:
+		if not is_instance_valid(cv):
+			continue
+		if cv.data == null:
+			continue
+		cv.set_playable(_can_play(cv.data))
 
 
 func _get_deck(model: Node) -> DeckComponent:

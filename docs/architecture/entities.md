@@ -136,7 +136,7 @@ See [`views.md`](./views.md) §`CorpseView` for the visual side of the `Corpse` 
 - Subscribes to `InputService` signals.
 - Maintains a small per-turn state: `pending_plan`, `targeting_in_progress`.
 - Builds the `ActionPlan` from the most recent intents.
-- Pushes the plan to `TurnManager` via its public `submit_player_action(plan)` API.
+- Pushes the plan to `TurnManager` via `submit_player_plan(executor, ctx)`. The brain holds a `TurnManager` reference set by the owning combat scene via `set_turn_manager`.
 
 ### `PredatorAIBrain`
 
