@@ -131,7 +131,6 @@ func test_full_cycle_player_moves_predator_publishes_and_resolves() -> void:
 	tm.start(player.actor, grid, ([player.actor, predator.actor] as Array[Node]))
 	var player_start: Vector2i = player.pos.cell
 	var predator_start: Vector2i = predator.pos.cell
-	var player_energy_before: int = player.stats.current_energy
 	var player_executor: RefCounted = _make_move_executor(Vector2i(0, 1))
 	var player_ctx: RefCounted = _make_ctx(player.actor, grid)
 	var submitted: bool = tm.submit_player_plan(player_executor, player_ctx)

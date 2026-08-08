@@ -1,10 +1,5 @@
 extends Node
 
-const MoveDataScript := preload("res://executor/move_data.gd")
-const PlayCardDataScript := preload("res://executor/play_card_data.gd")
-const ActionContextScript := preload("res://executor/action_context.gd")
-const TurnStatesRef := preload("res://turn/turn_states.gd")
-
 signal state_changed(old_state: StringName, new_state: StringName)
 signal player_plan_submitted(actor: Node)
 signal player_plan_rejected(actor: Node)
@@ -13,7 +8,7 @@ signal enemy_plan_resolved(predator: Node)
 signal post_turn_ticked(actor: Node)
 signal turn_completed(turn_count: int)
 
-var current_state: StringName = TurnStatesRef.PLAYER
+var current_state: StringName = TurnStates.PLAYER
 var turn_count: int = 0
 var player: Node = null
 var grid: Node = null
@@ -30,11 +25,11 @@ func start(p_player: Node, p_grid: Node, p_actors: Array[Node]) -> void:
 		if a != player:
 			predators.append(a)
 	turn_count = 0
-	current_state = TurnStatesRef.PLAYER
+	current_state = TurnStates.PLAYER
 
 
 func stop() -> void:
-	current_state = TurnStatesRef.PLAYER
+	current_state = TurnStates.PLAYER
 	player = null
 	grid = null
 	actors.clear()
@@ -42,7 +37,7 @@ func stop() -> void:
 
 
 func submit_player_plan(executor: RefCounted, ctx: RefCounted) -> bool:
-	if current_state != TurnStatesRef.PLAYER:
+	if current_state != TurnStates.PLAYER:
 		player_plan_rejected.emit(ctx.actor)
 		return false
 	if executor == null or ctx == null:
@@ -58,26 +53,26 @@ func submit_player_plan(executor: RefCounted, ctx: RefCounted) -> bool:
 		return false
 	_spend_budget(ctx.actor, action_type)
 	player_plan_submitted.emit(ctx.actor)
-	_enter_state(TurnStatesRef.ENEMY_PLANNING)
+	_enter_state(TurnStates.ENEMY_PLANNING)
 	return true
 
 
 func advance() -> void:
 	match current_state:
-		TurnStatesRef.PLAYER:
+		TurnStates.PLAYER:
 			return
-		TurnStatesRef.ENEMY_PLANNING:
+		TurnStates.ENEMY_PLANNING:
 			_run_enemy_planning()
-		TurnStatesRef.ENEMY_RESOLVING:
+		TurnStates.ENEMY_RESOLVING:
 			_run_enemy_resolving()
-		TurnStatesRef.POST_TURN:
+		TurnStates.POST_TURN:
 			_run_post_turn()
-		TurnStatesRef.END_TURN:
+		TurnStates.END_TURN:
 			_run_end_turn()
 
 
 func run_remaining_cycle() -> void:
-	while current_state != TurnStatesRef.PLAYER:
+	while current_state != TurnStates.PLAYER:
 		advance()
 
 
@@ -97,9 +92,9 @@ func _run_enemy_planning() -> void:
 			continue
 		if not brain.has_method(&"plan_turn"):
 			continue
-		brain.plan_turn(TurnStatesRef.ENEMY_PLANNING)
+		brain.plan_turn(TurnStates.ENEMY_PLANNING)
 		enemy_plan_published.emit(predator)
-	_enter_state(TurnStatesRef.ENEMY_RESOLVING)
+	_enter_state(TurnStates.ENEMY_RESOLVING)
 
 
 func _run_enemy_resolving() -> void:
@@ -118,7 +113,7 @@ func _run_enemy_resolving() -> void:
 			_spend_budget(predator, executor.data.type_id)
 		intent_node.clear()
 		enemy_plan_resolved.emit(predator)
-	_enter_state(TurnStatesRef.POST_TURN)
+	_enter_state(TurnStates.POST_TURN)
 
 
 func _run_post_turn() -> void:
@@ -135,7 +130,7 @@ func _run_post_turn() -> void:
 					deck.reload_charges += 1
 					deck.reload_charges_changed.emit(deck.reload_charges)
 		post_turn_ticked.emit(player)
-	_enter_state(TurnStatesRef.END_TURN)
+	_enter_state(TurnStates.END_TURN)
 
 
 func _run_end_turn() -> void:
@@ -145,7 +140,7 @@ func _run_end_turn() -> void:
 			budget.reset()
 	turn_count += 1
 	turn_completed.emit(turn_count)
-	_enter_state(TurnStatesRef.PLAYER)
+	_enter_state(TurnStates.PLAYER)
 
 
 func _order_by_initiative(list: Array[Node]) -> Array[Node]:
@@ -178,14 +173,14 @@ func _build_executor_for(plan: ActionPlan, actor: Node) -> RefCounted:
 
 
 func _data_from_plan(plan: ActionPlan, actor: Node) -> Resource:
-	if plan.action == MoveDataScript.type_id:
-		var data: MoveData = MoveDataScript.new()
+	if plan.action == MoveData.type_id:
+		var data: MoveData = MoveData.new()
 		var pos: GridPositionComponent = _get_position(actor)
 		if pos != null and plan.target is Vector2i:
 			data.direction = (plan.target as Vector2i) - pos.cell
 		return data
-	if plan.action == PlayCardDataScript.type_id:
-		var data: PlayCardData = PlayCardDataScript.new()
+	if plan.action == PlayCardData.type_id:
+		var data: PlayCardData = PlayCardData.new()
 		data.card = plan.card
 		data.target = plan.target
 		return data
@@ -193,7 +188,7 @@ func _data_from_plan(plan: ActionPlan, actor: Node) -> Resource:
 
 
 func _build_ctx_for(actor: Node) -> RefCounted:
-	var ctx: ActionContext = ActionContextScript.new()
+	var ctx = ActionContext.new()
 	ctx.actor = actor
 	ctx.grid = grid
 	ctx.rng = Engine.get_main_loop().root.get_node_or_null("/root/RngService")
