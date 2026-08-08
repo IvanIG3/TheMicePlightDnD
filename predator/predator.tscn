@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bsn8sji3lan7v" path="res://character/character.tscn" id="1_char"]
 [ext_resource type="Script" path="res://predator/predator.gd" id="2_predator"]
-[ext_resource type="Script" path="res://predator/static_predator_brain.gd" id="3_brain"]
+[ext_resource type="Script" path="res://predator/predator_ai_brain.gd" id="3_brain"]
 [ext_resource type="Script" path="res://predator/intent_component.gd" id="4_intent"]
 
 [node name="Predator" instance=ExtResource("1_char")]
 script = ExtResource("2_predator")
 faction = &"predator"
 
-[node name="StaticPredatorBrain" type="Node" parent="BrainSlot" index="0"]
+[node name="PredatorAIBrain" type="Node" parent="BrainSlot" index="0"]
 script = ExtResource("3_brain")
 
 [node name="IntentComponent" type="Node" parent="." index="7"]

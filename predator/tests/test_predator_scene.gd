@@ -34,16 +34,16 @@ func test_predator_faction_is_predator() -> void:
 	assert_eq(faction_comp.faction, FactionIds.FACTION_PREDATOR, "faction is predator")
 
 
-func test_predator_has_static_brain_in_brain_slot() -> void:
+func test_predator_has_ai_brain_in_brain_slot() -> void:
 	var predator: Node = _instantiate()
 	var brain_slot: Node = predator.get_node("BrainSlot")
 	assert_eq(brain_slot.get_child_count(), 1, "BrainSlot has 1 child (the brain)")
 	var brain: Node = brain_slot.get_child(0)
-	assert_true(brain is StaticPredatorBrain, "brain is StaticPredatorBrain")
+	assert_true(brain is PredatorAIBrain, "brain is PredatorAIBrain")
 
 
-func test_static_brain_is_bound_to_predator() -> void:
+func test_ai_brain_is_bound_to_predator() -> void:
 	var predator: Node = _instantiate()
-	var brain: StaticPredatorBrain = predator.get_node("BrainSlot/StaticPredatorBrain")
+	var brain: PredatorAIBrain = predator.get_node("BrainSlot/PredatorAIBrain")
 	assert_not_null(brain._intent, "brain._intent is set after _ready()")
 	assert_eq(brain._intent, predator.get_node("IntentComponent"), "brain._intent is the predator's IntentComponent")

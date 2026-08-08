@@ -8,8 +8,8 @@ extends Character
 func _ready() -> void:
 	faction = FactionIds.FACTION_PREDATOR
 	super._ready()
-	var brain: StaticPredatorBrain = _get_brain()
-	if brain != null:
+	var brain: Node = _get_brain()
+	if brain != null and brain.has_method(&"bind"):
 		brain.bind(self)
 
 
@@ -20,10 +20,10 @@ func get_intent() -> IntentComponent:
 	return null
 
 
-func _get_brain() -> StaticPredatorBrain:
+func _get_brain() -> Node:
 	if brain_slot == null:
 		return null
 	for child in brain_slot.get_children():
-		if child is StaticPredatorBrain:
+		if child.has_method(&"plan_turn"):
 			return child
 	return null
